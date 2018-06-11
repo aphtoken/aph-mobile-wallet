@@ -2,23 +2,16 @@
 @import "~normalize.css/normalize";
 
 ::-webkit-scrollbar {
-  width: $border-width;
-}
-
-::-webkit-scrollbar-thumb:vertical {
-  background: $purple;
+  width: 0;
 }
 
 html, body {
-  color: $dark;
+  background: $dark;
+  color: white;
   font-family: Gilroy;
   font-size: $font-size;
   height: 100%;
   line-height: normal;
-
-  @include lowRes() {
-    font-size: $font-size-low-res;
-  }
 }
 
 * {
@@ -30,7 +23,7 @@ a {
   color: $purple;
   text-decoration: none;
 
-  &:hover {
+  &:active {
     color: $purple-hover;
   }
 

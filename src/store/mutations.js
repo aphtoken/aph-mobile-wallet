@@ -3,7 +3,7 @@ import Vue from 'vue';
 import moment from 'moment';
 
 import { requests } from '../constants';
-import { alerts, db } from '../services';
+import { alerts } from '../services';
 
 export {
   clearActiveTransaction,
@@ -120,7 +120,7 @@ function setCurrentNetwork(state, network) {
   }
 
   if (state.currentNetwork) {
-    clearLocalNetworkState(state, network);
+    clearLocalNetworkState(state);
   }
 
   state.currentNetwork = network;
@@ -138,13 +138,6 @@ async function setHoldings(state, holdings) {
       return o.symbol === state.statsToken.symbol;
     });
   }
-
-  if (!state.currentWallet || !state.currentNetwork) {
-    return;
-  }
-
-  const holdingsStorageKey = `holdings.${state.currentWallet.address}.${state.currentNetwork.net}`;
-  db.upsert(holdingsStorageKey, holdings);
 }
 
 function setLastReceivedBlock(state) {
@@ -159,13 +152,6 @@ function setPortfolio(state, portfolio) {
   if (portfolio) {
     state.portfolio = portfolio;
   }
-
-  if (!state.currentWallet || !state.currentNetwork) {
-    return;
-  }
-
-  const portfolioStorageKey = `portfolios.${state.currentWallet.address}.${state.currentNetwork.net}`;
-  db.upsert(portfolioStorageKey, portfolio);
 }
 
 function setRecentTransactions(state, transactions) {
@@ -183,30 +169,13 @@ function setRecentTransactions(state, transactions) {
       alerts.success(`New Transaction Found. TX: ${t.hash}`);
     }
   });
-
-  if (!state.currentWallet || !state.currentNetwork) {
-    return;
-  }
-
-  const transactionsStorageKey = `txs.${state.currentWallet.address}.${state.currentNetwork.net}`;
-
-  db.upsert(transactionsStorageKey, normalizeRecentTransactions(state.recentTransactions));
 }
 
-function clearLocalNetworkState(state, newNetwork) {
+function clearLocalNetworkState(state) {
   state.holdings = [];
   state.statsToken = null;
   state.portfolio = {};
   state.recentTransactions = [];
-
-  const holdingsStorageKey = `holdings.${state.currentWallet.address}.${newNetwork.net}`;
-  db.remove(holdingsStorageKey);
-
-  const portfolioStorageKey = `portfolios.${state.currentWallet.address}.${newNetwork.net}`;
-  db.remove(portfolioStorageKey);
-
-  const transactionsStorageKey = `txs.${state.currentWallet.address}.${newNetwork.net}`;
-  db.remove(transactionsStorageKey);
 }
 
 function setLatestVersion(state, version) {
@@ -293,25 +262,6 @@ function startRequest(state, payload) {
 
 
 // Local functions
-function normalizeRecentTransactions(transactions) {
-  return transactions.map((transaction) => {
-    return _.merge(transaction, {
-      value: transaction.value.toString(),
-      details: {
-        vin: transaction.details.vin.map((i) => {
-          return {
-            value: i.value.toString(),
-          };
-        }),
-        vout: transaction.details.vout.map((o) => {
-          return {
-            value: o.value.toString(),
-          };
-        }),
-      },
-    });
-  });
-}
 
 function updateRequest(state, { identifier, message }, status) {
   Vue.set(state.requests, identifier, { status, message });

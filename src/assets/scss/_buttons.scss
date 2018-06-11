@@ -17,10 +17,6 @@ button, input, optgroup, select, textarea {
   justify-content: center;
   width: $btn-circle-size;
 
-  &:hover {
-    background-color: $purple-hover;
-  }
-
   .aph-icon {
     .icon {
       height: toRem(19px);
@@ -51,10 +47,6 @@ button, input, optgroup, select, textarea {
   white-space: nowrap;
   width: 100%;
 
-  &:hover {
-    background-color: $purple-hover;
-  }
-
   &.disabled, &:disabled {
     background-color: rgba($purple-hover, 0.5);
     color: white;
@@ -68,7 +60,7 @@ button, input, optgroup, select, textarea {
   background-color: transparent;
   color: white;
 
-  &:hover {
+  &:active {
     background-color: $purple;
     color: white;
   }
@@ -92,9 +84,9 @@ button, input, optgroup, select, textarea {
   display: flex;
   flex-direction: column;
   font-family: GilroyMedium;
-  height: toRem(175px);
+  height: toRem(150px);
   outline: none;
-  width: toRem(175px);
+  width: toRem(150px);
 
   .aph-icon {
     align-items: center;
@@ -121,17 +113,6 @@ button, input, optgroup, select, textarea {
     text-align: center;
   }
 
-  &:hover {
-    background-color: $purple;
-    color: white;
-
-    .aph-icon {
-      .fill {
-        fill: white;
-      }
-    }
-  }
-
   &.disabled, &:disabled {
     cursor: not-allowed;
     opacity: 0.7;
@@ -152,10 +133,6 @@ button, input, optgroup, select, textarea {
   padding: toRem(16px) 0;
   text-align: center;
 
-  &:hover {
-    background-color: $purple-hover;
-  }
-
   &.disabled, &:disabled {
     background-color: $background;
     color: $grey;
@@ -168,8 +145,4 @@ button, input, optgroup, select, textarea {
 
   background-color: $background;
   color: $dark;
-
-  &:hover {
-    background-color: $background;
-  }
 }

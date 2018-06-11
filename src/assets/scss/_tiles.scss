@@ -2,3 +2,50 @@
   background: white;
   border-radius: $border-radius;
 }
+
+%tile-grid {
+  .row {
+    display: flex;
+    flex-direction: row;
+
+    .col {
+      flex: 1;
+
+      .label {
+        @extend %small-uppercase-grey-label-dark;
+      }
+
+      .value {
+        margin-top: $space-sm;
+      }
+    }
+
+    & + .row {
+      margin-top: $space;
+    }
+  }
+}
+
+%tile-grid-light {
+  .row {
+    display: flex;
+    flex-direction: row;
+
+    .col {
+      flex: 1;
+
+      .label {
+        @extend %small-uppercase-grey-label;
+      }
+
+      .value {
+        color: $dark;
+        margin-top: $space-sm;
+      }
+    }
+
+    & + .row {
+      margin-top: $space;
+    }
+  }
+}

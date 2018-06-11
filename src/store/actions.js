@@ -1,8 +1,7 @@
 /* eslint-disable no-use-before-define */
 import moment from 'moment';
-import { BigNumber } from 'bignumber.js';
 
-import { alerts, db, neo, network, tokens, wallets, ledger } from '../services';
+import { alerts, neo, network, tokens, wallets, ledger } from '../services';
 import { timeouts } from '../constants';
 import router from '../router';
 
@@ -103,27 +102,11 @@ function createWallet({ commit }, { name, passphrase, passphraseConfirm }) {
   }, timeouts.NEO_API_CALL);
 }
 
-async function fetchCachedData(id, defaultValue) {
-  const result = await db.get(id, defaultValue);
-
-  return result;
-}
-
 async function fetchHoldings({ commit }) {
-  const currentNetwork = network.getSelectedNetwork();
   const currentWallet = wallets.getCurrentWallet();
   let holdings;
 
   commit('startRequest', { identifier: 'fetchHoldings' });
-
-  const holdingsStorageKey = `holdings.${currentWallet.address}.${currentNetwork.net}`;
-
-  try {
-    holdings = await fetchCachedData(holdingsStorageKey);
-    commit('setHoldings', holdings);
-  } catch (holdings) {
-    commit('setHoldings', holdings);
-  }
 
   try {
     holdings = await neo.fetchHoldings(currentWallet.address);
@@ -136,20 +119,9 @@ async function fetchHoldings({ commit }) {
 }
 
 async function fetchPortfolio({ commit }) {
-  const currentNetwork = network.getSelectedNetwork();
   const currentWallet = wallets.getCurrentWallet();
-  let portfolio;
 
   commit('startRequest', { identifier: 'fetchPortfolio' });
-
-  const portfolioStorageKey = `portfolios.${currentWallet.address}.${currentNetwork.net}`;
-
-  try {
-    portfolio = await fetchCachedData(portfolioStorageKey);
-    commit('setPortfolio', portfolio);
-  } catch (portfolio) {
-    commit('setPortfolio', portfolio);
-  }
 
   try {
     const holdings = await neo.fetchHoldings(currentWallet.address);
@@ -166,26 +138,11 @@ async function fetchPortfolio({ commit }) {
 }
 
 async function fetchRecentTransactions({ commit }) {
-  const currentNetwork = network.getSelectedNetwork();
   const currentWallet = wallets.getCurrentWallet();
-  let lastBlockIndex = 0;
+  const lastBlockIndex = 0;
   let recentTransactions;
 
   commit('startRequest', { identifier: 'fetchRecentTransactions' });
-
-  const transactionsStorageKey = `txs.${currentWallet.address}.${currentNetwork.net}`;
-
-  try {
-    recentTransactions = await fetchCachedData(transactionsStorageKey);
-
-    if (!_.isEmpty(recentTransactions)) {
-      lastBlockIndex = recentTransactions[0].block_index;
-    }
-
-    commit('setRecentTransactions', normalizeRecentTransactions(recentTransactions));
-  } catch (recentTransactions) {
-    commit('setRecentTransactions', recentTransactions);
-  }
 
   try {
     recentTransactions = await neo.fetchRecentTransactions(currentWallet.address, false, moment().subtract(30, 'days'), null, lastBlockIndex + 1); // eslint-disable-line
@@ -361,28 +318,4 @@ function fetchLatestVersion({ commit }) {
       console.log(e);
       commit('failRequest', { identifier: 'fetchLatestVersion', message: e });
     });
-}
-
-
-// Local functions
-function normalizeRecentTransactions(transactions) {
-  return transactions.map((transaction) => {
-    const changes = {
-      value: new BigNumber(transaction.value),
-      details: {
-        vin: transaction.details.vin.map((i) => {
-          return {
-            value: new BigNumber(i.value),
-          };
-        }),
-        vout: transaction.details.vout.map((o) => {
-          return {
-            value: new BigNumber(o.value),
-          };
-        }),
-      },
-    };
-
-    return _.merge(transaction, changes);
-  });
 }

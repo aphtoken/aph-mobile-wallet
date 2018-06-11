@@ -24,7 +24,7 @@ export default {
 
   computed: {
     iconName() {
-      return this.isOpen ? 'arrow-up' : 'arrow-down';
+      return this.isOpen ? 'chevron-up' : 'chevron-down';
     },
 
     label() {

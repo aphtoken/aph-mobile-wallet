@@ -1,0 +1,32 @@
+<template>
+  <section id="intro">
+    <aph-icon name="logo-mark"></aph-icon>
+  </section>
+</template>
+
+<script>
+const FORWARD_TIMEOUT = 2000;
+
+export default {
+  mounted() {
+    setTimeout(() => {
+      this.$router.replace('/landing');
+    }, FORWARD_TIMEOUT);
+  },
+};
+</script>
+
+<style lang="scss">
+#intro {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+
+  .aph-icon {
+    svg {
+      height: 30vh;
+    }
+  }
+}
+</style>
+
