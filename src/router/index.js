@@ -1,7 +1,7 @@
 import Vue from 'vue';
 import Router from 'vue-router';
 
-// import { wallets } from '../services';
+import { wallets } from '../services';
 
 Vue.use(Router);
 
@@ -25,18 +25,22 @@ export default new Router({
     },
     {
       path: '/login/import/private-key',
-      component: require('../components/login/ImportPrivateKey').default,
+      component: require('../components/login/PrivateKey').default,
+    },
+    {
+      path: '/login/import/encrypted-key',
+      component: require('../components/login/EncryptedKey').default,
     },
     {
       path: '/authenticated',
       component: require('../components/AuthenticatedWrapper').default,
-      // beforeEnter: (to, from, next) => { // eslint-disable-line
-      //   if (wallets.getCurrentWallet()) {
-      //     return next();
-      //   }
+      beforeEnter: (to, from, next) => { // eslint-disable-line
+        if (wallets.getCurrentWallet()) {
+          return next();
+        }
 
-      //   return next('/landing');
-      // },
+        return next('/landing');
+      },
       redirect: '/authenticated/dashboard',
       children: [
         {
@@ -72,11 +76,17 @@ export default new Router({
           children: [
           ],
         },
+        {
+          path: 'settings',
+          component: require('../components/Settings').default,
+          children: [
+          ],
+        },
       ],
     },
     {
       path: '*',
-      redirect: '/intro',
+      redirect: '/landing',
     },
   ],
 });

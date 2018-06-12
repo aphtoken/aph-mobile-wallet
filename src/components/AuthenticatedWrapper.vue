@@ -17,7 +17,7 @@
           <aph-icon name="history"></aph-icon>
           <p>History</p>
         </router-link>
-        <router-link to="login">
+        <router-link to="/authenticated/settings">
           <aph-icon name="settings"></aph-icon>
           <p>Settings</p>
         </router-link>
@@ -200,16 +200,14 @@ export default {
       &.open {
         > span {
           &:first-child {
-            // top: 1px;
             transform-origin: top left;
-            transform: rotate(37deg);
+            transform: rotate(45deg);
           }
 
           &:last-child {
-            // top: -1px;
-            transform: rotate(-37deg);
+            margin-top: toRem(17px);
             transform-origin: bottom left;
-            // margin-top: 0;
+            transform: rotate(-45deg);
           }
         }
       }

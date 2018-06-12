@@ -44,15 +44,19 @@
 
 <script>
 export default {
+  beforeMount() {
+    this.$store.dispatch('fetchHoldings');
+  },
+
   computed: {
     filteredHoldings() {
       const searchBy = this.searchBy.toLowerCase();
 
       if (!searchBy.length) {
-        return this.holdings;
+        return this.$store.state.holdings;
       }
 
-      return _.filter(this.holdings, ({ name, symbol }) => {
+      return _.filter(this.$store.state.holdings, ({ name, symbol }) => {
         if (!name || !symbol) {
           return false;
         }

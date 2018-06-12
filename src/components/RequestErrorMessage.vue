@@ -36,8 +36,8 @@ export default {
   border-radius: $border-radius;
   display: flex;
   justify-content: center;
-  margin-top: $space-lg;
-  padding: $space-lg;
+  margin-top: $space;
+  padding: $space;
 
   .aph-icon {
     flex: none;

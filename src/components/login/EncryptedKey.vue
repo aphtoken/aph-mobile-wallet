@@ -1,5 +1,5 @@
 <template>
-  <section id="login--import--private-key">
+  <section id="login--import--encrypted-key">
     <div class="header">
       <div class="back-btn" @click="goBack">
         <aph-icon name="arrow-left"></aph-icon>
@@ -9,9 +9,10 @@
       </div>
     </div>
     <div class="body">
-      <login-form-wrapper identifier="openPrivateKey">
-        <aph-input placeholder="Private Key" v-model="wif"></aph-input>
-        <button class="login" @click="login" :disabled="shouldDisableLoginButton">Import Wallet</button>
+      <login-form-wrapper identifier="openEncryptedKey">
+      <aph-input :hasError="$isFailed('openEncryptedKey')" v-model="passphrase" placeholder="Passphrase" type="password"></aph-input>
+      <aph-input :hasError="$isFailed('openEncryptedKey')" v-model="encryptedKey" placeholder="Encrypted key" type="password"></aph-input>
+        <button class="login" @click="login" :disabled="shouldDisableLoginButton">Import wallet</button>
       </login-form-wrapper>
     </div>
   </section>
@@ -27,13 +28,14 @@ export default {
 
   computed: {
     shouldDisableLoginButton() {
-      return this.wif.length === 0;
+      return this.passphrase.length === 0 || this.encryptedKey.length === 0;
     },
   },
 
   data() {
     return {
-      wif: '',
+      encryptedKey: '',
+      passphrase: '',
     };
   },
 
@@ -43,8 +45,9 @@ export default {
     },
 
     login() {
-      this.$store.dispatch('openPrivateKey', {
-        wif: this.wif,
+      this.$store.dispatch('openEncryptedKey', {
+        encryptedKey: this.encryptedKey,
+        passphrase: this.passphrase,
         done: () => {
           this.$router.push('/authenticated/dashboard');
         },
@@ -56,7 +59,7 @@ export default {
 
 
 <style lang="scss">
-#login--import--private-key {
+#login--import--encrypted-key {
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -97,6 +100,12 @@ export default {
   .body {
     flex: 2;
     padding: 0 $space-lg;
+
+    .aph-input {
+      & + .aph-input {
+        margin-top: $space-lg;
+      }
+    }
 
     .login {
       @extend %btn-outline;

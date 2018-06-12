@@ -2,7 +2,7 @@
   <table class="transactions-table" :class="{'is-clickable': isClickable}">
     <tr v-for="(transaction, index) in transactions" :key="index" @click="handleOnClick(transaction)" :class="[{active: transaction.active}]">
       <td width="65%">
-        <div class="hash truncate">{{ transaction.address }}</div>
+        <div class="hash truncate">{{ transaction.txid }}</div>
         <div class="date">{{ $formatDate(transaction.block_time) }}</div>
       </td>
       <td width="35%" class="right">

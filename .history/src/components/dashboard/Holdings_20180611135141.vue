@@ -31,9 +31,8 @@ export default {
   },
 
   methods: {
-    viewTokenStats(holding) {
-      this.$store.commit('setStatsToken', holding);
-      this.$router.push(`/authenticated/dashboard/token-stats/${holding.symbol}`);
+    viewTokenStats({ symbol }) {
+      this.$router.push(`/authenticated/dashboard/token-stats/${symbol}`);
     },
   },
 };

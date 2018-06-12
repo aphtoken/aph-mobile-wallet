@@ -9,8 +9,8 @@
       </div>
     </div>
     <div class="body">
-      <router-link class="private-key-btn" to="/login/import/private-key">Private Key</router-link>
-      <a class="keystore-file-btn">Keystore File</a>
+      <router-link class="private-key-btn" to="/login/import/private-key">Private key</router-link>
+      <router-link class="encrypted-key-btn" to="/login/import/encrypted-key">Encrypted key</router-link>
     </div>
   </section>
 </template>
@@ -69,11 +69,11 @@ export default {
     flex: 2;
     padding: 0 $space-lg;
 
-    .keystore-file-btn, .private-key-btn {
+    .encrypted-key-btn, .private-key-btn {
       @extend %btn-outline;
     }
 
-    .keystore-file-btn {
+    .encrypted-key-btn {
       margin-top: $space-lg;
     }
   }

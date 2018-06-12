@@ -76,6 +76,16 @@ export default {
     },
   },
 
+  methods: {
+    loadTransactions() {
+      this.$store.dispatch('findTransactions');
+    },
+
+    toggleTransaction({ details }) {
+      this.activeTxid = this.activeTxid === details.txid ? null : details.txid;
+    },
+  },
+
   data() {
     return {
       activeTab: 'all',
@@ -91,17 +101,9 @@ export default {
       this.showTransactionDetail = false;
     },
 
-    loadTransactions() {
-      this.$store.dispatch('findTransactions');
-    },
-
     showTransaction(transaction) {
       this.transactionDetail = transaction;
       this.showTransactionDetail = true;
-    },
-
-    toggleTransaction({ details }) {
-      this.activeTxid = this.activeTxid === details.txid ? null : details.txid;
     },
   },
 

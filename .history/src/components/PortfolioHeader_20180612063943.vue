@@ -14,7 +14,7 @@ export default {
   beforeMount() {
     this.$store.dispatch('fetchPortfolio');
   },
-};
+}
 </script>
 
 

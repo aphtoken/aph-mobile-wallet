@@ -1,5 +1,5 @@
 <template>
-  <section id="login--create-wallet">
+  <section id="login--import--private-key">
     <div class="header">
       <div class="back-btn" @click="goBack">
         <aph-icon name="arrow-left"></aph-icon>
@@ -9,22 +9,54 @@
       </div>
     </div>
     <div class="body">
+      <login-form-wrapper identifier="openPrivateKey">
+        <aph-input :hasError="$isFailed('openPrivateKey')" v-model="wif" placeholder="Private key" type="password"></aph-input>
+        <button class="login" @click="login" :disabled="shouldDisableLoginButton">Import wallet</button>
+      </login-form-wrapper>
     </div>
   </section>
 </template>
 
 <script>
+import LoginFormWrapper from './LoginFormWrapper';
+
 export default {
+  components: {
+    LoginFormWrapper,
+  },
+
+  computed: {
+    shouldDisableLoginButton() {
+      return this.wif.length === 0;
+    },
+  },
+
+  data() {
+    return {
+      wif: '',
+    };
+  },
+
   methods: {
     goBack() {
       this.$router.back();
+    },
+
+    login() {
+      this.$store.dispatch('openPrivateKey', {
+        wif: this.wif,
+        done: () => {
+          this.$router.push('/authenticated/dashboard');
+        },
+      });
     },
   },
 };
 </script>
 
+
 <style lang="scss">
-#login--create-wallet {
+#login--import--private-key {
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -65,6 +97,12 @@ export default {
   .body {
     flex: 2;
     padding: 0 $space-lg;
+
+    .login {
+      @extend %btn-outline;
+
+      margin-top: $space-lg;
+    }
   }
 }
 </style>

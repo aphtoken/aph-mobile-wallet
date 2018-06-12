@@ -199,40 +199,40 @@ export default {
     padding: toRem(75px) 0 $space-lg;
 
     > .tile-wrapper {
-      display: flex;
       flex: 1;
       position: relative;
+      display: flex;
 
       > .tiles {
         @include transition(all);
 
-        display: flex;
-        flex-direction: row;
         flex: 1;
         font-size: 0;
-        height: 100%;
         left: 0;
         padding: $space-lg 0;
         position: absolute;
+        display: flex;
+        flex-direction: row;
+        height: 100%;
 
         > .tile {
           @include transition(all);
 
-          color: $dark;
-          display: flex;
-          flex-direction: column;
-          font-size: $font-size;
           padding: 0 $space-lg;
           position: relative;
           width: 100vw;
+          display: flex;
+          flex-direction: column;
+          font-size: $font-size;
+          color: $dark;
 
           > .inner {
             @include transition(all);
 
             background: white;
             border-radius: $border-radius;
-            display: flex;
             flex: 1;
+            display: flex;
             overflow: hidden;
 
             > .body {
@@ -242,11 +242,11 @@ export default {
 
           &.preview {
             > .inner {
-              align-items: center;
-              color: $dark;
-              flex-direction: column;
               justify-content: center;
+              align-items: center;
+              flex-direction: column;
               padding: $space;
+              color: $dark;
 
               .aph-token-icon {
                 flex: none;
@@ -257,9 +257,9 @@ export default {
               }
 
               .token {
-                font-family: GilroyMedium;
-                font-size: toRem(22px);
                 margin: $space-lg 0 $space-sm;
+                font-size: toRem(22px);
+                font-family: GilroyMedium;
               }
 
               .symbol {
@@ -271,14 +271,14 @@ export default {
                 position: relative;
 
                 &:after {
-                  background: $purple;
-                  bottom: 0;
                   content: "";
                   height: $border-width;
-                  left: 50%;
-                  position: absolute;
-                  transform: translateX(toRem(-20px));
+                  background: $purple;
                   width: toRem(40px);
+                  position: absolute;
+                  left: 50%;
+                  bottom: 0;
+                  transform: translateX(toRem(-20px));
                 }
               }
 
@@ -288,9 +288,9 @@ export default {
               }
 
               .value {
-                font-family: GilroyMedium;
-                font-size: toRem(18px);
                 margin-top: $space;
+                font-size: toRem(18px);
+                font-family: GilroyMedium;
               }
             }
           }
@@ -300,14 +300,14 @@ export default {
               flex-direction: column;
 
               .header {
-                align-items: center;
                 background-color: $dark;
-                border-top-left-radius: $border-radius;
-                border-top-right-radius: $border-radius;
-                display: flex;
-                flex-direction: row;
                 flex: none;
                 padding: $space;
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+                border-top-left-radius: $border-radius;
+                border-top-right-radius: $border-radius;
 
                 .label {
                   @extend %small-uppercase-grey-label;
@@ -316,8 +316,8 @@ export default {
                 }
 
                 .value {
-                  color: white;
                   flex: 1;
+                  color: white;
                 }
               }
 
@@ -336,22 +336,22 @@ export default {
               overflow: hidden;
 
               .header {
-                align-items: center;
-                color: $dark;
+                flex: none;
                 display: flex;
                 flex-direction: row;
-                flex: none;
+                align-items: center;
+                color: $dark;
 
                 .tab {
                   @include transition(all);
 
-                  align-items: center;
-                  border-bottom: $border-width solid transparent;
-                  display: flex;
                   flex: 1;
-                  font-family: GilroyMedium;
+                  display: flex;
+                  align-items: center;
                   justify-content: center;
                   padding: $space;
+                  border-bottom: $border-width solid transparent;
+                  font-family: GilroyMedium;
 
                   &.active {
                     border-color: $purple;

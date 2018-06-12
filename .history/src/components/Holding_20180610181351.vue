@@ -4,7 +4,7 @@
       <aph-token-icon :symbol="holding.symbol"></aph-token-icon>
       <div class="token">
         <div class="currency">{{ holding.symbol }}</div>
-        <div class="value">{{ $formatMoney(holding.balance * unitValue)}}</div>
+        <div class="value">{{ $formatMoney(holding.value)}}</div>
       </div>
     </div>
     <div class="center">

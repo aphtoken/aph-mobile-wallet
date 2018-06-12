@@ -1,22 +1,13 @@
 <template>
   <section id="portfolio-header">
       <div class="title-underlined">Total Balance</div>
-      <div class="total-balance">{{ $formatMoney($store.state.portfolio.balance) }}</div>
+      <div class="total-balance">{{ $formatMoney(53257.48) }}</div>
       <div class="change">
         <div class="label">24h Change</div>
-        <div :class="['amount', {increase: 1234.34 > 0, decrease: 1234.34 < 0}]">{{ $formatMoney($store.state.portfolio.changeValue) }} (<span class="percentage">{{ $formatNumber($store.state.portfolio.changePercent) }}</span>)</div>
+        <div :class="['amount', {increase: 1234.34 > 0, decrease: 1234.34 < 0}]">{{ $formatMoney(1234.34) }} (<span class="percentage">{{ $formatNumber(23) }}</span>)</div>
       </div>
   </section>
 </template>
-
-<script>
-export default {
-  beforeMount() {
-    this.$store.dispatch('fetchPortfolio');
-  },
-};
-</script>
-
 
 <style lang="scss">
 #portfolio-header {
