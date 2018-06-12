@@ -1,6 +1,6 @@
 import storage from './storage';
 
-const TOKENS_STORAGE_KEY = 'tokens';
+const TOKENS_STORAGE_KEY = 'aph.tokens';
 
 export default {
 

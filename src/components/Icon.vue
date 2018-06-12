@@ -102,6 +102,11 @@
       <path class="fill back--path" d="M8.7,3.44a.7.7,0,0,1,1,0,.72.72,0,0,1,0,1L4.83,9.32h16a.67.67,0,0,1,.68.66h0a.69.69,0,0,1-.67.69H4.79l4.87,4.87a.69.69,0,0,1,0,1l0,0a.68.68,0,0,1-.95.05l-.05-.05-6-6a.69.69,0,0,1,0-1l0,0Z" transform="translate(-2.44 -3.23)"/>
     </svg>
 
+    <!-- arrow-right -->
+    <svg class="icon arrow-right" v-if="name === 'arrow-right'"  xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 19.11 13.54">
+      <path class="fill back--path" d="M8.7,3.44a.7.7,0,0,1,1,0,.72.72,0,0,1,0,1L4.83,9.32h16a.67.67,0,0,1,.68.66h0a.69.69,0,0,1-.67.69H4.79l4.87,4.87a.69.69,0,0,1,0,1l0,0a.68.68,0,0,1-.95.05l-.05-.05-6-6a.69.69,0,0,1,0-1l0,0Z" transform="translate(-2.44 -3.23)"/>
+    </svg>
+
     <!-- arrow-down -->
     <svg class="icon arrow-down" v-if="name === 'arrow-down'"  xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 13.54 19.11">
       <path class="fill back--path" d="M8.7,3.44a.7.7,0,0,1,1,0,.72.72,0,0,1,0,1L4.83,9.32h16a.67.67,0,0,1,.68.66h0a.69.69,0,0,1-.67.69H4.79l4.87,4.87a.69.69,0,0,1,0,1l0,0a.68.68,0,0,1-.95.05l-.05-.05-6-6a.69.69,0,0,1,0-1l0,0Z" transform="translate(-2.44 -3.23)"/>
@@ -446,6 +451,28 @@
         transform="translate(-0.75 -0.63)" />
     </svg>
 
+    <!-- contacts -->
+    <svg class="icon contacts" v-if="name === 'contacts'" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 11.29 12.92">
+      <path class="fill cls-1" d="M5.64,6.83a.37.37,0,0,1-.19-.05L4.18,6A.37.37,0,0,1,4,5.72V4.24a.37.37,0,0,1,.19-.32l1.28-.74a.37.37,0,0,1,.38,0l1.28.74a.37.37,0,0,1,.19.32V5.72A.37.37,0,0,1,7.11,6l-1.28.74A.37.37,0,0,1,5.64,6.83ZM4.74,5.5l.9.52.9-.52v-1l-.9-.52-.9.52Z"
+        transform="translate(0 0)" />
+      <path class="fill cls-1" d="M3,8.75A.38.38,0,0,1,2.82,8L5.46,6.53a.37.37,0,0,1,.38,0L8.47,8a.38.38,0,0,1,.14.51.38.38,0,0,1-.51.14L5.64,7.28,3.19,8.7A.38.38,0,0,1,3,8.75Z"
+        transform="translate(0 0)" />
+      <path class="fill cls-1" d="M5.64,12.92a.38.38,0,0,1-.19,0l-5.27-3A.38.38,0,0,1,0,9.5V3.42a.37.37,0,0,1,.19-.32L5.46,0a.37.37,0,0,1,.38,0l5.27,3a.37.37,0,0,1,.19.32V9.5a.38.38,0,0,1-.19.33l-5.27,3A.38.38,0,0,1,5.64,12.92ZM.75,9.28l4.89,2.83,4.89-2.83V3.63L5.64.81.75,3.63Z"
+        transform="translate(0 0)" />
+    </svg>
+
+    <!-- feedback -->
+    <svg class="icon feedback" v-if="name === 'feedback'" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24.5 17.5">
+      <path class="fill cls-1" d="M23.75,17.5H.75A.75.75,0,0,1,0,16.75V.75A.75.75,0,0,1,.75,0h23a.75.75,0,0,1,.75.75v16A.75.75,0,0,1,23.75,17.5ZM1.5,16H23V1.5H1.5Z"
+        transform="translate(0)" />
+      <path class="fill cls-1" d="M12.25,11a.75.75,0,0,1-.41-.12L.34,3.38a.75.75,0,0,1,.82-1.26L12.25,9.35,23.34,2.12a.75.75,0,0,1,.82,1.26l-11.5,7.5A.75.75,0,0,1,12.25,11Z"
+        transform="translate(0)" />
+      <path class="fill cls-1" d="M4.75,12.5a.75.75,0,0,1-.47-1.34l4.4-3.52a.75.75,0,0,1,.94,1.17l-4.4,3.52A.75.75,0,0,1,4.75,12.5Z"
+        transform="translate(0)" />
+      <path class="fill cls-1" d="M19.75,12.5a.75.75,0,0,1-.47-.16l-4.4-3.52a.75.75,0,1,1,.94-1.17l4.4,3.52a.75.75,0,0,1-.47,1.34Z"
+        transform="translate(0)" />
+    </svg>
+
   </div>
 </template>
 
@@ -485,6 +512,12 @@ export default {
   .arrow-down {
     path {
       transform: rotate(-90deg) translate(-21px, -3px);
+    }
+  }
+
+  .arrow-right {
+    path {
+      transform: rotate(180deg) translate(-21px, -17px);
     }
   }
 

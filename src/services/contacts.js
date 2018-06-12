@@ -1,7 +1,7 @@
 import { store } from '../store';
 import storage from './storage';
 
-const CONTACTS_STORAGE_KEY = 'contacts';
+const CONTACTS_STORAGE_KEY = 'aph.settings.contacts';
 
 export default {
 

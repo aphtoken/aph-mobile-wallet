@@ -37,11 +37,17 @@
 </template>
 
 <script>
+const ROUTES_USING_BACK_BUTTON = [
+  'dashboard.token-stats',
+  'settings.contacts',
+  'settings.currencies',
+  'settings.networks',
+];
 
 export default {
   computed: {
     showBackButton() {
-      return _.includes(this.$route.name, ['dashboard.token-stats']);
+      return _.includes(ROUTES_USING_BACK_BUTTON, this.$route.name);
     },
   },
 

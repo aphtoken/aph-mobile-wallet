@@ -20,7 +20,7 @@ import router from './router';
 import { store } from './store';
 
 // Global Vue Components.
-// import CopyText from './components/CopyText';
+import CopyText from './components/CopyText';
 import DatePicker from './components/DatePicker';
 import Holding from './components/Holding';
 import Icon from './components/Icon';
@@ -55,7 +55,7 @@ _.each(mixins, (mixin) => {
 });
 
 // Register global components.
-// Vue.component('aph-copy-text', CopyText);
+Vue.component('aph-copy-text', CopyText);
 Vue.component('aph-date-picker', DatePicker);
 Vue.component('aph-holding', Holding);
 Vue.component('aph-icon', Icon);

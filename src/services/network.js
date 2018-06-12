@@ -5,7 +5,7 @@ import { store } from '../store';
 import storage from './storage';
 import { intervals } from '../constants';
 
-const NETWORK_STORAGE_KEY = 'network';
+const NETWORK_STORAGE_KEY = 'aph.network';
 const NETWORKS = [
   {
     label: 'MainNet',

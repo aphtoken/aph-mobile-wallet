@@ -4,22 +4,80 @@
       <div class="title">Settings</div>
     </div>
     <div class="body">
-      <div class="inner"></div>
+      <div class="inner">
+        <div class="tile">
+          <div class="row" @click="$router.push('/authenticated/settings/contacts')">
+            <div class="label">Address Book</div>
+            <div class="value">
+              <aph-icon name="contacts"></aph-icon>
+            </div>
+          </div>
+          <div class="row">
+            <div class="label">Send Feedback</div>
+            <div class="value">
+              <aph-icon name="feedback"></aph-icon>
+            </div>
+          </div>
+        </div>
+        <div class="underlined">Preferences</div>
+        <div class="tile">
+          <div class="row" @click="$router.push('/authenticated/settings/currencies')">
+            <div class="label">Currency</div>
+            <div class="value">{{ selectedCurrency }}</div>
+          </div>
+          <div class="row" @click="$router.push('/authenticated/settings/networks')">
+            <div class="label">Network</div>
+            <div class="value">{{ selectedNetwork.net }}</div>
+          </div>
+        </div>
+        <div class="underlined">Wallets</div>
+        <div class="tile">
+          <div class="row">
+            <div class="label">Wallet</div>
+            <div class="value">My Wallet</div>
+          </div>
+          <div class="row" @click="logout">
+            <div class="label">Logout</div>
+            <div class="value">
+              <aph-icon name="arrow-right"></aph-icon>
+            </div>
+          </div>
+        </div>
+        <button class="backup-wallet-btn">Backup wallet</button>
+      </div>
     </div>
   </section>
 </template>
 
 <script>
 export default {
+  beforeMount() {
+    this.currencies = this.$services.settings.getCurrenciesAsArray();
+    this.networks = this.$services.network.getNetworks();
+    this.selectedCurrency = this.$services.settings.getCurrency();
+    this.selectedNetwork = _.find(this.networks, (o) => {
+      return o.value.net === this.$services.network.getSelectedNetwork().net;
+    }).value;
+  },
+
   computed: {
   },
 
   data() {
     return {
+      currencies: [],
+      networks: [],
+      selectedCurrency: null,
+      selectedNetwork: null,
     };
   },
 
   methods: {
+    logout() {
+      this.$services.wallets.clearCurrentWallet();
+      this.$store.commit('handleLogout');
+      this.$router.push('/login');
+    },
   },
 };
 </script>
@@ -55,12 +113,92 @@ export default {
     padding: $space;
 
     > .inner {
-      background: white;
-      border-radius: $border-radius;
       display: flex;
       flex-direction: column;
       flex: 1;
       overflow: hidden;
+
+      .underlined {
+        color: $dark;
+        padding-bottom: $space;
+        margin: $space 0;
+        position: relative;
+        font-family: GilroyMedium;
+        margin-left: $space;
+
+        &:after {
+          content: "";
+          height: $border-width;
+          background: $purple;
+          width: toRem(30px);
+          position: absolute;
+          left: 0;
+          bottom: 0;
+        }
+      }
+
+      .tile {
+        background: white;
+        border-radius: $border-radius;
+        padding: 0 $space;
+
+        .row {
+          align-items: center;
+          display: flex;
+          flex-direction: row;
+          height: $input-height;
+
+          .label {
+            color: $dark;
+            flex: 1;
+            font-family: GilroyMedium;
+            padding-left: $space-sm;
+          }
+
+          .value {
+            @extend %small-uppercase-grey-label;
+
+            flex: none;
+            padding-right: $space-sm;
+
+            .aph-icon {
+              svg {
+                &.contacts {
+                  height: toRem(22px);
+                }
+
+                &.feedback {
+                  height: toRem(14px);
+                }
+
+                &.arrow-right {
+                  height: toRem(16px);
+                }
+              }
+
+              .fill {
+                fill: $grey;
+              }
+            }
+          }
+
+          & + .row {
+            border-top: $border-width-thin $background solid;
+          }
+        }
+
+        & + .underlined {
+          margin-top: $space-lg;
+        }
+      }
+
+      .backup-wallet-btn {
+        @extend %btn;
+
+        box-shadow: $box-shadow;
+        margin: $space-lg $space 0 $space;
+        width: auto;
+      }
     }
   }
 }

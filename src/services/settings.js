@@ -4,7 +4,7 @@ import { defaultSettings } from '../constants';
 import { store } from '../store';
 import storage from './storage';
 
-const SETTINGS_STORAGE_KEY = 'settings';
+const SETTINGS_STORAGE_KEY = 'aph.settings';
 const CURRENCY_STORAGE_KEY = `${SETTINGS_STORAGE_KEY}.currency`;
 const CURRENCY_SYMBOL_STORAGE_KEY = `${SETTINGS_STORAGE_KEY}.currencySymbol`;
 const CURRENCIES = {
@@ -52,7 +52,7 @@ export default {
   },
 
   getCurrenciesAsArray() {
-    return _.values(CURRENCIES);
+    return _.sortBy(_.values(CURRENCIES), 'label');
   },
 
   getCurrency() {

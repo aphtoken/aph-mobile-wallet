@@ -3,7 +3,7 @@ import { wallet } from '@cityofzion/neon-js';
 import { store } from '../store';
 import storage from './storage';
 
-const WALLETS_STORAGE_KEY = 'wallets';
+const WALLETS_STORAGE_KEY = 'aph.wallets';
 let currentWallet = null;
 
 export default {

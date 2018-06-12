@@ -179,7 +179,7 @@ export default {
     flex-direction: column;
     flex: 1;
     overflow: hidden;
-    padding: toRem(25px) $space $space;
+    padding: toRem(26px) $space $space;
 
     > .inner {
       background: white;

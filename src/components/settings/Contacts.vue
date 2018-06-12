@@ -1,7 +1,7 @@
 <template>
-  <section id="assets" :class="{'show-add-token': showAddToken}">
+  <section id="contacts" :class="[{'show-add-contact': showAddContact}]">
     <div class="header">
-      <div class="title">Assets</div>
+      <div class="title">Contacts</div>
       <div class="search">
         <div class="inner">
           <aph-icon name="search"></aph-icon>
@@ -12,27 +12,31 @@
       </div>
     </div>
     <div class="body">
-      <div class="holdings">
-        <aph-holding :holding="holding" v-for="(holding, index) in filteredHoldings" :key="index"></aph-holding>
+      <div class="contacts">
+        <div v-for="(contact, index) in filteredContacts" :key="index" class="contact">
+          <div class="name">{{ contact.name }}</div>
+          <div class="copy">
+            <aph-copy-text :text="contact.address"></aph-copy-text>
+          </div>
+        </div>
       </div>
-      <div class="add-btn" @click="showAddToken = true">
+      <div class="add-btn" @click="showAddContact = true">
         <aph-icon name="plus"></aph-icon>
       </div>
     </div>
-    <div class="add-token">
-      <div class="control" @click="showAddToken = false">
+    <div class="add-contact">
+      <div class="control" @click="showAddContact = false">
         <aph-icon name="chevron-down"></aph-icon>
-        <div class="title">Add Token</div>
+        <div class="title">Add Contact</div>
       </div>
       <div class="body">
         <div class="inner">
           <div class="body">
-            <aph-icon name="create"></aph-icon>
-            <div class="title">Enter token details to add custom token.</div>
+            <aph-icon name="user"></aph-icon>
+            <div class="title">Enter contact details.</div>
             <div class="form">
+              <aph-input :light="true" placeholder="Name" v-model="name"></aph-input>
               <aph-input :light="true" placeholder="Address" v-model="address"></aph-input>
-              <aph-input :light="true" placeholder="Token Symbol" v-model="symbol"></aph-input>
-              <aph-input :light="true" placeholder="Decimals" v-model="decimals"></aph-input>
             </div>
           </div>
         </div>
@@ -44,59 +48,58 @@
 
 <script>
 export default {
-  beforeMount() {
-    this.$store.dispatch('fetchHoldings');
-  },
-
   computed: {
-    filteredHoldings() {
-      const searchBy = this.searchBy.toLowerCase();
-
-      if (!searchBy.length) {
-        return this.$store.state.holdings;
-      }
-
-      return _.filter(this.$store.state.holdings, ({ name, symbol }) => {
-        if (!name || !symbol) {
-          return false;
-        }
-
-        return name.toLowerCase().indexOf(searchBy) > -1
-          || symbol.toLowerCase().indexOf(searchBy) > -1;
-      });
+    shouldDisableAddButton() {
+      return !this.address.length || !this.name.length;
     },
 
-    shouldDisableAddButton() {
-      return !this.address.length || !this.decimals.length || !this.symbol.length;
+    filteredContacts() {
+      const searchBy = this.searchBy.toLowerCase();
+
+      if(!searchBy.length) {
+        return this.$store.state.contacts;
+      }
+
+      return _.filter(this.$store.state.contacts, ({ name }) => {
+        return name.toLowerCase().indexOf(searchBy) > -1;
+      });
     },
   },
 
   data() {
     return {
       address: '',
-      decimals: '',
+      name: '',
       searchBy: '',
-      showAddToken: false,
-      symbol: '',
+      showAddContact: false,
     };
   },
 
   methods: {
     add() {
-      //
+      if (this.$services.contacts.contactExists(this.name.trim())) {
+        return this.$services.alerts.error(`Contact ${this.name.trim()} already exists.`);
+      }
+
+      this.$services.contacts.add(this.address, {
+        name: this.name.trim(),
+        address: this.address.trim(),
+      }).sync();
+
+      this.showAddContact = false;
     },
   },
 
   watch: {
-    showAddToken() {
-      this.address = this.decimals = this.symbol = '';
+    showAddContact() {
+      this.address = this.name = '';
     },
   },
 };
 </script>
 
 <style lang="scss">
-#assets {
+#contacts {
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -161,14 +164,39 @@ export default {
     background: $background;
     border-top-left-radius: $border-radius;
     border-top-right-radius: $border-radius;
+    display: flex;
+    flex-direction: column;
     flex: 1;
-    overflow: auto;
-    padding: $space;
-    padding-top: toRem(26px);
+    overflow: hidden;
+    padding: toRem(26px) $space $space $space;
 
-    .holdings {
-      .holding {
-        margin-top: $space;
+    .contacts {
+      background: white;
+      border-radius: $border-radius;
+      flex: 1;
+      margin-top: $space;
+      overflow: auto;
+      padding: 0 $space;
+
+      .contact {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        padding: $space;
+
+        .name {
+          color: $dark;
+          flex: 1;
+          font-family: GilroyMedium;
+        }
+
+        .copy {
+          flex: none;
+        }
+
+        & + .contact {
+          border-top: $border-width-thin solid $background;
+        }
       }
     }
 
@@ -182,7 +210,7 @@ export default {
     }
   }
 
-  > .add-token {
+  > .add-contact {
     @include transition(top);
 
     display: flex;
@@ -266,8 +294,8 @@ export default {
     }
   }
 
-  &.show-add-token {
-    > .add-token {
+  &.show-add-contact {
+    > .add-contact {
       top: 0vh;
     }
   }

@@ -14,7 +14,7 @@ export default {
   },
 
   set(key, value) {
-    store.rm(key, value);
+    store.set(key, value);
 
     return this;
   },

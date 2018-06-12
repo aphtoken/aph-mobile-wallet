@@ -79,8 +79,21 @@ export default new Router({
         {
           path: 'settings',
           component: require('../components/Settings').default,
-          children: [
-          ],
+        },
+        {
+          path: 'settings/contacts',
+          component: require('../components/settings/Contacts').default,
+          name: 'settings.contacts',
+        },
+        {
+          path: 'settings/currencies',
+          component: require('../components/settings/Currencies').default,
+          name: 'settings.currencies',
+        },
+        {
+          path: 'settings/networks',
+          component: require('../components/settings/Networks').default,
+          name: 'settings.networks',
         },
       ],
     },
