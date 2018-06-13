@@ -9,17 +9,61 @@
       </div>
     </div>
     <div class="body">
-      <router-link class="private-key-btn" to="/login/import/private-key">Private key</router-link>
-      <router-link class="encrypted-key-btn" to="/login/import/encrypted-key">Encrypted key</router-link>
+      <login-form-wrapper identifier="importWallet">
+        <aph-input placeholder="Name" v-model="walletName"></aph-input>
+        <aph-input placeholder="Private key" v-model="wif"></aph-input>
+        <aph-input placeholder="Passphrase" v-model="passphrase" type="password"></aph-input>
+        <button class="import-btn" @click="importWallet" :disabled="shouldDisableLButton">{{ buttonLabel }}</button>
+      </login-form-wrapper>
     </div>
   </section>
 </template>
 
 <script>
+import LoginFormWrapper from './LoginFormWrapper';
+
 export default {
+  components: {
+    LoginFormWrapper,
+  },
+
+  computed: {
+    buttonLabel() {
+      return this.$isPending('importWallet') ? 'Saving...' : 'Import';
+    },
+
+    shouldDisableLButton() {
+      return this.$isPending('importWallet') || this.wif.length === 0
+        || this.walletName.length === 0 || this.passphrase.length === 0;
+    },
+  },
+
+  data() {
+    return {
+      walletName: '',
+      wif: '',
+      passphrase: '',
+    };
+  },
+
   methods: {
     goBack() {
       this.$router.back();
+    },
+
+    importWallet() {
+      if (this.$isPending('importWallet')) {
+        return;
+      }
+
+      this.$store.dispatch('importWallet', {
+        name: this.walletName,
+        wif: this.wif,
+        passphrase: this.passphrase,
+        done: () => {
+          this.$router.push('/authenticated');
+        },
+      });
     },
   },
 };
@@ -69,11 +113,13 @@ export default {
     flex: 2;
     padding: 0 $space-lg;
 
-    .encrypted-key-btn, .private-key-btn {
-      @extend %btn-outline;
+    .aph-input + .aph-input {
+      margin-top: $space;
     }
 
-    .encrypted-key-btn {
+    .import-btn {
+      @extend %btn-outline;
+
       margin-top: $space-lg;
     }
   }

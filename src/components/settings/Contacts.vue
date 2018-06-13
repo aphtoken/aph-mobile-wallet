@@ -56,7 +56,7 @@ export default {
     filteredContacts() {
       const searchBy = this.searchBy.toLowerCase();
 
-      if(!searchBy.length) {
+      if (!searchBy.length) {
         return this.$store.state.contacts;
       }
 

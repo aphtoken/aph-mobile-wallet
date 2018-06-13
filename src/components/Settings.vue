@@ -34,7 +34,7 @@
         <div class="tile">
           <div class="row">
             <div class="label">Wallet</div>
-            <div class="value">My Wallet</div>
+            <div class="value">{{ $store.state.currentWallet.label }}</div>
           </div>
           <div class="row" @click="logout">
             <div class="label">Logout</div>

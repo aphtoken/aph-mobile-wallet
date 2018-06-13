@@ -22,8 +22,8 @@ export default {
   display: flex;
   justify-content: center;
 
-  .aph-icon {
-    svg {
+  > .aph-icon {
+    svg.logo-mark {
       height: 30vh;
     }
   }

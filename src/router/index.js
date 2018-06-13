@@ -12,24 +12,27 @@ export default new Router({
       component: require('../components/Intro').default,
     },
     {
-      path: '/landing',
-      component: require('../components/Landing').default,
-    },
-    {
-      path: '/create-wallet',
-      component: require('../components/CreateWallet').default,
-    },
-    {
-      path: '/login/import',
-      component: require('../components/login/Import').default,
-    },
-    {
-      path: '/login/import/private-key',
-      component: require('../components/login/PrivateKey').default,
-    },
-    {
-      path: '/login/import/encrypted-key',
-      component: require('../components/login/EncryptedKey').default,
+      path: '/login',
+      component: require('../components/Login').default,
+      children: [
+        {
+          path: 'landing',
+          component: require('../components/login/Landing').default,
+        },
+        {
+          path: 'create-wallet',
+          component: require('../components/login/CreateWallet').default,
+        },
+        {
+          path: 'saved',
+          component: require('../components/login/Saved').default,
+        },
+        {
+          path: 'import',
+          component: require('../components/login/Import').default,
+        },
+      ],
+      redirect: '/login/landing',
     },
     {
       path: '/authenticated',
@@ -99,7 +102,7 @@ export default new Router({
     },
     {
       path: '*',
-      redirect: '/landing',
+      redirect: '/login',
     },
   ],
 });

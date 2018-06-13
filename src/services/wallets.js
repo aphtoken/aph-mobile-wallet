@@ -4,6 +4,7 @@ import { store } from '../store';
 import storage from './storage';
 
 const WALLETS_STORAGE_KEY = 'aph.wallets';
+const LAST_WALLET_STORAGE_KEY = 'aph.lastWallet';
 let currentWallet = null;
 
 export default {
@@ -64,6 +65,10 @@ export default {
     return currentWallet;
   },
 
+  getLastWallet() {
+    return storage.get(LAST_WALLET_STORAGE_KEY, _.first(this.getAllAsArray()));
+  },
+
   getOne(name) {
     return _.find(this.getAllAsArray(), (o) => {
       return o.label === name;
@@ -74,10 +79,9 @@ export default {
     return !!this.getOne(name.trim());
   },
 
-  openSavedWallet(name, passphrase) {
+  openSavedWallet(walletToOpen, passphrase) {
     return new Promise((resolve, reject) => {
       try {
-        const walletToOpen = this.getOne(name);
         const wif = wallet.decrypt(walletToOpen.encryptedWIF, passphrase);
         const account = new wallet.Account(wif);
         const currentWallet = {
@@ -176,18 +180,16 @@ export default {
         const account = new wallet.Account(wif);
         const encryptedWIF = wallet.encrypt(account.WIF, passphrase);
         const currentWallet = {
+          label: name,
+          encryptedWIF,
           wif,
           address: account.address,
           privateKey: account.privateKey,
         };
 
         this.setCurrentWallet(currentWallet).sync();
-        this.add(name, {
-          label: name,
-          encryptedWIF,
-          address: account.address,
-          scriptHash: account.scriptHash,
-        })
+        this
+          .add(name, currentWallet)
           .sync();
         return resolve(currentWallet);
       } catch (e) {
@@ -198,6 +200,10 @@ export default {
 
   setCurrentWallet(wallet) {
     currentWallet = wallet;
+
+    if (wallet) {
+      storage.set(LAST_WALLET_STORAGE_KEY, wallet);
+    }
 
     return this;
   },

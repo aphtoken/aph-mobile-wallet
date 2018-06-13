@@ -31,7 +31,7 @@ export default {
     filteredCurrencies() {
       const searchBy = this.searchBy.toLowerCase();
 
-      if(!searchBy.length) {
+      if (!searchBy.length) {
         return this.currencies;
       }
 
@@ -54,7 +54,7 @@ export default {
       this.$store.dispatch('fetchPortfolio');
       this.$router.back();
     },
-  }
+  },
 };
 </script>
 

@@ -257,11 +257,11 @@ function openPrivateKey({ commit }, { wif, done }) {
   }, timeouts.NEO_API_CALL);
 }
 
-function openSavedWallet({ commit }, { name, passphrase, done }) {
+function openSavedWallet({ commit }, { walletToOpen, passphrase, done }) {
   commit('startRequest', { identifier: 'openSavedWallet' });
 
   setTimeout(() => {
-    wallets.openSavedWallet(name, passphrase)
+    wallets.openSavedWallet(walletToOpen, passphrase)
       .then(() => {
         done();
         commit('clearActiveTransaction');

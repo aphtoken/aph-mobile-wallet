@@ -1,5 +1,5 @@
 <template>
-  <section id="login">
+  <section id="login--landing">
     <aph-icon name="logo"></aph-icon>
     <div class="body">
       <div class="btn-group">
@@ -12,23 +12,27 @@
 
 <script>
 export default {
-
+  beforeMount() {
+    if (this.$services.wallets.getLastWallet()) {
+      this.$router.replace('/login/saved');
+    }
+  },
 };
 </script>
 
 <style lang="scss">
-#login {
+#login--landing {
   display: flex;
   flex-direction: column;
   height: 100%;
 
-  .aph-icon {
+  > .aph-icon {
     flex: 1;
     display: flex;
     flex-direction: column;
     justify-content: center;
 
-    svg {
+    svg.logo {
       height: 30vh;
     }
   }

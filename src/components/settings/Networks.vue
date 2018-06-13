@@ -31,7 +31,7 @@ export default {
     filteredNetworks() {
       const searchBy = this.searchBy.toLowerCase();
 
-      if(!searchBy.length) {
+      if (!searchBy.length) {
         return this.networks;
       }
 
@@ -55,7 +55,7 @@ export default {
       this.$store.dispatch('fetchPortfolio');
       this.$router.back();
     },
-  }
+  },
 };
 </script>
 
