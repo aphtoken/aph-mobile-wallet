@@ -29,7 +29,7 @@ export default {
   computed: {
     show() {
       return !_.isEmpty(this.$store.state.walletToBackup);
-    }
+    },
   },
 
   data() {
