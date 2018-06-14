@@ -164,11 +164,6 @@ export default {
     text-align: center;
     transition: all .1s linear;
     white-space: nowrap;
-
-    &:hover {
-      background: $purple-hover;
-      border-color: $purple-hover;
-    }
   }
 
   .aph-select--dropdown {
@@ -193,7 +188,6 @@ export default {
       padding: 0 $space;
       transition: all .1s linear;
 
-      &:hover,
       &.selected {
         background: #f4f4fc;
         color: $purple;
@@ -228,7 +222,6 @@ export default {
       box-shadow: $box-shadow;
 
       > li {
-        &:hover,
         &.selected {
           background: $background;
           color: $dark;

@@ -110,10 +110,6 @@ export default {
     opacity: 0;
     padding: $space;
     visibility: none;
-
-    &:hover {
-      color: $purple;
-    }
   }
 
   .balance {
@@ -152,13 +148,6 @@ export default {
         content: "%";
         margin-left: $space-xs;
       }
-    }
-  }
-
-  &:hover {
-    .remove {
-      opacity: 1;
-      visibility: visible;
     }
   }
 }

@@ -6,8 +6,6 @@
 </template>
 
 <script>
-// import { clipboard } from 'electron';
-
 const SHOW_CONFIRMATION_DELAY = 50;
 const SHOW_CONFIRMATION_TIMEOUT = 500;
 
@@ -27,7 +25,7 @@ export default {
   methods: {
     copy(e) {
       this.position(e);
-      // clipboard.writeText(this.text);
+      this.copyToClipboard()
 
       setTimeout(() => {
         this.showConfirmationText = true;
@@ -36,6 +34,16 @@ export default {
       setTimeout(() => {
         this.showConfirmationText = false;
       }, SHOW_CONFIRMATION_TIMEOUT);
+    },
+
+    copyToClipboard() {
+      const el = document.createElement('textarea');
+
+      el.value = this.text;
+      document.body.appendChild(el);
+      el.select();
+      document.execCommand('copy');
+      document.body.removeChild(el);
     },
 
     position({ x, y }) {
@@ -97,12 +105,6 @@ export default {
           fill: $grey;
         }
       }
-    }
-  }
-
-  &:hover {
-    .fill {
-      fill: $purple !important;
     }
   }
 }

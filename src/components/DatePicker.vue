@@ -295,7 +295,7 @@ export default {
             background-color: $background;
           }
 
-          &:hover, &.active {
+          &.active {
             background-color: $purple;
             color: white;
           }
