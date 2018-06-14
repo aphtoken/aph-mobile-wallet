@@ -23,9 +23,10 @@ export default {
   beforeMount() {
     this.wallet = this.$services.wallets.getLastWallet();
 
-    if(!this.wallet) {
+    if (!this.wallet) {
       return this.$router.replace('/login');
     }
+    return true;
   },
 
   components: {
@@ -39,7 +40,7 @@ export default {
 
     shouldDisableLButton() {
       return this.$isPending('openSavedWallet') || this.passphrase.length === 0;
-    }
+    },
   },
 
   data() {
