@@ -26,6 +26,7 @@ export default {
     if (!this.wallet) {
       this.$router.replace('/login');
     }
+    return true;
   },
 
   components: {
