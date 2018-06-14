@@ -8,6 +8,16 @@
     </div>
     <div class="body">
       <p>Save and backup the keys below. If you lose them, you lose access to your assets.</p>
+      <div class="qr-codes">
+        <div class="qr-code">
+          <vue-qrcode :value="$store.state.currentWallet.address" :options="{ backgroundAlpha: 0, size: 120 }"></vue-qrcode>
+          <p class="help-text">Public<br />Address</p>
+        </div>
+        <div class="qr-code">
+          <vue-qrcode :value="$store.state.currentWallet.wif" :options="{ backgroundAlpha: 0, size: 120  }"></vue-qrcode>
+          <p class="help-text">Encrypted<br />Private Key</p>
+        </div>
+      </div>
       <div class="row">
         <aph-input v-model="$store.state.walletToBackup.encryptedWIF" placeholder="Encrypted key" :disabled="true"></aph-input>
         <aph-copy-text :text="$store.state.walletToBackup.encryptedWIF"></aph-copy-text>
@@ -25,7 +35,13 @@
 </template>
 
 <script>
+import VueQrcode from '@xkeshi/vue-qrcode';
+
 export default {
+  components: {
+    VueQrcode,
+  },
+
   computed: {
     show() {
       return !_.isEmpty(this.$store.state.walletToBackup);
@@ -89,13 +105,35 @@ export default {
     flex-direction: column;
     flex: 1;
     overflow: hidden;
-    padding: toRem(26px) $space $space $space;
+    padding: $space;
 
     p {
       line-height: $copy-line-height;
       margin: 0 0 $space;
       padding: 0 $space-lg;
       text-align: center;
+    }
+
+    .qr-codes {
+      display: flex;
+      margin-top: $space;
+      flex-direction: row;
+
+      .qr-code {
+        flex: 1;
+        text-align: center;
+
+        canvas {
+          background: white;
+          padding: $space-sm;
+        }
+
+        .help-text {
+          font-family: GilroySemibold;
+          font-size: toRem(10px);
+          text-transform: uppercase;
+        }
+      }
     }
 
     .row {
