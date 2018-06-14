@@ -43,7 +43,7 @@
             </div>
           </div>
         </div>
-        <button class="backup-wallet-btn">Backup wallet</button>
+        <button class="backup-wallet-btn" @click="backupWallet">Backup wallet</button>
       </div>
     </div>
   </section>
@@ -73,6 +73,10 @@ export default {
   },
 
   methods: {
+    backupWallet() {
+      this.$store.commit('setWalletToBackup', this.$store.state.currentWallet);
+    },
+
     logout() {
       this.$services.wallets.clearCurrentWallet();
       this.$store.commit('handleLogout');

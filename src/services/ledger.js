@@ -56,7 +56,7 @@ export default {
 
   close() {
     return new Promise((resolve, reject) => {
-      store.commit('setShowSendWithLedgerModal', false);
+      // store.commit('setShowSendWithLedgerModal', false);
       store.commit('setShowSendRequestLedgerSignature', false);
 
       if (!currentDevice) {
@@ -143,7 +143,7 @@ export default {
           return;
         }
 
-        store.commit('setShowSendWithLedgerModal', true);
+        // store.commit('setShowSendWithLedgerModal', true);
         currentLedger.open()
           .then(() => {
             const data = tx.serializeTransaction(unsignedTx, false);

@@ -15,6 +15,7 @@ export {
   handleNetworkChange,
   resetRequests,
   setActiveTransaction,
+  setWalletToBackup,
   setContacts,
   setCurrency,
   setCurrencySymbol,
@@ -31,16 +32,7 @@ export {
   setSearchTransactionToDate,
   setSearchTransactions,
   setSendInProgress,
-  setShowAddContactModal,
-  setShowAddTokenModal,
-  setShowClaimGasModal,
-  setShowEditContactModal,
-  setShowImportAWalletModal,
-  setShowLoginToWalletModal,
-  setShowSendAddressModal,
   setShowSendRequestLedgerSignature,
-  setShowSendWithLedgerModal,
-  setShowWalletBackupModal,
   setStatsToken,
   setWallets,
   startRequest,
@@ -91,6 +83,10 @@ function resetRequests(state) {
 function setActiveTransaction(state, transaction) {
   state.activeTransaction = transaction;
   state.showPriceTile = false;
+}
+
+function setWalletToBackup(state, wallet) {
+  state.walletToBackup = wallet;
 }
 
 function setContacts(state, contacts) {
@@ -194,48 +190,12 @@ function setSearchTransactions(state, transactions) {
   state.searchTransactions = transactions;
 }
 
-function setShowAddContactModal(state, value) {
-  state.showAddContactModal = value;
-  state.currentEditContact = null;
-}
-
-function setShowAddTokenModal(state, value) {
-  state.showAddTokenModal = value;
-}
-
-function setShowEditContactModal(state, contact) {
-  state.showAddContactModal = true;
-  state.currentEditContact = contact;
-}
-
-function setShowSendAddressModal(state, value) {
-  state.showSendAddressModal = value;
-}
-
-function setShowLoginToWalletModal(state, wallet) {
-  const show = wallet !== null;
-  state.showLoginToWalletModal = show;
-  state.currentLoginToWallet = wallet;
-}
-
-function setShowImportAWalletModal(state, value) {
-  state.showImportAWalletModal = value;
-}
-
-function setShowSendWithLedgerModal(state, value) {
-  state.showSendWithLedgerModal = value;
-}
-
 function setShowSendRequestLedgerSignature(state, value) {
   state.showSendRequestLedgerSignature = value;
 }
 
 function setSendInProgress(state, value) {
   state.sendInProgress = value;
-}
-
-function setShowWalletBackupModal(state, value) {
-  state.showWalletBackupModal = value;
 }
 
 function setStatsToken(state, token) {
@@ -250,10 +210,6 @@ function setWallets(state, wallets) {
 
 function setGasClaim(state, value) {
   state.gasClaim = value;
-}
-
-function setShowClaimGasModal(state, value) {
-  state.showClaimGasModal = value;
 }
 
 function startRequest(state, payload) {

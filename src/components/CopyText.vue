@@ -25,7 +25,7 @@ export default {
   methods: {
     copy(e) {
       this.position(e);
-      this.copyToClipboard()
+      this.copyToClipboard();
 
       setTimeout(() => {
         this.showConfirmationText = true;

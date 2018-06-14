@@ -3,7 +3,7 @@
     <aph-icon name="logo"></aph-icon>
     <div class="body">
       <div class="btn-group">
-        <router-link to="/create-wallet" class="create-wallet-btn">Create wallet</router-link>
+        <router-link to="/login/create-wallet" class="create-wallet-btn">Create wallet</router-link>
         <router-link to="/login/import" class="import-wallet-btn">Import wallet</router-link>
       </div>
     </div>

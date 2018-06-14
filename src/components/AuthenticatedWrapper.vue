@@ -33,10 +33,13 @@
       </div>
       <router-view></router-view>
     </div>
+    <backup-wallet></backup-wallet>
   </section>
 </template>
 
 <script>
+import BackupWallet from './BackupWallet';
+
 const ROUTES_USING_BACK_BUTTON = [
   'dashboard.token-stats',
   'settings.contacts',
@@ -45,6 +48,10 @@ const ROUTES_USING_BACK_BUTTON = [
 ];
 
 export default {
+  components: {
+    BackupWallet,
+  },
+
   computed: {
     showBackButton() {
       return _.includes(ROUTES_USING_BACK_BUTTON, this.$route.name);

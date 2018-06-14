@@ -78,7 +78,8 @@ export default {
   methods: {
     add() {
       if (this.$services.contacts.contactExists(this.name.trim())) {
-        return this.$services.alerts.error(`Contact ${this.name.trim()} already exists.`);
+        this.$services.alerts.error(`Contact ${this.name.trim()} already exists.`);
+        return;
       }
 
       this.$services.contacts.add(this.address, {

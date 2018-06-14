@@ -49,7 +49,7 @@ export default {
           })
           .sync();
 
-        wallets.openSavedWallet(name, passphrase);
+        wallets.openSavedWallet(wallets.getOne(name), passphrase);
         return resolve(_.merge(account, { encryptedWIF, passphrase }));
       } catch (e) {
         return reject('An error occured while trying to generate a new wallet.');
@@ -878,7 +878,7 @@ export default {
       step: 0,
     };
     store.commit('setGasClaim', gasClaim);
-    store.commit('setShowClaimGasModal', true);
+    // store.commit('setShowClaimGasModal', true);
 
     lastClaimSent = new Date();
     return this.fetchHoldings(currentWallet.address, 'NEO')
@@ -907,7 +907,7 @@ export default {
               alerts.exception(e);
               lastClaimSent = null;
               store.commit('setGasClaim', gasClaim);
-              store.commit('setShowClaimGasModal', false);
+              // store.commit('setShowClaimGasModal', false);
             });
         }
       })
@@ -916,7 +916,7 @@ export default {
         alerts.networkException(e);
         lastClaimSent = null;
         store.commit('setGasClaim', gasClaim);
-        store.commit('setShowClaimGasModal', false);
+        // store.commit('setShowClaimGasModal', false);
       });
   },
 
