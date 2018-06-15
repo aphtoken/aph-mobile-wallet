@@ -69,7 +69,7 @@
                   </div>
                 </div>
               </div>
-              <div class="expand-btn">
+              <div class="expand-btn" @click="showFullTokenStats = true">
                 <aph-icon name="expand"></aph-icon>
               </div>
             </div>
@@ -100,6 +100,7 @@
       </div>
     </div>
     <aph-transaction-detail :on-hide="hideTransactionDetail" :show="showTransactionDetail" :transaction="transactionDetail"></aph-transaction-detail>
+    <aph-full-token-stats :on-hide="hideFullTokenStats" :show="showFullTokenStats" :token="$store.state.statsToken"></aph-full-token-stats>
   </section>
 </template>
 
@@ -118,13 +119,13 @@ export default {
     },
 
     received() {
-      return this.$store.state.recentTransactions.filter(({ value, symbol}) => {
+      return this.$store.state.recentTransactions.filter(({ value, symbol }) => {
         return value > 0 && this.symbol === symbol;
       });
     },
 
     sent() {
-      return this.$store.state.recentTransactions.filter(({ value, symbol}) => {
+      return this.$store.state.recentTransactions.filter(({ value, symbol }) => {
         return value < 0 && this.symbol === symbol;
       });
     },
@@ -136,6 +137,7 @@ export default {
       activeTransactionHistoryTab: 'sent',
       high: 0,
       low: 0,
+      showFullTokenStats: false,
       showTransactionDetail: false,
       transactionDetail: {},
       volume: 0,
@@ -146,11 +148,15 @@ export default {
     getMetaData() {
       this.$services.valuation
         .getHistorical(this.$store.state.statsToken.symbol, HOURS)
-        .then(({high, low, volume}) => {
+        .then(({ high, low, volume }) => {
           this.high = high;
           this.low = low;
           this.volume = volume;
         });
+    },
+
+    hideFullTokenStats() {
+      this.showFullTokenStats = false;
     },
 
     hideTransactionDetail() {

@@ -51,7 +51,7 @@ import RequestErrorMessage from './../RequestErrorMessage';
 
 export default {
   components: {
-    RequestErrorMessage
+    RequestErrorMessage,
   },
 
   computed: {
