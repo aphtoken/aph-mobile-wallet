@@ -21,19 +21,17 @@
     </div>
     <div class="add-token">
       <div class="control" @click="showAddToken = false">
-        <aph-icon name="chevron-down"></aph-icon>
+        <aph-icon name="arrow-down"></aph-icon>
         <div class="title">Add Token</div>
       </div>
       <div class="body">
         <div class="inner">
           <div class="body">
             <aph-icon name="create"></aph-icon>
-            <div class="title">Enter token details to add custom token.</div>
             <div class="form">
-              <aph-input :light="true" placeholder="Address" v-model="address"></aph-input>
-              <aph-input :light="true" placeholder="Token Symbol" v-model="symbol"></aph-input>
-              <aph-input :light="true" placeholder="Decimals" v-model="decimals"></aph-input>
+              <aph-input placeholder="Script Hash or Token Symbol" :light="true" v-model="hashOrSymbol"></aph-input>
             </div>
+            <request-error-message identifier="addToken"></request-error-message>
           </div>
         </div>
       </div>
@@ -43,9 +41,15 @@
 </template>
 
 <script>
+import RequestErrorMessage from './RequestErrorMessage';
+
 export default {
   beforeMount() {
     this.$store.dispatch('fetchHoldings');
+  },
+
+  components: {
+    RequestErrorMessage,
   },
 
   computed: {
@@ -67,29 +71,34 @@ export default {
     },
 
     shouldDisableAddButton() {
-      return !this.address.length || !this.decimals.length || !this.symbol.length;
+      return !this.hashOrSymbol.length;
     },
   },
 
   data() {
     return {
-      address: '',
-      decimals: '',
+      hashOrSymbol: '',
       searchBy: '',
       showAddToken: false,
-      symbol: '',
     };
   },
 
   methods: {
     add() {
-      //
+      this.$store.dispatch('addToken', {
+        hashOrSymbol: this.hashOrSymbol,
+        done: () => {
+          this.showAddToken = false;
+        },
+      });
     },
   },
 
   watch: {
     showAddToken() {
-      this.address = this.decimals = this.symbol = '';
+      this.hashOrSymbol = '';
+      this.$store.commit('endRequest', { identifier: 'addToken' });
+      this.$store.dispatch('fetchHoldings');
     },
   },
 };
@@ -203,8 +212,9 @@ export default {
 
       .aph-icon {
         position: absolute;
+
         svg {
-          height: toRem(14px);
+          height: toRem(20px);
         }
       }
 
@@ -256,6 +266,14 @@ export default {
           .form {
             padding: 0 $space;
             width: 100%;
+          }
+
+          .aph-request-status-message {
+            margin: $space;
+
+            .aph-icon {
+              margin: 0;
+            }
           }
         }
       }
