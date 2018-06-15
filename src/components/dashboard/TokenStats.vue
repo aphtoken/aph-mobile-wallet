@@ -41,17 +41,17 @@
                 <div class="row">
                   <div class="col">
                     <div class="label">24h Low</div>
-                    <div class="value">{{ $formatMoney(null) }}</div>
+                    <div class="value">{{ $formatMoney(low) }}</div>
                   </div>
                   <div class="col">
                     <div class="label">24h High</div>
-                    <div class="value">{{ $formatMoney(null) }}</div>
+                    <div class="value">{{ $formatMoney(high) }}</div>
                   </div>
                 </div>
                 <div class="row">
                   <div class="col">
                     <div class="label">24h Volume</div>
-                    <div class="value">{{ $formatMoneyWithoutCents(null) }}</div>
+                    <div class="value">{{ $formatMoneyWithoutCents(volume) }}</div>
                   </div>
                 </div>
                 <div class="row">
@@ -98,18 +98,29 @@
 </template>
 
 <script>
+const HOURS = 24;
+
 export default {
+  beforeMount() {
+    this.getMetaData();
+    this.$store.dispatch('fetchRecentTransactions');
+  },
+
   computed: {
     activeTileClass() {
       return `active-tile-${this.activeTile}`;
     },
 
     received() {
-      return this.transactions.filter(({ amount }) => amount > 0);
+      return this.$store.state.recentTransactions.filter(({ value, symbol}) => {
+        return value > 0 && this.symbol === symbol;
+      });
     },
 
     sent() {
-      return this.transactions.filter(({ amount }) => amount < 0);
+      return this.$store.state.recentTransactions.filter(({ value, symbol}) => {
+        return value < 0 && this.symbol === symbol;
+      });
     },
   },
 
@@ -117,14 +128,25 @@ export default {
     return {
       activeTile: 'preview',
       activeTransactionHistoryTab: 'sent',
+      high: 0,
+      low: 0,
       showTransactionDetail: false,
       transactionDetail: {},
-      transactions: [
-      ],
+      volume: 0,
     };
   },
 
   methods: {
+    getMetaData() {
+      this.$services.valuation
+        .getHistorical(this.$store.state.statsToken.symbol, HOURS)
+        .then(({high, low, volume}) => {
+          this.high = high;
+          this.low = low;
+          this.volume = volume;
+        });
+    },
+
     hideTransactionDetail() {
       this.showTransactionDetail = false;
     },

@@ -52,7 +52,6 @@ export default {
     selectNetwork(network) {
       this.$services.network.setSelectedNetwork(network.value);
       this.$store.commit('handleNetworkChange');
-      this.$store.dispatch('fetchPortfolio');
       this.$router.back();
     },
   },

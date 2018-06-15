@@ -32,7 +32,7 @@
         </div>
         <div class="underlined">Wallets</div>
         <div class="tile">
-          <div class="row">
+          <div class="row" @click="$router.push('/authenticated/settings/wallets')">
             <div class="label">Wallet</div>
             <div class="value">{{ $store.state.currentWallet.label }}</div>
           </div>

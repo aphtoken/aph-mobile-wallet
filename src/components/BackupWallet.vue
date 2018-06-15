@@ -10,11 +10,15 @@
       <p>Save and backup the keys below. If you lose them, you lose access to your assets.</p>
       <div class="qr-codes">
         <div class="qr-code">
-          <vue-qrcode :value="$store.state.currentWallet.address" :options="{ backgroundAlpha: 0, size: 120 }"></vue-qrcode>
+          <div class="canvas-wrapper">
+            <vue-qrcode :value="$store.state.currentWallet.address" :options="{ backgroundAlpha: 0, size: 120 }"></vue-qrcode>
+          </div>
           <p class="help-text">Public<br />Address</p>
         </div>
         <div class="qr-code">
-          <vue-qrcode :value="$store.state.currentWallet.wif" :options="{ backgroundAlpha: 0, size: 120  }"></vue-qrcode>
+          <div class="canvas-wrapper">
+            <vue-qrcode :value="$store.state.currentWallet.wif" :options="{ backgroundAlpha: 0, size: 120  }"></vue-qrcode>
+          </div>
           <p class="help-text">Encrypted<br />Private Key</p>
         </div>
       </div>
@@ -120,10 +124,14 @@ export default {
       flex-direction: row;
 
       .qr-code {
+        align-items: center;
+        display: flex;
+        flex-direction: column;
         flex: 1;
+        font-size: 0;
         text-align: center;
 
-        canvas {
+        .canvas-wrapper {
           background: white;
           padding: $space-sm;
         }
@@ -131,6 +139,7 @@ export default {
         .help-text {
           font-family: GilroySemibold;
           font-size: toRem(10px);
+          margin-top: $space-sm;
           text-transform: uppercase;
         }
       }

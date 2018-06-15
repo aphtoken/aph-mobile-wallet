@@ -98,6 +98,11 @@ export default new Router({
           component: require('../components/settings/Networks').default,
           name: 'settings.networks',
         },
+        {
+          path: 'settings/wallets',
+          component: require('../components/settings/Wallets').default,
+          name: 'settings.wallets',
+        },
       ],
     },
     {

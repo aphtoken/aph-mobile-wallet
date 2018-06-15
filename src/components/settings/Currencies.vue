@@ -51,7 +51,6 @@ export default {
   methods: {
     selectCurrency(currency) {
       this.$services.settings.setCurrency(currency.value);
-      this.$store.dispatch('fetchPortfolio');
       this.$router.back();
     },
   },
