@@ -16,6 +16,7 @@
     <div class="body">
       <div class="tile-wrapper">
         <div :class="['tiles', activeTileClass]">
+          <!-- <div class="tile preview" v-touch:swipe.left="activeTile = 'stats'"> -->
           <div class="tile preview">
             <div class="inner">
               <aph-token-icon :symbol="symbol"></aph-token-icon>
@@ -26,6 +27,7 @@
             </div>
           </div><!--
           --><div class="tile stats">
+          <!-- <div class="tile stats" v-touch:swipe.left="activeTile = 'preview'" v-touch:swipe.right="activeTile = 'transaction-history'"> -->
             <div class="inner">
               <div class="header">
                 <div class="label">Active Value</div>
@@ -67,9 +69,13 @@
                   </div>
                 </div>
               </div>
+              <div class="expand-btn">
+                <aph-icon name="expand"></aph-icon>
+              </div>
             </div>
           </div><!--
           --><div class="tile transaction-history">
+          <!-- <div class="tile transaction-history" v-touch:swipe.right="activeTile = 'stats'"> -->
             <div class="inner">
               <div class="header">
                 <div :class="['tab', {active: activeTransactionHistoryTab === 'sent'}]" @click="activeTransactionHistoryTab = 'sent'">Sent</div>
@@ -349,6 +355,16 @@ export default {
                 flex: 1;
                 padding: $space;
               }
+            }
+
+            .expand-btn {
+              @extend %btn-circle;
+
+              position: absolute;
+              right: 0;
+              bottom: 0;
+              box-shadow: $box-shadow-lg;
+              transform: translate(-100%, 50%)
             }
           }
 

@@ -9,14 +9,34 @@
     flex-direction: row;
 
     .col {
+      display: flex;
+      flex-direction: column;
       flex: 1;
+      overflow: hidden;
 
       .label {
-        @extend %small-uppercase-grey-label-dark;
+        @extend %small-uppercase-grey-label;
       }
 
       .value {
+        @include truncate();
+
+        color: $dark;
+        flex: 1;
         margin-top: $space-sm;
+        width: 100%;
+
+        &.green {
+          color: $green;
+        }
+
+        &.purple {
+          color: $purple;
+        }
+
+        &.red {
+          color: $red;
+        }
       }
     }
 
@@ -32,15 +52,37 @@
     flex-direction: row;
 
     .col {
+      display: flex;
+      flex-direction: column;
       flex: 1;
+      overflow: hidden;
 
       .label {
         @extend %small-uppercase-grey-label;
+
+        flex: 1;
+        width: 100%;
       }
 
       .value {
+        @include truncate();
+
         color: $dark;
+        flex: 1;
         margin-top: $space-sm;
+        width: 100%;
+
+        &.green {
+          color: $green;
+        }
+
+        &.purple {
+          color: $purple;
+        }
+
+        &.red {
+          color: $red;
+        }
       }
     }
 

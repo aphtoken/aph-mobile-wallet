@@ -481,6 +481,16 @@
         transform="translate(0 0)" />
     </svg>
 
+    <!-- expand -->
+    <svg class="icon expand" v-if="name === 'expand'" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12.19 12.23">
+      <path class="fill cls-1" d="M11.26,6.58a.5.5,0,0,1-.14-.35l.07-5.16L6,1A.5.5,0,1,1,6,0L11.7.08a.5.5,0,0,1,.49.51l-.08,5.66a.5.5,0,0,1-.86.34"
+        transform="translate(0 0)" />
+      <path class="fill cls-1" d="M3.45,8.6a.5.5,0,0,1,0-.71L11.34.22a.5.5,0,1,1,.7.72L4.16,8.61a.5.5,0,0,1-.71,0" transform="translate(0 0)"
+      />
+      <path class="fill cls-1" d="M8.87,12.23H.5a.5.5,0,0,1-.5-.5V3.37a.5.5,0,0,1,.5-.5h5a.5.5,0,0,1,0,1H1v7.36H8.37V6.73a.5.5,0,0,1,1,0v5A.5.5,0,0,1,8.87,12.23Z"
+        transform="translate(0 0)" />
+    </svg>
+
   </div>
 </template>
 

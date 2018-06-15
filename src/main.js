@@ -1,8 +1,8 @@
 import DomPortal from 'vue-dom-portal';
 import Vue from 'vue';
+import Vue2TouchEvents from 'vue2-touch-events';
 import VueFlashMessage from 'vue-flash-message';
 import VueHighCharts from 'vue-highcharts';
-import VueTouch from 'vue-touch';
 import _ from 'lodash';
 import accounting from 'accounting';
 import axios from 'axios';
@@ -46,7 +46,7 @@ Vue.config.productionTip = false;
 Vue.use(DomPortal);
 Vue.use(VueFlashMessage);
 Vue.use(VueHighCharts);
-Vue.use(VueTouch);
+Vue.use(Vue2TouchEvents);
 require('vue-flash-message/dist/vue-flash-message.min.css');
 
 // Register global mixins.

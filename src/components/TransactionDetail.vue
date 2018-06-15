@@ -4,7 +4,7 @@
       <aph-icon name="arrow-down"></aph-icon>
     </div>
     <div class="header">
-        <div class="confirmed" v-if="false">
+        <div class="confirmed" v-if="transaction.details.confirmed">
           <aph-icon name="confirmed-big"></aph-icon>
           <div class="label">Confirmed</div>
         </div>
@@ -33,53 +33,54 @@
       <div class="row">
         <div class="col">
           <div class="label">Token</div>
-          <div class="value">{{ $formatNumber(transaction.amount) }} {{ transaction.symbol }}</div>
+          <div class="value">{{ transaction.symbol }}</div>
         </div>
         <div class="col">
-          <div class="label">Value</div>
-          <div class="value">{{ $formatMoney(transaction.value) }} {{ $store.state.currency }}</div>
+          <div class="label">Amount</div>
+          <div :class="['value', {green: transaction.value > 0, red: transaction.value < 0}]">{{ $formatNumber(transaction.value) }}</div>
         </div>
       </div>
       <div class="row">
         <div class="col">
           <div class="label">Block</div>
-          <div class="value">--</div>
+          <div class="value purple">{{ $formatNumber(transaction.block_index) }}</div>
         </div>
         <div class="col">
           <div class="label">Status</div>
-          <div class="value">--</div>
+          <div class="value" v-if="transaction.value < 0">Sent</div>
+          <div class="value" v-else>Received</div>
         </div>
       </div>
       <div class="row">
         <div class="col">
           <div class="label">From</div>
-          <div class="value">--</div>
+          <div class="value">{{  transaction.from }}</div>
         </div>
       </div>
       <div class="row">
         <div class="col">
           <div class="label">To</div>
-          <div class="value">--</div>
+          <div class="value purple">{{  transaction.to }}</div>
         </div>
       </div>
       <div class="row">
         <div class="col">
           <div class="label">Network Fee</div>
-          <div class="value">--</div>
+          <div class="value">{{ $formatNumber(transaction.details.net_fee) }} GAS</div>
         </div>
         <div class="col">
           <div class="label">System Fee</div>
-          <div class="value">--</div>
+          <div class="value">{{ $formatNumber(transaction.details.sys_fee) }} GAS</div>
         </div>
       </div>
       <div class="row">
         <div class="col">
           <div class="label">Confirmations</div>
-          <div class="value">--</div>
+          <div class="value">{{ $formatNumber(transaction.details.confirmations) }}</div>
         </div>
         <div class="col">
           <div class="label">Size</div>
-          <div class="value">--</div>
+          <div class="value">{{ $formatNumber(transaction.details.size) }} Bytes</div>
         </div>
       </div>
     </div>

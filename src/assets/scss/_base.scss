@@ -12,6 +12,11 @@ html, body {
   font-size: $font-size;
   height: 100%;
   line-height: normal;
+
+  @include lowRes() {
+    font-size: $font-size-low-res;
+  }
+
 }
 
 * {
