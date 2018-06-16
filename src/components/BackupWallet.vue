@@ -1,5 +1,5 @@
 <template>
-  <section id="backup-wallet" :class="{show}">
+  <section id="backup-wallet" :class="{show}" v-touch:swipe.down="close">
     <div class="header">
       <div class="title">Backup Wallet</div>
       <div class="control" @click="close">

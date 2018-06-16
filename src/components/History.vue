@@ -40,11 +40,11 @@ export default {
 
   computed: {
     received() {
-      return this.transactions.filter(({ amount }) => amount > 0);
+      return this.transactions.filter(({ value }) => value > 0);
     },
 
     sent() {
-      return this.transactions.filter(({ amount }) => amount < 0);
+      return this.transactions.filter(({ value }) => value < 0);
     },
 
     transactions() {

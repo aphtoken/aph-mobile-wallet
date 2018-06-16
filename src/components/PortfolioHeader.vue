@@ -4,7 +4,7 @@
       <div class="total-balance">{{ $formatMoney($store.state.portfolio.balance) }}</div>
       <div class="change">
         <div class="label">24h Change</div>
-        <div :class="['amount', {increase: 1234.34 > 0, decrease: 1234.34 < 0}]">{{ $formatMoney($store.state.portfolio.changeValue) }} (<span class="percentage">{{ $formatNumber($store.state.portfolio.changePercent) }}</span>)</div>
+        <div :class="['amount', {increase: $store.state.portfolio.changeValue > 0, decrease: $store.state.portfolio.changeValue < 0}]">{{ $formatMoney($store.state.portfolio.changeValue) }} (<span class="percentage">{{ $formatNumber($store.state.portfolio.changePercent) }}</span>)</div>
       </div>
   </section>
 </template>
@@ -63,9 +63,7 @@ export default {
       &.increase {
         color: $green;
 
-        &:before {
-          content: "+";
-        }
+        content: "+";
 
         .percentage {
           &:before {
@@ -76,16 +74,6 @@ export default {
 
       &.decrease {
         color: $red;
-
-        &:before {
-          content: "-";
-        }
-
-        .percentage {
-          &:before {
-            content: "-";
-          }
-        }
       }
 
       .percentage {

@@ -16,8 +16,7 @@
     <div class="body">
       <div class="tile-wrapper">
         <div :class="['tiles', activeTileClass]">
-          <!-- <div class="tile preview" v-touch:swipe.left="activeTile = 'stats'"> -->
-          <div class="tile preview">
+          <div class="tile preview" v-touch:swipe.left="goToStats">
             <div class="inner">
               <aph-token-icon :symbol="symbol"></aph-token-icon>
               <div class="token">{{ $store.state.statsToken.name }}</div>
@@ -26,8 +25,7 @@
               <div class="value">{{ $formatMoney($store.state.statsToken.balance * $store.state.statsToken.unitValue) }}</div>
             </div>
           </div><!--
-          --><div class="tile stats">
-          <!-- <div class="tile stats" v-touch:swipe.left="activeTile = 'preview'" v-touch:swipe.right="activeTile = 'transaction-history'"> -->
+          --><div class="tile stats" v-touch:swipe.left="goToTransactionHistory" v-touch:swipe.right="goToPreview">
             <div class="inner">
               <div class="header">
                 <div class="label">Active Value</div>
@@ -74,8 +72,7 @@
               </div>
             </div>
           </div><!--
-          --><div class="tile transaction-history">
-          <!-- <div class="tile transaction-history" v-touch:swipe.right="activeTile = 'stats'"> -->
+          --><div class="tile transaction-history" v-touch:swipe.right="goToStats">
             <div class="inner">
               <div class="header">
                 <div :class="['tab', {active: activeTransactionHistoryTab === 'sent'}]" @click="activeTransactionHistoryTab = 'sent'">Sent</div>
@@ -153,6 +150,18 @@ export default {
           this.low = low;
           this.volume = volume;
         });
+    },
+
+    goToPreview() {
+      this.activeTile = 'preview';
+    },
+
+    goToStats() {
+      this.activeTile = 'stats';
+    },
+
+    goToTransactionHistory() {
+      this.activeTile = 'transaction-history';
     },
 
     hideFullTokenStats() {

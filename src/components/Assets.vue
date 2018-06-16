@@ -19,8 +19,8 @@
         <aph-icon name="plus"></aph-icon>
       </div>
     </div>
-    <div class="add-token">
-      <div class="control" @click="showAddToken = false">
+    <div class="add-token" v-touch:swipe.down="hideAddToken">
+      <div class="control" @click="hideAddToken">
         <aph-icon name="arrow-down"></aph-icon>
         <div class="title">Add Token</div>
       </div>
@@ -88,9 +88,14 @@ export default {
       this.$store.dispatch('addToken', {
         hashOrSymbol: this.hashOrSymbol,
         done: () => {
+          this.$store.dispatch('fetchHoldings');
           this.showAddToken = false;
         },
       });
+    },
+
+    hideAddToken() {
+      this.showAddToken = false;
     },
   },
 

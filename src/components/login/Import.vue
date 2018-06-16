@@ -29,7 +29,7 @@ export default {
 
   computed: {
     buttonLabel() {
-      return this.$isPending('importWallet') ? 'Saving...' : 'Import';
+      return this.$isPending('importWallet') ? 'Importing...' : 'Import';
     },
 
     shouldDisableLButton() {
@@ -52,10 +52,6 @@ export default {
     },
 
     importWallet() {
-      if (this.$isPending('importWallet')) {
-        return;
-      }
-
       this.$store.dispatch('importWallet', {
         name: this.walletName,
         wif: this.wif,

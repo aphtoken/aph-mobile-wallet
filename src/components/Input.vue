@@ -162,6 +162,12 @@ export default {
       color: $dark;
     }
 
+    .aph-icon {
+      .fill {
+        fill: $grey;
+      }
+    }
+
     .placeholder {
       color: $grey;
       font-family: GilroyMedium;

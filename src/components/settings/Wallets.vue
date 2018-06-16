@@ -1,5 +1,5 @@
 <template>
-  <section id="wallets" :class="[{'show-import-wallet': showAddWallet}]">
+  <section id="wallets" :class="[{'show-import-wallet': showImportWallet, 'show-open-wallet': showOpenWallet}]">
     <div class="header">
       <div class="title">Wallets</div>
       <div class="search">
@@ -14,16 +14,16 @@
     <div class="body">
       <div class="wallets">
         <div v-for="(wallet, index) in filteredWallets" :key="index" :class="['wallet', {active: isActive(wallet)}]">
-          <div class="label">{{ wallet.label }}</div>
+          <div class="label" @click="beginOpenWallet(wallet)">{{ wallet.label }}</div>
         </div>
       </div>
-      <div class="import-btn" @click="showAddWallet = true">
+      <div class="import-btn" @click="showImportWallet = true">
         <aph-icon name="plus"></aph-icon>
       </div>
     </div>
-    <div class="import-wallet">
-      <div class="control" @click="showAddWallet = false">
-        <aph-icon name="chevron-down"></aph-icon>
+    <div class="import-wallet" v-touch:swipe.down="hideImportWallet">
+      <div class="control" @click="hideImportWallet">
+        <aph-icon name="arrow-down"></aph-icon>
         <div class="title">Import Wallet</div>
       </div>
       <div class="body">
@@ -35,13 +35,31 @@
               <aph-input placeholder="Name" v-model="walletName" :light="true"></aph-input>
               <aph-input placeholder="Private key" v-model="wif" :light="true"></aph-input>
               <aph-input placeholder="Passphrase" v-model="passphrase" type="password" :light="true"></aph-input>
-              <button class="import-btn" @click="importWallet" :disabled="shouldDisableLButton">{{ buttonLabel }}</button>
             </div>
             <request-error-message identifier="importWallet"></request-error-message>
           </div>
         </div>
       </div>
-      <button class="submit-btn" @click="importWallet" :disabled="shouldDisableAddButton">Add</button>
+      <button class="submit-btn" @click="importWallet" :disabled="shouldDisableImportButton">{{ importButtonLabel }}</button>
+    </div>
+    <div class="open-wallet" v-touch:swipe.down="hideOpenWallet">
+      <div class="control" @click="hideOpenWallet">
+        <aph-icon name="arrow-down"></aph-icon>
+        <div class="title">Open Wallet</div>
+      </div>
+      <div class="body">
+        <div class="inner">
+          <div class="body">
+            <aph-icon name="wallet"></aph-icon>
+            <div class="title">{{ walletToOpen.label }}</div>
+            <div class="form">
+              <aph-input placeholder="Passphrase" v-model="passphrase" type="password" :light="true"></aph-input>
+            </div>
+            <request-error-message identifier="openSavedWallet"></request-error-message>
+          </div>
+        </div>
+      </div>
+      <button class="submit-btn" @click="openWallet" :disabled="shouldDisableOpenButton">{{ openButtonLabel }}</button>
     </div>
   </section>
 </template>
@@ -55,10 +73,6 @@ export default {
   },
 
   computed: {
-    shouldDisableAddButton() {
-      return !this.address.length || !this.label.length;
-    },
-
     filteredWallets() {
       const searchBy = this.searchBy.toLowerCase();
 
@@ -70,20 +84,70 @@ export default {
         return label.toLowerCase().indexOf(searchBy) > -1;
       });
     },
+
+    importButtonLabel() {
+      return this.$isPending('importWallet') ? 'Importing...' : 'Import';
+    },
+
+    openButtonLabel() {
+      return this.$isPending('openSavedWallet') ? 'Opening...' : 'Open';
+    },
+
+    shouldDisableImportButton() {
+      return this.$isPending('importWallet') || this.wif.length === 0
+        || this.walletName.length === 0 || this.passphrase.length === 0;
+    },
+
+    shouldDisableOpenButton() {
+      return this.$isPending('openSavedWallet') || this.passphrase.length === 0;
+    },
   },
 
   data() {
     return {
-      address: '',
-      label: '',
+      passphrase: '',
       searchBy: '',
-      showAddWallet: false,
+      showImportWallet: false,
+      showOpenWallet: false,
+      walletName: '',
+      walletToOpen: {},
+      wif: '',
     };
   },
 
   methods: {
+    beginOpenWallet(wallet) {
+      this.showOpenWallet = true;
+      this.walletToOpen = wallet;
+    },
+
+    hideImportWallet() {
+      this.showImportWallet = false;
+    },
+
+    hideOpenWallet() {
+      this.showOpenWallet = false;
+    },
+
     importWallet() {
-      // this.showAddWallet = false;
+      this.$store.dispatch('importWallet', {
+        name: this.walletName,
+        wif: this.wif,
+        passphrase: this.passphrase,
+        done: () => {
+          this.showImportWallet = false;
+        },
+      });
+    },
+
+    openWallet() {
+      this.$store.dispatch('openSavedWallet', {
+        walletToOpen: this.walletToOpen,
+        passphrase: this.passphrase,
+        done: () => {
+          this.showOpenWallet = false;
+        },
+      });
     },
 
     isActive({ label }) {
@@ -93,8 +157,14 @@ export default {
   },
 
   watch: {
-    showAddWallet() {
-      this.address = this.label = '';
+    showImportWallet() {
+      this.address = this.passphrase = this.walletName = this.wif = '';
+      this.$store.commit('endRequest', { identifier: 'importWallet' });
+    },
+
+    showOpenWallet() {
+      this.passphrase = '';
+      this.$store.commit('endRequest', { identifier: 'openSavedWallet' });
     },
   },
 };
@@ -216,7 +286,7 @@ export default {
     }
   }
 
-  > .import-wallet {
+  > .import-wallet, > .open-wallet {
     @include transition(top);
 
     display: flex;
@@ -238,7 +308,7 @@ export default {
       .aph-icon {
         position: absolute;
         svg {
-          height: toRem(14px);
+          height: toRem(20px);
         }
       }
 
@@ -265,9 +335,9 @@ export default {
         .body {
           display: flex;
           flex-direction: column;
-          align-items: center;
 
           .aph-icon {
+            align-self: center;
             margin: $space-lg 0;
 
             svg.wallet {
@@ -280,6 +350,7 @@ export default {
           }
 
           .title {
+            align-self: center;
             font-family: GilroyMedium;
             line-height: $copy-line-height;
             margin-bottom: $space-lg;
@@ -298,10 +369,24 @@ export default {
     .submit-btn {
       @extend %btn-footer;
     }
+
+    .aph-request-status-message {
+      margin: $space;
+
+      .aph-icon {
+        margin: 0 !important;
+      }
+    }
   }
 
   &.show-import-wallet {
     > .import-wallet {
+      top: 0vh;
+    }
+  }
+
+  &.show-open-wallet {
+    > .open-wallet {
       top: 0vh;
     }
   }

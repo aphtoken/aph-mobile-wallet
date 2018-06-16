@@ -136,7 +136,6 @@ export default {
 
         &:after {
           content: "%";
-          margin-left: $space-xs;
         }
       }
 
@@ -146,7 +145,6 @@ export default {
 
       &:after {
         content: "%";
-        margin-left: $space-xs;
       }
     }
   }

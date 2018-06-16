@@ -24,9 +24,9 @@
         <aph-icon name="plus"></aph-icon>
       </div>
     </div>
-    <div class="add-contact">
-      <div class="control" @click="showAddContact = false">
-        <aph-icon name="chevron-down"></aph-icon>
+    <div class="add-contact" v-touch:swipe.down="hideAddContact">
+      <div class="control" @click="hideAddContact">
+        <aph-icon name="arrow-down"></aph-icon>
         <div class="title">Add Contact</div>
       </div>
       <div class="body">
@@ -87,6 +87,10 @@ export default {
         address: this.address.trim(),
       }).sync();
 
+      this.showAddContact = false;
+    },
+
+    hideAddContact() {
       this.showAddContact = false;
     },
   },
@@ -233,7 +237,7 @@ export default {
       .aph-icon {
         position: absolute;
         svg {
-          height: toRem(14px);
+          height: toRem(20px);
         }
       }
 
