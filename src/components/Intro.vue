@@ -10,7 +10,7 @@ const FORWARD_TIMEOUT = 2000;
 export default {
   mounted() {
     setTimeout(() => {
-      this.$router.replace('/landing');
+      this.$router.replace('/login');
     }, FORWARD_TIMEOUT);
   },
 };
@@ -20,6 +20,7 @@ export default {
 #intro {
   align-items: center;
   display: flex;
+  height: 100%;
   justify-content: center;
 
   > .aph-icon {

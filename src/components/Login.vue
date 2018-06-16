@@ -1,9 +1,11 @@
 <template>
   <section id="login">
-    <!-- <video loop muted autoplay>
+    <video loop muted autoplay>
       <source src="~@/assets/video/login.mp4" type="video/mp4">
-    </video> -->
-    <router-view></router-view>
+    </video>
+    <div class="wrapper">
+      <router-view></router-view>
+    </div>
   </section>
 </template>
 
@@ -20,6 +22,11 @@
     left: 0;
     right: 0;
     top: 0;
+  }
+
+  > .wrapper {
+    height: 100%;
+    position: relative;
   }
 }
 </style>

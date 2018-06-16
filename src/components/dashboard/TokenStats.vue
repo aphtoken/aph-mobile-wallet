@@ -1,9 +1,9 @@
 <template>
-  <section id="dashboard--token-stats">
+  <section id="dashboard--token-stats" :class="[{'show-receive': showReceive}]">
     <div class="header">
       <div class="title">Token Stats</div>
       <div class="btn-group">
-        <div class="receive-btn">
+        <div class="receive-btn" @click="showReceive = true">
           <aph-icon name="receive"></aph-icon>
           <p>Receive</p>
         </div>
@@ -96,18 +96,36 @@
         <div :class="['control', {active: activeTile === 'transaction-history'}]" @click="activeTile = 'transaction-history'"></div>
       </div>
     </div>
+    <div class="receive" v-touch:swipe.down="hideReceive">
+      <div class="control" @click="hideReceive">
+        <aph-icon name="arrow-down"></aph-icon>
+        <div class="title">Receive</div>
+      </div>
+      <div class="body">
+        <div class="inner">
+          <div class="title">Share this wallet address to receive payment.</div>
+          <vue-qrcode :value="$store.state.currentWallet.address" :options="{ backgroundAlpha: 0, size: 150 }"></vue-qrcode>
+          <div class="address">{{ $store.state.currentWallet.address }}</div>
+        </div>
+      </div>
+    </div>
     <aph-transaction-detail :on-hide="hideTransactionDetail" :show="showTransactionDetail" :transaction="transactionDetail"></aph-transaction-detail>
     <aph-full-token-stats :on-hide="hideFullTokenStats" :show="showFullTokenStats" :token="$store.state.statsToken"></aph-full-token-stats>
   </section>
 </template>
 
 <script>
+import VueQrcode from '@xkeshi/vue-qrcode';
 const HOURS = 24;
 
 export default {
   beforeMount() {
     this.getMetaData();
     this.$store.dispatch('fetchRecentTransactions');
+  },
+
+  components: {
+    VueQrcode,
   },
 
   computed: {
@@ -135,6 +153,7 @@ export default {
       high: 0,
       low: 0,
       showFullTokenStats: false,
+      showReceive: false,
       showTransactionDetail: false,
       transactionDetail: {},
       volume: 0,
@@ -166,6 +185,10 @@ export default {
 
     hideFullTokenStats() {
       this.showFullTokenStats = false;
+    },
+
+    hideReceive() {
+      this.showReceive = false;
     },
 
     hideTransactionDetail() {
@@ -485,6 +508,84 @@ export default {
           margin-left: $space;
         }
       }
+    }
+  }
+
+  > .receive {
+    @include transition(top);
+
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    left: 0;
+    overflow: hidden;
+    position: fixed;
+    top: 100vh;
+    width: 100%;
+    z-index: 200;
+
+    > .control {
+      background: $dark;
+      padding: $space;
+      flex: none;
+      position: relative;
+
+      .aph-icon {
+        position: absolute;
+
+        svg {
+          height: toRem(20px);
+        }
+      }
+
+      .title {
+        text-align: center;
+      }
+    }
+
+    > .body {
+      @extend %tile-grid;
+
+      color: $dark;
+      flex: 1;
+      overflow: auto;
+      display: flex;
+      flex-direction: column;
+
+      > .inner {
+        align-items: center;
+        background: white;
+        border-radius: $border-radius;
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        justify-content: center;
+        margin: $space;
+        padding: $space;
+
+        .title {
+          @extend %small-uppercase-grey-label;
+
+          margin-bottom: $space-xl;
+          text-align: center;
+          width: 70vw;
+        }
+
+        .address {
+          font-family: GilroyMedium;
+          margin-top: $space-xl;
+        }
+      }
+    }
+
+    .submit-btn {
+      @extend %btn-footer;
+    }
+  }
+
+  &.show-receive {
+    .receive {
+      top: 0;
     }
   }
 }
