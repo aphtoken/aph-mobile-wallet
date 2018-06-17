@@ -134,7 +134,6 @@ button, input, optgroup, select, textarea {
   text-align: center;
 
   &.disabled, &:disabled {
-    background-color: $background;
     color: $grey;
     cursor: not-allowed;
   }
