@@ -379,7 +379,6 @@ export default {
             border-radius: $border-radius;
             display: flex;
             flex: 1;
-            overflow: hidden;
 
             > .body {
               overflow: auto;
