@@ -13,7 +13,7 @@
             </div>
           </div>
           <div class="row">
-            <div class="label">Send Feedback</div>
+            <div class="label" @click="sendFeedback">Send Feedback</div>
             <div class="value">
               <aph-icon name="feedback"></aph-icon>
             </div>
@@ -81,6 +81,13 @@ export default {
       this.$services.wallets.clearCurrentWallet();
       this.$store.commit('handleLogout');
       this.$router.push('/login');
+    },
+
+    sendFeedback() {
+      const address = 'support@aphelion.org';
+      const subject = 'Aphelion Mobile Wallet Feedback';
+
+      window.location.href = `mailto:${address}?subject=${subject}`;
     },
   },
 };
