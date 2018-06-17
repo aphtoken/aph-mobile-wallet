@@ -97,8 +97,6 @@ export default {
     top: 0;
     width: 40vw;
 
-
-
     .aph-icon .fill {
       fill: white;
     }
@@ -222,6 +220,10 @@ export default {
             margin-top: toRem(17px);
             transform-origin: bottom left;
             transform: rotate(-45deg);
+
+            @include lowRes() {
+              margin-top: toRem(22px);
+            }
           }
         }
       }
