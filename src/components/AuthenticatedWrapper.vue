@@ -217,13 +217,9 @@ export default {
           }
 
           &:last-child {
-            margin-top: toRem(17px);
+            margin-top: toRem(12px);
             transform-origin: bottom left;
             transform: rotate(-45deg);
-
-            @include lowRes() {
-              margin-top: toRem(22px);
-            }
           }
         }
       }

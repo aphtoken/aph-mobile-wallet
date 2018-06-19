@@ -19,6 +19,7 @@ export default {
 <style lang="scss">
 #intro {
   align-items: center;
+  background: $dark;
   display: flex;
   height: 100%;
   justify-content: center;

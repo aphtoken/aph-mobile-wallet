@@ -16,78 +16,9 @@
     <div class="body">
       <div class="tile-wrapper">
         <div :class="['tiles', activeTileClass]">
-          <div class="tile preview" v-touch:swipe.left="goToStats">
-            <div class="inner">
-              <aph-token-icon :symbol="symbol"></aph-token-icon>
-              <div class="token">{{ $store.state.statsToken.name }}</div>
-              <div class="symbol">{{ $store.state.statsToken.symbol }}</div>
-              <div class="amount">{{ $formatNumber($store.state.statsToken.balance) }}</div>
-              <div class="value">{{ $formatMoney($store.state.statsToken.balance * $store.state.statsToken.unitValue) }}</div>
-            </div>
-          </div><!--
-          --><div class="tile stats" v-touch:swipe.left="goToTransactionHistory" v-touch:swipe.right="goToPreview">
-            <div class="inner">
-              <div class="header">
-                <div class="label">Active Value</div>
-                <div class="value">{{ $formatMoney($store.state.statsToken.balance * $store.state.statsToken.unitValue) }}</div>
-              </div>
-              <div class="body">
-                <div class="row">
-                  <div class="col change">
-                    <div class="label">24h Change</div>
-                    <div class="value">{{ $formatMoney($store.state.statsToken.change24hrValue) }} ({{ $formatNumber($store.state.statsToken.change24hrPercent) }}%)</div>
-                  </div>
-                </div>
-                <div class="row">
-                  <div class="col">
-                    <div class="label">24h Low</div>
-                    <div class="value">{{ $formatMoney(low) }}</div>
-                  </div>
-                  <div class="col">
-                    <div class="label">24h High</div>
-                    <div class="value">{{ $formatMoney(high) }}</div>
-                  </div>
-                </div>
-                <div class="row">
-                  <div class="col">
-                    <div class="label">24h Volume</div>
-                    <div class="value">{{ $formatMoneyWithoutCents(volume) }}</div>
-                  </div>
-                </div>
-                <div class="row">
-                  <div class="col">
-                    <div class="label">Market Cap</div>
-                    <div class="value">{{ $formatMoneyWithoutCents($store.state.statsToken.marketCap) }}</div>
-                  </div>
-                </div>
-                <div class="row">
-                  <div class="col">
-                    <div class="label">Total Supply</div>
-                    <div class="value">{{ $formatNumber($store.state.statsToken.totalSupply) }}</div>
-                  </div>
-                </div>
-              </div>
-              <div class="expand-btn" @click="showFullTokenStats = true">
-                <aph-icon name="expand"></aph-icon>
-              </div>
-            </div>
-          </div><!--
-          --><div class="tile transaction-history" v-touch:swipe.right="goToStats">
-            <div class="inner">
-              <div class="header">
-                <div :class="['tab', {active: activeTransactionHistoryTab === 'sent'}]" @click="activeTransactionHistoryTab = 'sent'">Sent</div>
-                <div :class="['tab', {active: activeTransactionHistoryTab === 'received'}]" @click="activeTransactionHistoryTab = 'received'">Received</div>
-              </div>
-              <div class="body">
-                <div class="sent" v-if="activeTransactionHistoryTab === 'sent'">
-                  <aph-simple-transactions :transactions="sent" :on-click="showTransaction"></aph-simple-transactions>
-                </div>
-                <div class="received" v-if="activeTransactionHistoryTab === 'received'">
-                  <aph-simple-transactions :transactions="received" :on-click="showTransaction"></aph-simple-transactions>
-                </div>
-              </div>
-            </div>
-          </div>
+          <preview v-touch:swipe.left="goToStats" :symbol="symbol"></preview>
+          <stats v-touch:swipe.left="goToTransactionHistory" v-touch:swipe.right="goToPreview"></stats>
+          <transaction-history v-touch:swipe.right="goToStats"></transaction-history>
         </div>
       </div>
       <div class="controls">
@@ -177,13 +108,14 @@
         <button class="next-btn" :disabled="shouldDisableNextButton" @click="showSendConfirmation = true">Next</button>
       </div>
     </template>
-    <aph-transaction-detail :on-hide="hideTransactionDetail" :show="showTransactionDetail" :transaction="transactionDetail"></aph-transaction-detail>
-    <aph-full-token-stats :on-hide="hideFullTokenStats" :show="showFullTokenStats" :token="$store.state.statsToken"></aph-full-token-stats>
   </section>
 </template>
 
 <script>
 import VueQrcode from '@xkeshi/vue-qrcode';
+import Preview from './token-stats/Preview';
+import Stats from './token-stats/Stats';
+import TransactionHistory from './token-stats/TransactionHistory';
 const HOURS = 24;
 
 export default {
@@ -193,24 +125,15 @@ export default {
   },
 
   components: {
+    Preview,
+    Stats,
+    TransactionHistory,
     VueQrcode,
   },
 
   computed: {
     activeTileClass() {
       return `active-tile-${this.activeTile}`;
-    },
-
-    received() {
-      return this.$store.state.recentTransactions.filter(({ value, symbol }) => {
-        return value > 0 && this.symbol === symbol;
-      });
-    },
-
-    sent() {
-      return this.$store.state.recentTransactions.filter(({ value, symbol }) => {
-        return value < 0 && this.symbol === symbol;
-      });
     },
 
     shouldDisableNextButton() {
@@ -221,17 +144,13 @@ export default {
   data() {
     return {
       activeTile: 'preview',
-      activeTransactionHistoryTab: 'sent',
       address: '',
       amount: '',
       high: 0,
       low: 0,
-      showFullTokenStats: false,
       showReceive: false,
       showSend: false,
       showSendConfirmation: false,
-      showTransactionDetail: false,
-      transactionDetail: {},
       volume: 0,
     };
   },
@@ -259,25 +178,12 @@ export default {
       this.activeTile = 'transaction-history';
     },
 
-    hideFullTokenStats() {
-      this.showFullTokenStats = false;
-    },
-
     hideReceive() {
       this.showReceive = false;
     },
 
     hideSend() {
       this.showSend = false;
-    },
-
-    hideTransactionDetail() {
-      this.showTransactionDetail = false;
-    },
-
-    showTransaction(transaction) {
-      this.transactionDetail = transaction;
-      this.showTransactionDetail = true;
     },
   },
 
@@ -309,8 +215,10 @@ export default {
     .btn-group {
       display: flex;
       flex: none;
-      justify-content: space-evenly;
-      margin-bottom: toRem(-75px);
+      flex-direction: row;
+      justify-content: space-between;
+      margin-bottom: toRem(-62.5px);
+      padding: 0 $space-lg;
       width: 100%;
       z-index: 100;
 
@@ -318,6 +226,7 @@ export default {
         @extend %btn-square;
 
         box-shadow: $box-shadow;
+        width: 100%;
 
         > p {
           margin-top: 0;
@@ -326,6 +235,7 @@ export default {
 
       .send-btn {
         background: $purple;
+        margin-left: $space-lg;
 
         > p {
           color: white;
@@ -396,8 +306,8 @@ export default {
               .aph-token-icon {
                 flex: none;
                 > img {
-                  height: toRem(125px);
-                  width: toRem(125px);
+                  height: toRem(90px);
+                  width: toRem(90px);
                 }
               }
 
@@ -429,7 +339,7 @@ export default {
 
               .amount {
                 color: $purple;
-                font-size: toRem(34px);
+                font-size: toRem(30px);
               }
 
               .value {
@@ -593,6 +503,7 @@ export default {
   > .receive {
     @include transition(top);
 
+    background: $dark;
     display: flex;
     flex-direction: column;
     height: 100%;
@@ -640,7 +551,7 @@ export default {
         flex-direction: column;
         flex: 1;
         justify-content: center;
-        margin: $space;
+        margin: 0 $space $space;
         padding: $space;
 
         .title {
@@ -662,6 +573,7 @@ export default {
   > .send {
     @include transition(top);
 
+    background: $dark;
     display: flex;
     flex-direction: column;
     height: 100%;
@@ -790,7 +702,7 @@ export default {
         padding: $space;
 
         & + .underlined {
-          margin-top: $space-lg;
+          margin-top: $space;
         }
 
         &.send-to {

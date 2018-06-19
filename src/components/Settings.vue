@@ -43,8 +43,8 @@
             </div>
           </div>
         </div>
-        <button class="backup-wallet-btn" @click="backupWallet">Backup wallet</button>
       </div>
+      <button class="backup-wallet-btn" @click="backupWallet">Backup wallet</button>
     </div>
   </section>
 </template>
@@ -127,7 +127,7 @@ export default {
       display: flex;
       flex-direction: column;
       flex: 1;
-      overflow: hidden;
+      overflow: auto;
 
       .underlined {
         color: $dark;
@@ -157,7 +157,7 @@ export default {
           align-items: center;
           display: flex;
           flex-direction: row;
-          height: $input-height;
+          padding: $space 0;
 
           .label {
             color: $dark;
@@ -199,17 +199,18 @@ export default {
         }
 
         & + .underlined {
-          margin-top: $space-lg;
+          margin-top: $space;
         }
       }
+    }
 
-      .backup-wallet-btn {
-        @extend %btn;
+    .backup-wallet-btn {
+      @extend %btn;
 
-        box-shadow: $box-shadow;
-        margin: $space-lg $space 0 $space;
-        width: auto;
-      }
+      box-shadow: $box-shadow;
+      flex: none;
+      margin: $space-lg $space 0 $space;
+      width: auto;
     }
   }
 }

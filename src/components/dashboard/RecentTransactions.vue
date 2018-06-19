@@ -1,5 +1,5 @@
 <template>
-  <section id="dashboard--recent-transactions" :class="{'show-transaction-detail': transactionDetail}">
+  <section id="dashboard--recent-transactions">
     <div class="header">
       <div class="title">Recent Transactions</div>
       <aph-portfolio-header></aph-portfolio-header>

@@ -12,10 +12,11 @@ html, body {
   font-size: $font-size;
   height: 100%;
   line-height: normal;
+  overscroll-behavior-y: none;
 
-  @include lowRes() {
-    font-size: $font-size-low-res;
-  }
+  // @include lowRes() {
+  //   font-size: $font-size-low-res;
+  // }
 
 }
 

@@ -186,6 +186,7 @@ export default {
 
     .value {
       flex: 1;
+      font-size: toRem(12px);
     }
 
     .aph-icon {
