@@ -17,7 +17,7 @@
       <div class="tile-wrapper">
         <div :class="['tiles', activeTileClass]">
           <preview v-touch:swipe.left="goToStats" :symbol="symbol"></preview>
-          <stats v-touch:swipe.left="goToTransactionHistory" v-touch:swipe.right="goToPreview"></stats>
+          <stats v-touch:swipe.left="goToTransactionHistory" v-touch:swipe.right="goToPreview" :high="high" :low="low" :volume="volume"></stats>
           <transaction-history v-touch:swipe.right="goToStats"></transaction-history>
         </div>
       </div>

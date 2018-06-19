@@ -62,6 +62,8 @@ export default {
       this.showFullTokenStats = false;
     },
   },
+
+  props: ['high', 'low', 'volume'],
 };
 </script>
 

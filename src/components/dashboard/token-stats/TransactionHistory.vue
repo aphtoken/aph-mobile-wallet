@@ -37,7 +37,7 @@ export default {
   data() {
     return {
       activeTransactionHistoryTab: 'sent',
-      hideTransactionDetail: false,
+      showTransactionDetail: false,
       transactionDetail: {},
     };
   },

@@ -116,7 +116,11 @@ export default {
   },
 
   methods: {
-    beginOpenWallet(wallet) {
+    beginOpenWallet({ label }) {
+      if(label === this.$store.state.currentWallet.label) {
+        return;
+      }
+
       this.showOpenWallet = true;
       this.walletToOpen = wallet;
     },
@@ -151,7 +155,7 @@ export default {
     },
 
     isActive({ label }) {
-      return _.get(this.$store.state.currentWallet, 'label') === label;
+      return this.$store.state.currentWallet.label === label;
     },
 
   },
@@ -330,7 +334,7 @@ export default {
         background: white;
         border-radius: $border-radius;
         flex: 1;
-        margin: $space $space 0;
+        margin: 0 $space;
 
         .body {
           display: flex;

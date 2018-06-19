@@ -259,7 +259,7 @@ export default {
         background: white;
         border-radius: $border-radius;
         flex: 1;
-        margin: $space $space 0;
+        margin: 0 $space;
 
         .body {
           display: flex;
