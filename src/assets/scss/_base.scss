@@ -39,25 +39,37 @@ a {
 }
 
 .vue-flash-container {
-  bottom: $space;
+  bottom: 0;
+  left: 0;
   position: absolute;
-  right: $space;
-  width: toRem(500px);
+  width: 100%;
   z-index: 10000;
 }
 
 .flash__message {
   background: rgba($dark, .9) !important;
-  border-radius: $border-radius;
+  border-radius: 0;
   border: none;
   line-height: $copy-line-height;
   margin: 0;
-  padding: $space-lg;
+  padding: $space;
   word-wrap: break-word;
+  position: relative;
+
+  .flash__message-content {
+    text-align: center;
+  }
 
 
   .flash__close-button {
-    display: none;
+    bottom: 0;
+    height: 100%;
+    left: 0;
+    opacity: 0;
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 100%;
   }
 
   &.error {
@@ -77,6 +89,6 @@ a {
   }
 
   & + .flash__message {
-    margin-top: $space;
+    margin-top: $space-sm;
   }
 }

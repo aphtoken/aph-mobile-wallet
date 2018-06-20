@@ -123,7 +123,7 @@ export default {
     }
 
     > .search {
-      margin: $space-lg 0 toRem(-26px);
+      margin: $space 0 toRem(-26px);
       padding: 0 $space;
       width: 100%;
       z-index: 100;

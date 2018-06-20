@@ -85,6 +85,11 @@ export default new Router({
           component: require('../components/Settings').default,
         },
         {
+          path: 'settings/about',
+          component: require('../components/settings/About').default,
+          name: 'settings.about',
+        },
+        {
           path: 'settings/contacts',
           component: require('../components/settings/Contacts').default,
           name: 'settings.contacts',

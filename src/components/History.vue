@@ -157,7 +157,7 @@ export default {
     .filters {
       display: flex;
       flex-direction: row;
-      margin: $space-lg 0 toRem(-26px);
+      margin: $space 0 toRem(-26px);
       padding: 0 $space;
       width: 100%;
 

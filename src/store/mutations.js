@@ -56,6 +56,10 @@ function endRequest(state, payload) {
 
 function failRequest(state, payload) {
   updateRequest(state, payload, requests.FAILED);
+
+  if(payload.message) {
+    alerts.error(payload.message);
+  }
 }
 
 function handleLogout(state) {

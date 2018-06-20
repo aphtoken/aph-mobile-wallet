@@ -31,7 +31,6 @@
             <div class="form">
               <aph-input placeholder="Script Hash or Token Symbol" :light="true" v-model="hashOrSymbol"></aph-input>
             </div>
-            <request-error-message identifier="addToken"></request-error-message>
           </div>
         </div>
       </div>
@@ -41,15 +40,9 @@
 </template>
 
 <script>
-import RequestErrorMessage from './RequestErrorMessage';
-
 export default {
   beforeMount() {
     this.$store.dispatch('fetchHoldings');
-  },
-
-  components: {
-    RequestErrorMessage,
   },
 
   computed: {
@@ -129,7 +122,7 @@ export default {
     }
 
     > .search {
-      margin: $space-lg 0 toRem(-26px);
+      margin: $space 0 toRem(-26px);
       padding: 0 $space;
       width: 100%;
       z-index: 100;

@@ -6,6 +6,12 @@
     <div class="body">
       <div class="inner">
         <div class="tile">
+          <div class="row" @click="$router.push('/authenticated/settings/about')">
+            <div class="label">About</div>
+            <div class="value">
+              <aph-icon name="about"></aph-icon>
+            </div>
+          </div>
           <div class="row" @click="$router.push('/authenticated/settings/contacts')">
             <div class="label">Address Book</div>
             <div class="value">
@@ -174,7 +180,7 @@ export default {
 
             .aph-icon {
               svg {
-                &.contacts {
+                &.about, &.contacts {
                   height: toRem(22px);
                 }
 
@@ -209,7 +215,7 @@ export default {
 
       box-shadow: $box-shadow;
       flex: none;
-      margin: $space-lg $space 0 $space;
+      margin-top : $space;
       width: auto;
     }
   }

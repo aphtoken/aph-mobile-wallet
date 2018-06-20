@@ -29,7 +29,7 @@ import Input from './components/Input';
 import PortfolioHeader from './components/PortfolioHeader';
 import Select from './components/Select';
 import SimpleTransactions from './components/SimpleTransactions';
-// import TimestampFromNow from './components/TimestampFromNow';
+import TimestampFromNow from './components/TimestampFromNow';
 import TokenIcon from './components/TokenIcon';
 import TransactionDetail from './components/TransactionDetail';
 
@@ -65,7 +65,7 @@ Vue.component('aph-input', Input);
 Vue.component('aph-portfolio-header', PortfolioHeader);
 Vue.component('aph-select', Select);
 Vue.component('aph-simple-transactions', SimpleTransactions);
-// Vue.component('aph-timestamp-from-now', TimestampFromNow);
+Vue.component('aph-timestamp-from-now', TimestampFromNow);
 Vue.component('aph-token-icon', TokenIcon);
 Vue.component('aph-transaction-detail', TransactionDetail);
 

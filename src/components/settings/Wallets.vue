@@ -36,7 +36,6 @@
               <aph-input placeholder="Private key" v-model="wif" :light="true"></aph-input>
               <aph-input placeholder="Passphrase" v-model="passphrase" type="password" :light="true"></aph-input>
             </div>
-            <request-error-message identifier="importWallet"></request-error-message>
           </div>
         </div>
       </div>
@@ -55,7 +54,6 @@
             <div class="form">
               <aph-input placeholder="Passphrase" v-model="passphrase" type="password" :light="true"></aph-input>
             </div>
-            <request-error-message identifier="openSavedWallet"></request-error-message>
           </div>
         </div>
       </div>
@@ -65,13 +63,7 @@
 </template>
 
 <script>
-import RequestErrorMessage from './../RequestErrorMessage';
-
 export default {
-  components: {
-    RequestErrorMessage,
-  },
-
   computed: {
     filteredWallets() {
       const searchBy = this.searchBy.toLowerCase();
@@ -194,7 +186,7 @@ export default {
     }
 
     > .search {
-      margin: $space-lg 0 toRem(-26px);
+      margin: $space 0 toRem(-26px);
       padding: 0 $space;
       width: 100%;
       z-index: 100;

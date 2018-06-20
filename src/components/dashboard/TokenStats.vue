@@ -71,7 +71,7 @@
             </div>
           </div>
         </div>
-        <button class="send-btn">Send</button>
+        <button class="send-btn" @click="send">Send</button>
       </div>
     </template>
     <template v-else>
@@ -185,9 +185,28 @@ export default {
     hideSend() {
       this.showSend = false;
     },
+
+    send() {
+      setTimeout(() => {
+        this.$services.neo.sendFunds(this.address, this.$store.state.statsToken.asset,
+          this.amount, this.$store.state.statsToken.isNep5)
+          .then(() => {
+            this.hideSend();
+          })
+          .catch((e) => {
+            this.$services.alerts.error(e);
+          });
+      }, this.$constants.timeouts.NEO_API_CALL);
+    },
   },
 
   props: ['symbol'],
+
+  watch: {
+    showSend() {
+      this.address = this.amount = '';
+    },
+  },
 };
 </script>
 
@@ -209,7 +228,6 @@ export default {
     .title {
       color: white;
       font-size: toRem(18px);
-      margin-bottom: $space-lg;
     }
 
     .btn-group {
@@ -217,7 +235,7 @@ export default {
       flex: none;
       flex-direction: row;
       justify-content: space-between;
-      margin-bottom: toRem(-62.5px);
+      margin: $space 0 toRem(-62.5px);
       padding: 0 $space-lg;
       width: 100%;
       z-index: 100;
@@ -252,7 +270,7 @@ export default {
     flex-direction: column;
     flex: 1;
     overflow: hidden;
-    padding: toRem(75px) 0 $space-lg;
+    padding: toRem(62.5px) 0 $space-lg;
 
     > .tile-wrapper {
       display: flex;
@@ -564,6 +582,7 @@ export default {
 
         .address {
           font-family: GilroyMedium;
+          font-size: toRem(10px);
           margin-top: $space-xl;
         }
       }

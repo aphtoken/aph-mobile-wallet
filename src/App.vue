@@ -4,6 +4,7 @@
       <source src="~@/assets/video/login.mp4" type="video/mp4">
     </video>
     <router-view></router-view>
+    <flash-message class="vue-flash-container"></flash-message>
   </div>
 </template>
 
@@ -55,12 +56,10 @@ export default {
   overflow: hidden;
   position: relative;
 
-  video {
-    bottom: 0;
+  > video {
     height: 100%;
-    position: fixed;
+    position: absolute;
     left: 0;
-    right: 0;
     top: 0;
     visibility: hidden;
 
