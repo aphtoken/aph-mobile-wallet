@@ -116,8 +116,8 @@ export default {
   },
 
   methods: {
-    beginOpenWallet({ label }) {
-      if(label === this.$store.state.currentWallet.label) {
+    beginOpenWallet(wallet) {
+      if (wallet.label === this.$store.state.currentWallet.label) {
         return;
       }
 

@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <video loop muted autoplay ref="video" :class="{show: showVideo}">
+    <video loop muted autoplay :class="{show: showVideo}" ref="video">
       <source src="~@/assets/video/login.mp4" type="video/mp4">
     </video>
     <router-view></router-view>
@@ -24,22 +24,23 @@ export default {
     handleOnVideoCanPlay() {
       const now = moment().format('x');
       const loadTime = now - startTime;
+      const timeout = MINIMUM_TIME_BEFORE_FORWARD - loadTime;
 
       setTimeout(() => {
         this.showVideo = true;
-        this.$router.replace('/login');
-      }, MINIMUM_TIME_BEFORE_FORWARD - loadTime);
+        this.$refs.video.oncanplay = null;
+        this.$router.push('/login');
+      }, Math.max(0, timeout));
     },
 
     setIntroFowardTimeout() {
       startTime = moment().format('x');
-
       this.$refs.video.oncanplay = this.handleOnVideoCanPlay.bind(this);
     },
   },
 
   mounted() {
-    if(this.$route.name === 'intro') {
+    if (this.$route.name === 'intro') {
       this.setIntroFowardTimeout();
     }
   },
