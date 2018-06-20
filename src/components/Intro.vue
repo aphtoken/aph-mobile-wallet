@@ -5,14 +5,8 @@
 </template>
 
 <script>
-const FORWARD_TIMEOUT = 2000;
-
 export default {
-  mounted() {
-    setTimeout(() => {
-      this.$router.replace('/login');
-    }, FORWARD_TIMEOUT);
-  },
+  //
 };
 </script>
 

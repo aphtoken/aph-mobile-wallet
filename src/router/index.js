@@ -10,6 +10,7 @@ export default new Router({
     {
       path: '/intro',
       component: require('../components/Intro').default,
+      name: 'intro',
     },
     {
       path: '/login',
