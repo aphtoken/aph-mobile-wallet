@@ -114,12 +114,8 @@ function setCurrentWallet(state, currentWallet) {
 
   state.currentWallet = currentWallet;
 }
-function setCurrentNetwork(state, network) {
-  if (state.currentNetwork
-      && state.currentNetwork.net === network.net) {
-    return;
-  }
 
+function setCurrentNetwork(state, network) {
   if (state.currentNetwork) {
     clearLocalNetworkState(state);
   }
