@@ -2,6 +2,8 @@
   <section id="claim-gas-status">
     <!-- <div class="body" v-if="$store.state.gasClaim"> -->
     <div class="body">
+      <aph-icon name="claim-gas"></aph-icon>
+      <div class="title">Claim GAS</div>
       <p>Claiming GAS which has accumulated from your NEO holdings takes several steps. We've automated the process for you but it may take up to 5 minutes.</p>
       <p>Please wait for the GAS claim to complete.</p>
       <p>Closing your wallet during this process may result in the GAS claim failing and require you to run it again.</p>
@@ -115,8 +117,24 @@ export default {
     justify-content: center;
     padding: $space;
 
+    .aph-icon {
+      svg {
+        height: toRem(50px);
+      }
+
+      .fill {
+        fill: $purple;
+      }
+    }
+
+    .title {
+      font-size: toRem(16px);
+      color: $purple;
+      margin: $space 0;
+    }
+
     p {
-      margin: 0;
+      margin: $space 0 0;
       font-size: toRem(12px);
       text-align: center;
 
@@ -125,31 +143,16 @@ export default {
           font-family: GilroySemibold;
         }
       }
-
-      & + p {
-        margin-top: $space-lg;
-      }
-    }
-
-    .aph-icon {
-      svg {
-        height: $space-xl;
-      }
-
-      & + p {
-        margin-top: $space-xl;
-      }
     }
 
     .checklist {
-      margin: 0 auto;
       max-width: toRem(450px);
       text-align: left;
 
       .checklist-header {
         font-size: toRem(16px);
         font-family: GilroyMedium;
-        padding: $space-lg;
+        margin: $space 0;
         text-align: center;
       }
 
