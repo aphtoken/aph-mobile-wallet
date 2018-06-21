@@ -12,9 +12,19 @@
 </template>
 
 <script>
+let loadTransactionsIntervalId;
+
 export default {
+  beforeDestroy() {
+    clearInterval(loadTransactionsIntervalId);
+  },
+
   beforeMount() {
-    this.$store.dispatch('fetchRecentTransactions');
+    this.loadTransactions();
+
+    loadTransactionsIntervalId = setInterval(() => {
+      this.loadTransactions();
+    }, this.$constants.intervals.TRANSACTIONS_POLLING);
   },
 
   computed: {
@@ -36,6 +46,10 @@ export default {
   },
 
   methods: {
+    loadTransactions() {
+      this.$store.dispatch('fetchRecentTransactions');
+    },
+
     hideTransactionDetail() {
       this.showTransactionDetail = false;
     },
