@@ -878,7 +878,7 @@ export default {
       step: 0,
     };
     store.commit('setGasClaim', gasClaim);
-    // store.commit('setShowClaimGasModal', true);
+    store.commit('setShowClaimGasStatus', true);
 
     lastClaimSent = new Date();
     return this.fetchHoldings(currentWallet.address, 'NEO')
@@ -907,7 +907,7 @@ export default {
               alerts.exception(e);
               lastClaimSent = null;
               store.commit('setGasClaim', gasClaim);
-              // store.commit('setShowClaimGasModal', false);
+              store.commit('setShowClaimGasStatus', false);
             });
         }
       })
@@ -916,7 +916,7 @@ export default {
         alerts.networkException(e);
         lastClaimSent = null;
         store.commit('setGasClaim', gasClaim);
-        // store.commit('setShowClaimGasModal', false);
+        store.commit('setShowClaimGasStatus', false);
       });
   },
 
@@ -957,16 +957,19 @@ export default {
               .catch((e) => {
                 gasClaim.error = e;
                 alerts.error(e);
+                store.commit('setShowClaimGasStatus', false);
               });
           })
           .catch((e) => {
             gasClaim.error = e;
             alerts.exception(e);
+            store.commit('setShowClaimGasStatus', false);
           });
       })
       .catch((e) => {
         gasClaim.error = e;
         alerts.exception(e);
+        store.commit('setShowClaimGasStatus', false);
       });
   },
 

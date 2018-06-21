@@ -55,3 +55,44 @@ export default {
 };
 </script>
 
+<style lang="scss">
+.tile.transaction-history {
+  > .inner {
+    flex-direction: column;
+    overflow: hidden;
+
+    .header {
+      align-items: center;
+      color: $dark;
+      display: flex;
+      flex-direction: row;
+      flex: none;
+
+      .tab {
+        @include transition(all);
+
+        align-items: center;
+        border-bottom: $border-width solid transparent;
+        display: flex;
+        flex: 1;
+        font-family: GilroyMedium;
+        justify-content: center;
+        padding: $space;
+
+        &.active {
+          border-color: $purple;
+          color: $purple;
+        }
+      }
+    }
+
+    .body {
+      @extend %tile-grid-light;
+
+      flex: 1;
+      overflow: auto;
+    }
+  }
+}
+</style>
+

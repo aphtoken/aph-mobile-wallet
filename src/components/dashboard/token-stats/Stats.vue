@@ -67,3 +67,49 @@ export default {
 };
 </script>
 
+<style lang="scss">
+.tile.stats {
+  > .inner {
+    flex-direction: column;
+
+    .header {
+      align-items: center;
+      background-color: $dark;
+      border-top-left-radius: $border-radius;
+      border-top-right-radius: $border-radius;
+      display: flex;
+      flex-direction: row;
+      flex: none;
+      padding: $space;
+
+      .label {
+        @extend %small-uppercase-grey-label;
+
+        flex: 1;
+      }
+
+      .value {
+        color: white;
+        flex: 1;
+      }
+    }
+
+    .body {
+      @extend %tile-grid-light;
+
+      flex: 1;
+      padding: $space;
+    }
+  }
+
+  .expand-btn {
+    @extend %btn-circle;
+
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    box-shadow: $box-shadow-lg;
+    transform: translate(-50%, 50%)
+  }
+}
+</style>

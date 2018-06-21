@@ -49,6 +49,7 @@ button, input, optgroup, select, textarea {
 
   &.disabled, &:disabled {
     background-color: rgba($purple-hover, 0.5);
+    border-color: transparent;
     color: white;
     cursor: not-allowed;
   }

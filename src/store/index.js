@@ -31,6 +31,7 @@ const state = {
   searchTransactionToDate: null,
   searchTransactions: [],
   sendInProgress: false,
+  showClaimGasStatus: false,
   showPortfolioHeader: true,
   showPriceTile: true,
   showSendRequestLedgerSignature: false,

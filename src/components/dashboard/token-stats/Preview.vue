@@ -16,3 +16,61 @@ export default {
 };
 </script>
 
+<style lang="scss">
+.tile.preview {
+  > .inner {
+    align-items: center;
+    color: $dark;
+    flex-direction: column;
+    justify-content: center;
+    padding: $space;
+
+    .aph-token-icon {
+      flex: none;
+      > img {
+        height: toRem(90px);
+        width: toRem(90px);
+      }
+    }
+
+    .token {
+      font-family: GilroyMedium;
+      font-size: toRem(22px);
+      margin: $space-lg 0 $space-sm;
+    }
+
+    .symbol {
+      @extend %small-uppercase-grey-label-dark;
+
+      font-size: toRem(20px);
+      margin-bottom: $space;
+      padding-bottom: $space;
+      position: relative;
+
+      &:after {
+        background: $purple;
+        bottom: 0;
+        content: "";
+        height: $border-width;
+        left: 50%;
+        position: absolute;
+        transform: translateX(toRem(-20px));
+        width: toRem(40px);
+      }
+    }
+
+    .amount {
+      color: $purple;
+      font-size: toRem(30px);
+    }
+
+    .value {
+      font-family: GilroyMedium;
+      font-size: toRem(18px);
+      margin-top: $space;
+    }
+  }
+}
+</style>
+
+

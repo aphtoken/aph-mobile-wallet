@@ -15,7 +15,6 @@ export {
   handleNetworkChange,
   resetRequests,
   setActiveTransaction,
-  setWalletToBackup,
   setContacts,
   setCurrency,
   setCurrencySymbol,
@@ -32,8 +31,10 @@ export {
   setSearchTransactionToDate,
   setSearchTransactions,
   setSendInProgress,
+  setShowClaimGasStatus,
   setShowSendRequestLedgerSignature,
   setStatsToken,
+  setWalletToBackup,
   setWallets,
   startRequest,
 };
@@ -57,7 +58,7 @@ function endRequest(state, payload) {
 function failRequest(state, payload) {
   updateRequest(state, payload, requests.FAILED);
 
-  if(payload.message) {
+  if (payload.message) {
     alerts.error(payload.message);
   }
 }
@@ -200,6 +201,10 @@ function setShowSendRequestLedgerSignature(state, value) {
 
 function setSendInProgress(state, value) {
   state.sendInProgress = value;
+}
+
+function setShowClaimGasStatus(state, value) {
+  state.showClaimGasStatus = value;
 }
 
 function setStatsToken(state, token) {

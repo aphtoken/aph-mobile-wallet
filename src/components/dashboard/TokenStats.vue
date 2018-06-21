@@ -16,15 +16,17 @@
     <div class="body">
       <div class="tile-wrapper">
         <div :class="['tiles', activeTileClass]">
-          <preview v-touch:swipe.left="goToStats" :symbol="symbol"></preview>
-          <stats v-touch:swipe.left="goToTransactionHistory" v-touch:swipe.right="goToPreview" :high="high" :low="low" :volume="volume"></stats>
+          <preview v-touch:swipe.left="goToClaimGas" :symbol="symbol"></preview>
+          <claim-gas v-touch:swipe.left="goToStats" v-touch:swipe.right="goToPreview" :symbol="symbol"></claim-gas>
+          <stats v-touch:swipe.left="goToTransactionHistory" v-touch:swipe.right="goToClaimGas" :high="high" :low="low" :volume="volume"></stats>
           <transaction-history v-touch:swipe.right="goToStats"></transaction-history>
         </div>
       </div>
       <div class="controls">
-        <div :class="['control', {active: activeTile === 'preview'}]" @click="activeTile = 'preview'"></div>
-        <div :class="['control', {active: activeTile === 'stats'}]" @click="activeTile = 'stats'"></div>
-        <div :class="['control', {active: activeTile === 'transaction-history'}]" @click="activeTile = 'transaction-history'"></div>
+        <div :class="['control', {active: activeTile === 'preview'}]" @click="goToPreview"></div>
+        <div :class="['control', {active: activeTile === 'claim-gas'}]" @click="goToClaimGas"></div>
+        <div :class="['control', {active: activeTile === 'stats'}]" @click="goToStats"></div>
+        <div :class="['control', {active: activeTile === 'transaction-history'}]" @click="goToTransactionHistory"></div>
       </div>
     </div>
     <div class="receive" v-touch:swipe.down="hideReceive">
@@ -113,6 +115,7 @@
 
 <script>
 import VueQrcode from '@xkeshi/vue-qrcode';
+import ClaimGas from './token-stats/ClaimGas';
 import Preview from './token-stats/Preview';
 import Stats from './token-stats/Stats';
 import TransactionHistory from './token-stats/TransactionHistory';
@@ -125,6 +128,7 @@ export default {
   },
 
   components: {
+    ClaimGas,
     Preview,
     Stats,
     TransactionHistory,
@@ -164,6 +168,10 @@ export default {
           this.low = low;
           this.volume = volume;
         });
+    },
+
+    goToClaimGas() {
+      this.activeTile = 'claim-gas';
     },
 
     goToPreview() {
@@ -312,144 +320,18 @@ export default {
               overflow: auto;
             }
           }
+        }
 
-          &.preview {
-            > .inner {
-              align-items: center;
-              color: $dark;
-              flex-direction: column;
-              justify-content: center;
-              padding: $space;
+        &.active-tile-claim-gas {
+          left: -100vw;
 
-              .aph-token-icon {
-                flex: none;
-                > img {
-                  height: toRem(90px);
-                  width: toRem(90px);
-                }
-              }
-
-              .token {
-                font-family: GilroyMedium;
-                font-size: toRem(22px);
-                margin: $space-lg 0 $space-sm;
-              }
-
-              .symbol {
-                @extend %small-uppercase-grey-label-dark;
-
-                font-size: toRem(20px);
-                margin-bottom: $space;
-                padding-bottom: $space;
-                position: relative;
-
-                &:after {
-                  background: $purple;
-                  bottom: 0;
-                  content: "";
-                  height: $border-width;
-                  left: 50%;
-                  position: absolute;
-                  transform: translateX(toRem(-20px));
-                  width: toRem(40px);
-                }
-              }
-
-              .amount {
-                color: $purple;
-                font-size: toRem(30px);
-              }
-
-              .value {
-                font-family: GilroyMedium;
-                font-size: toRem(18px);
-                margin-top: $space;
-              }
-            }
+          > .preview {
+            transform: scale(.9);
           }
 
-          &.stats {
-            > .inner {
-              flex-direction: column;
-
-              .header {
-                align-items: center;
-                background-color: $dark;
-                border-top-left-radius: $border-radius;
-                border-top-right-radius: $border-radius;
-                display: flex;
-                flex-direction: row;
-                flex: none;
-                padding: $space;
-
-                .label {
-                  @extend %small-uppercase-grey-label;
-
-                  flex: 1;
-                }
-
-                .value {
-                  color: white;
-                  flex: 1;
-                }
-              }
-
-              .body {
-                @extend %tile-grid-light;
-
-                flex: 1;
-                padding: $space;
-              }
-            }
-
-            .expand-btn {
-              @extend %btn-circle;
-
-              position: absolute;
-              right: 0;
-              bottom: 0;
-              box-shadow: $box-shadow-lg;
-              transform: translate(-100%, 50%)
-            }
-          }
-
-          &.transaction-history {
-            > .inner {
-              flex-direction: column;
-              overflow: hidden;
-
-              .header {
-                align-items: center;
-                color: $dark;
-                display: flex;
-                flex-direction: row;
-                flex: none;
-
-                .tab {
-                  @include transition(all);
-
-                  align-items: center;
-                  border-bottom: $border-width solid transparent;
-                  display: flex;
-                  flex: 1;
-                  font-family: GilroyMedium;
-                  justify-content: center;
-                  padding: $space;
-
-                  &.active {
-                    border-color: $purple;
-                    color: $purple;
-                  }
-                }
-              }
-
-              .body {
-                @extend %tile-grid-light;
-
-                flex: 1;
-                overflow: auto;
-              }
-            }
+          > .stats {
+            transform-origin: left center;
+            transform: scale(.9);
           }
         }
 
@@ -467,7 +349,7 @@ export default {
         }
 
         &.active-tile-stats {
-          left: -100vw;
+          left: -200vw;
 
           > .preview {
             transform-origin: right center;
@@ -481,7 +363,7 @@ export default {
         }
 
         &.active-tile-transaction-history {
-          left: -200vw;
+          left: -300vw;
 
           > .preview {
             transform: scale(.9);

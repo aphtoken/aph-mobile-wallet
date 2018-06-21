@@ -18,6 +18,7 @@ export const searchTransactionFromDate = state => state.searchTransactionFromDat
 export const searchTransactionToDate = state => state.searchTransactionToDate;
 export const searchTransactions = state => state.searchTransactions;
 export const sendInProgress = state => state.sendInProgress;
+export const showClaimGasStatus = state => state.showClaimGasStatus;
 export const showPortfolioHeader = state => state.showPortfolioHeader;
 export const statsToken = state => state.statsToken;
 export const transactionDetails = state => state.transactionDetails;

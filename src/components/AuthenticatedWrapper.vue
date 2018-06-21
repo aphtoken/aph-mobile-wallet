@@ -34,11 +34,13 @@
       <router-view></router-view>
     </div>
     <backup-wallet></backup-wallet>
+    <claim-gas-status v-if="$store.state.showClaimGasStatus"></claim-gas-status>
   </section>
 </template>
 
 <script>
 import BackupWallet from './BackupWallet';
+import ClaimGasStatus from './ClaimGasStatus';
 
 const ROUTES_USING_BACK_BUTTON = [
   'dashboard.token-stats',
@@ -51,6 +53,7 @@ const ROUTES_USING_BACK_BUTTON = [
 export default {
   components: {
     BackupWallet,
+    ClaimGasStatus,
   },
 
   computed: {
