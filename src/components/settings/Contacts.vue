@@ -101,6 +101,7 @@ export default {
       }).sync();
 
       this.showAddContact = false;
+      return true;
     },
 
     hideAddContact() {

@@ -24,7 +24,7 @@ export default {
     this.wallet = this.$services.wallets.getLastWallet();
 
     if (!this.wallet) {
-      this.$router.replace('/login');
+      return this.$router.replace('/login');
     }
     return true;
   },
