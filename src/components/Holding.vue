@@ -1,7 +1,7 @@
 <template>
   <div :class="['holding', {'show-actions': showActions}]" @click="handleOnClick">
     <div class="actions">
-      <div class="delete">Delete</div>
+      <div class="delete" @click="handleOnRemove">Delete</div>
     </div>
     <div class="content" v-touch:swipe="getOnSwipeHandler()">
       <div class="left">
@@ -10,9 +10,6 @@
           <div class="currency">{{ holding.symbol }}</div>
           <div class="value">{{ $formatMoney(holding.balance * holding.unitValue)}}</div>
         </div>
-      </div>
-      <div class="center">
-        <div class="remove" v-if="canBeRemoved" @click="handleOnRemove">Remove</div>
       </div>
       <div class="right">
         <div class="balance">
@@ -133,11 +130,6 @@ export default {
     display: flex;
   }
 
-  .center {
-    flex: none;
-    display: flex;
-  }
-
   .aph-token-icon {
     flex: none;
     padding-right: $space;
@@ -158,16 +150,6 @@ export default {
     .value {
       @extend %small-uppercase-grey-label-dark;
     }
-  }
-
-  .remove {
-    @extend %small-uppercase-grey-label;
-    @include transition(background-color, color, opacity, visibility);
-
-    cursor: pointer;
-    opacity: 0;
-    padding: $space;
-    visibility: none;
   }
 
   .balance {

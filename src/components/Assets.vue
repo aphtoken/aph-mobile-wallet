@@ -60,6 +60,11 @@ export default {
 
         return name.toLowerCase().indexOf(searchBy) > -1
           || symbol.toLowerCase().indexOf(searchBy) > -1;
+      }).map((holding) => {
+        const canRemove = holding.isCustom === true && holding.symbol !== 'APH';
+        return _.merge(holding, {
+          canRemove,
+        });
       });
     },
 
@@ -82,7 +87,6 @@ export default {
       this.$store.dispatch('addToken', {
         hashOrSymbol: this.hashOrSymbol,
         done: () => {
-          this.$store.dispatch('fetchHoldings');
           this.showAddToken = false;
         },
       });
@@ -104,7 +108,9 @@ export default {
     },
 
     remove(holding) {
-      console.log(holding);
+      this.$services.tokens.remove(holding.asset, this.$store.state.currentNetwork.net);
+      this.$services.alerts.success(`Removed ${holding.symbol}`);
+      this.$store.dispatch('fetchHoldings');
     },
   },
 
