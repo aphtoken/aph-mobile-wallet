@@ -13,7 +13,7 @@
     </div>
     <div class="body">
       <div class="holdings">
-        <aph-holding :holding="holding" v-for="(holding, index) in filteredHoldings" :key="index"></aph-holding>
+        <aph-holding :holding="holding" v-for="(holding, index) in filteredHoldings" :key="index" :on-remove="remove" :on-swipe="onSwipe" :show-actions="holdingWithActionsShowing && holdingWithActionsShowing.asset === holding.asset"></aph-holding>
       </div>
       <div class="add-btn" @click="showAddToken = true">
         <aph-icon name="plus"></aph-icon>
@@ -70,6 +70,7 @@ export default {
 
   data() {
     return {
+      holdingWithActionsShowing: null,
       hashOrSymbol: '',
       searchBy: '',
       showAddToken: false,
@@ -89,6 +90,21 @@ export default {
 
     hideAddToken() {
       this.showAddToken = false;
+    },
+
+    onSwipe(holding, direction) {
+      if (direction === 'right' && this.holdingWithActionsShowing
+        && holding.asset === this.holdingWithActionsShowing.asset) {
+        this.holdingWithActionsShowing = null;
+      } else if (direction === 'left' && !this.holdingWithActionsShowing) {
+        this.holdingWithActionsShowing = holding;
+      } else if (direction === 'left' && holding.asset !== this.holdingWithActionsShowing.asset) {
+        this.holdingWithActionsShowing = holding;
+      }
+    },
+
+    remove(holding) {
+      console.log(holding);
     },
   },
 

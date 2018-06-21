@@ -18,7 +18,7 @@
           <div class="actions">
             <div class="delete" @click="remove(contact)">Delete</div>
           </div>
-          <div class="content" v-touch:swipe.left="showContactActions(contact)" v-touch:swipe.right="hideContactActions(contact)">
+          <div class="content" v-touch:swipe="getSwipeHandler(contact)">
           <!-- <div class="content"> -->
             <div class="name">{{ contact.name }}</div>
             <div class="copy">
@@ -86,12 +86,12 @@ export default {
   methods: {
     add() {
       if (this.$services.contacts.contactExistsByName(this.name)) {
-        this.$services.alerts.error(`Contact with that name already exists.`);
+        this.$services.alerts.error('Contact with that name already exists.');
         return;
       }
 
       if (this.$services.contacts.contactExistsByAddress(this.address)) {
-        this.$services.alerts.error(`Contact with that address already exists.`);
+        this.$services.alerts.error('Contact with that address already exists.');
         return;
       }
 
@@ -107,10 +107,15 @@ export default {
       this.showAddContact = false;
     },
 
-    hideContactActions(contact) {
-      const fn = function () {
-        if (contact.name === this.contactWithActionsShowing.name) {
+    getSwipeHandler(contact) {
+      const fn = function (direction) {
+        if (direction === 'right' && this.contactWithActionsShowing
+          && contact.address === this.contactWithActionsShowing.address) {
           this.contactWithActionsShowing = null;
+        } else if (direction === 'left' && !this.contactWithActionsShowing) {
+          this.contactWithActionsShowing = contact;
+        } else if (direction === 'left' && contact.address !== this.contactWithActionsShowing.address) {
+          this.contactWithActionsShowing = contact;
         }
       }.bind(this);
 
@@ -120,14 +125,6 @@ export default {
     remove({ address }) {
       this.$services.contacts.remove(address).sync();
       this.contactWithActionsShowing = null;
-    },
-
-    showContactActions(contact) {
-      const fn = function () {
-        this.contactWithActionsShowing = contact;
-      }.bind(this);
-
-      return fn;
     },
   },
 
@@ -246,9 +243,12 @@ export default {
         }
 
         .actions {
+          @include transitionFast(opacity);
+
           display: flex;
           flex-direction: row;
           height: 100%;
+          opacity: 0;
           position: absolute;
           right: 0;
           top: 0;
@@ -259,7 +259,7 @@ export default {
             flex-direction: row;
             font-size: toRem(12px);
             justify-content: center;
-            width: 10vh;
+            width: toRem(80px);
           }
 
           .delete {
@@ -269,7 +269,11 @@ export default {
 
         &.show-actions {
           .content {
-            left: -10vh;
+            left: toRem(-80px);
+          }
+
+          .actions {
+            opacity: 1;
           }
         }
 

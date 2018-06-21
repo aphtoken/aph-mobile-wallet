@@ -1,19 +1,24 @@
 <template>
-  <div :class="['holding']" @click="handleOnClick">
-    <div class="left">
-      <aph-token-icon :symbol="holding.symbol"></aph-token-icon>
-      <div class="token">
-        <div class="currency">{{ holding.symbol }}</div>
-        <div class="value">{{ $formatMoney(holding.balance * holding.unitValue)}}</div>
+  <div :class="['holding', {'show-actions': showActions}]" @click="handleOnClick">
+    <div class="actions">
+      <div class="delete">Delete</div>
+    </div>
+    <div class="content" v-touch:swipe="getOnSwipeHandler()">
+      <div class="left">
+        <aph-token-icon :symbol="holding.symbol"></aph-token-icon>
+        <div class="token">
+          <div class="currency">{{ holding.symbol }}</div>
+          <div class="value">{{ $formatMoney(holding.balance * holding.unitValue)}}</div>
+        </div>
       </div>
-    </div>
-    <div class="center">
-      <div class="remove" v-if="canBeRemoved" @click="handleOnRemove">Remove</div>
-    </div>
-    <div class="right">
-      <div class="balance">
-        <div class="amount">{{ $formatNumber(holding.balance) }}</div>
-        <div :class="['change', {decrease: holding.change24hrPercent < 0, increase: holding.change24hrPercent > 0}]">{{ $formatNumber(holding.change24hrPercent) }}</div>
+      <div class="center">
+        <div class="remove" v-if="canBeRemoved" @click="handleOnRemove">Remove</div>
+      </div>
+      <div class="right">
+        <div class="balance">
+          <div class="amount">{{ $formatNumber(holding.balance) }}</div>
+          <div :class="['change', {decrease: holding.change24hrPercent < 0, increase: holding.change24hrPercent > 0}]">{{ $formatNumber(holding.change24hrPercent) }}</div>
+        </div>
       </div>
     </div>
   </div>
@@ -23,7 +28,7 @@
 export default {
   computed: {
     canBeRemoved() {
-      return this.holding.canRemove;
+      return !!this.holding.canRemove && !!this.onRemove;
     },
 
     isClickable() {
@@ -32,6 +37,16 @@ export default {
   },
 
   methods: {
+    getOnSwipeHandler() {
+      const fn = function (direction) {
+        if (this.onSwipe) {
+          this.onSwipe(this.holding, direction);
+        }
+      }.bind(this);
+
+      return fn;
+    },
+
     handleOnClick() {
       if (this.onClick) {
         this.onClick(this.holding);
@@ -39,9 +54,7 @@ export default {
     },
 
     handleOnRemove() {
-      if (this.onRemove) {
-        this.onRemove(this.holding);
-      }
+      this.onRemove(this.holding);
     },
   },
 
@@ -58,6 +71,14 @@ export default {
     onRemove: {
       type: Function,
     },
+
+    onSwipe: {
+      type: Function,
+    },
+
+    showActions: {
+      type: Boolean,
+    },
   },
 };
 </script>
@@ -65,10 +86,47 @@ export default {
 <style lang="scss">
 .holding {
   align-items: center;
-  background: white;
-  border-radius: $border-radius;
-  display: flex;
-  padding: $space;
+  position: relative;
+
+  .content {
+    @include transitionFast(left);
+
+    background: white;
+    display: flex;
+    flex-direction: row;
+    position: relative;
+    left: 0;
+    padding: $space;
+    border-radius: $border-radius;
+  }
+
+  .actions {
+    @include transitionFast(opacity);
+
+    border-bottom-right-radius: $border-radius;
+    border-top-right-radius: $border-radius;
+    display: flex;
+    flex-direction: row;
+    height: 100%;
+    opacity: 0;
+    overflow: hidden;
+    position: absolute;
+    right: 0;
+    top: 0;
+
+    > * {
+      align-items: center;
+      display: flex;
+      flex-direction: row;
+      font-size: toRem(12px);
+      justify-content: center;
+      width: toRem(80px);
+    }
+
+    .delete {
+      background: $red;
+    }
+  }
 
   .left, .right {
     flex: 1;
@@ -146,6 +204,16 @@ export default {
       &:after {
         content: "%";
       }
+    }
+  }
+
+  &.show-actions {
+    .content {
+      left: toRem(-80px);
+    }
+
+    .actions {
+      opacity: 1;
     }
   }
 }
