@@ -9,13 +9,13 @@
         <aph-icon name="word-mark"></aph-icon>
         <div class="row version">
           <div class="label">Version</div>
-          <div class="value">{{ $store.state.version }}</div>
+          <div class="value">{{ version }}</div>
         </div>
         <div class="row block">
-          <div class="label">{{ $store.state.currentNetwork.net }} block</div>
-          <div class="value">{{ $store.state.currentNetwork && $store.state.currentNetwork.bestBlock ? $store.state.currentNetwork.bestBlock.index : 0 }}</div>
+          <div class="label">{{ currentNetwork.net }} block</div>
+          <div class="value">{{ currentNetwork && currentNetwork.bestBlock ? currentNetwork.bestBlock.index : 0 }}</div>
           <div class="value">
-            <aph-timestamp-from-now :timestamp="$store.state.lastReceivedBlock"></aph-timestamp-from-now>
+            <aph-timestamp-from-now :timestamp="lastReceivedBlock"></aph-timestamp-from-now>
           </div>
         </div>
         <div class="url">aphelion.org</div>
@@ -28,7 +28,18 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex';
+
 export default {
+  computed: {
+    ...mapGetters([
+      'currentNetwork',
+      'lastReceivedBlock',
+      'lastReceivedBlock',
+      'version',
+    ]),
+  },
+
   methods: {
     goBack() {
       this.$router.back();
