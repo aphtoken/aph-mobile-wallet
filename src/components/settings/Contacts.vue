@@ -13,10 +13,17 @@
     </div>
     <div class="body">
       <div class="contacts">
-        <div v-for="(contact, index) in filteredContacts" :key="index" class="contact">
-          <div class="name">{{ contact.name }}</div>
-          <div class="copy">
-            <aph-copy-text :text="contact.address"></aph-copy-text>
+        <div v-for="(contact, index) in filteredContacts" :key="index" :class="['contact', {'show-actions': contactWithActionsShowing && contactWithActionsShowing.name === contact.name}]">
+        <!-- <div v-for="(contact, index) in filteredContacts" :key="index" :class="['contact', {'show-actions': contactWithActionsShowing.name === contact.name}]"> -->
+          <div class="actions">
+            <div class="delete">Delete</div>
+          </div>
+          <div class="content" v-touch:swipe.left="showContactActions(contact)" v-touch:swipe.right="hideContactActions(contact)">
+          <!-- <div class="content"> -->
+            <div class="name">{{ contact.name }}</div>
+            <div class="copy">
+              <aph-copy-text :text="contact.address"></aph-copy-text>
+            </div>
           </div>
         </div>
       </div>
@@ -72,6 +79,7 @@ export default {
       name: '',
       searchBy: '',
       showAddContact: false,
+      contactWithActionsShowing: null,
     };
   },
 
@@ -92,6 +100,24 @@ export default {
 
     hideAddContact() {
       this.showAddContact = false;
+    },
+
+    hideContactActions(contact) {
+      const fn = function () {
+        if (contact.name === this.contactWithActionsShowing.name) {
+          this.contactWithActionsShowing = null;
+        }
+      }.bind(this);
+
+      return fn;
+    },
+
+    showContactActions(contact) {
+      const fn = function () {
+        this.contactWithActionsShowing = contact;
+      }.bind(this);
+
+      return fn;
     },
   },
 
@@ -184,19 +210,57 @@ export default {
       padding: 0 $space;
 
       .contact {
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        padding: $space;
+        overflow: hidden;
+        position: relative;
 
-        .name {
-          color: $dark;
-          flex: 1;
-          font-family: GilroyMedium;
+        .content {
+          @include transitionFast(left);
+
+          align-items: center;
+          background: white;
+          display: flex;
+          flex-direction: row;
+          padding: $space;
+          position: relative;
+          left: 0;
+
+          .name {
+            color: $dark;
+            flex: 1;
+            font-family: GilroyMedium;
+          }
+
+          .copy {
+            flex: none;
+          }
         }
 
-        .copy {
-          flex: none;
+        .actions {
+          display: flex;
+          flex-direction: row;
+          height: 100%;
+          position: absolute;
+          right: 0;
+          top: 0;
+
+          > * {
+            align-items: center;
+            display: flex;
+            flex-direction: row;
+            font-size: toRem(12px);
+            justify-content: center;
+            width: 10vh;
+          }
+
+          .delete {
+            background: $red;
+          }
+        }
+
+        &.show-actions {
+          .content {
+            left: -10vh;
+          }
         }
 
         & + .contact {
@@ -216,7 +280,7 @@ export default {
   }
 
   > .add-contact {
-    @include transition(top);
+    @include transitionFast(top);
 
     display: flex;
     flex-direction: column;
