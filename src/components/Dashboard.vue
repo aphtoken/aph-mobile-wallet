@@ -15,10 +15,30 @@
 </template>
 
 <script>
+let loadTransactionsIntervalId;
+
 export default {
+  beforeDestroy() {
+    clearInterval(loadTransactionsIntervalId);
+  },
+
+  beforeMount() {
+    this.loadTransactions();
+
+    loadTransactionsIntervalId = setInterval(() => {
+      this.loadTransactions();
+    }, this.$constants.intervals.TRANSACTIONS_POLLING);
+  },
+
   computed: {
     showFooter() {
       return !_.includes(this.$route.name, ['dashboard.token-stats']);
+    },
+  },
+
+  methods: {
+    loadTransactions() {
+      this.$store.dispatch('fetchRecentTransactions');
     },
   },
 };

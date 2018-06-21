@@ -12,21 +12,7 @@
 </template>
 
 <script>
-let loadTransactionsIntervalId;
-
 export default {
-  beforeDestroy() {
-    clearInterval(loadTransactionsIntervalId);
-  },
-
-  beforeMount() {
-    this.loadTransactions();
-
-    loadTransactionsIntervalId = setInterval(() => {
-      this.loadTransactions();
-    }, this.$constants.intervals.TRANSACTIONS_POLLING);
-  },
-
   computed: {
     transactions() {
       return this.$store.state.recentTransactions
@@ -46,10 +32,6 @@ export default {
   },
 
   methods: {
-    loadTransactions() {
-      this.$store.dispatch('fetchRecentTransactions');
-    },
-
     hideTransactionDetail() {
       this.showTransactionDetail = false;
     },
