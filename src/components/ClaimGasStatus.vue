@@ -22,8 +22,6 @@
 </template>
 
 <script>
-let loadTransactionsIntervalId;
-
 export default {
   computed: {
     step1Label() {
@@ -70,18 +68,6 @@ export default {
     },
   },
 
-  beforeDestroy() {
-    clearInterval(loadTransactionsIntervalId);
-  },
-
-  beforeMount() {
-    this.loadTransactions();
-
-    loadTransactionsIntervalId = setInterval(() => {
-      this.loadTransactions();
-    }, this.$constants.intervals.TRANSACTIONS_POLLING);
-  },
-
   methods: {
     close() {
       this.$store.commit('setSendInProgress', false);
@@ -105,11 +91,6 @@ export default {
       }
       return '✔';
     },
-
-    loadTransactions() {
-      this.$store.dispatch('fetchRecentTransactions');
-    },
-
   },
 };
 </script>
