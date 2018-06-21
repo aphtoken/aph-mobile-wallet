@@ -15,18 +15,18 @@
 </template>
 
 <script>
-let loadTransactionsIntervalId;
+let loadDataIntervalId;
 
 export default {
   beforeDestroy() {
-    clearInterval(loadTransactionsIntervalId);
+    clearInterval(loadDataIntervalId);
   },
 
   beforeMount() {
-    this.loadTransactions();
+    this.loadData();
 
-    loadTransactionsIntervalId = setInterval(() => {
-      this.loadTransactions();
+    loadDataIntervalId = setInterval(() => {
+      this.loadData();
     }, this.$constants.intervals.TRANSACTIONS_POLLING);
   },
 
@@ -37,7 +37,9 @@ export default {
   },
 
   methods: {
-    loadTransactions() {
+    loadData() {
+      this.$store.dispatch('fetchHoldings');
+      this.$store.dispatch('fetchPortfolio');
       this.$store.dispatch('fetchRecentTransactions');
     },
   },
