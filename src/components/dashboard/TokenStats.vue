@@ -124,7 +124,6 @@ const HOURS = 24;
 export default {
   beforeMount() {
     this.getMetaData();
-    this.$store.dispatch('fetchRecentTransactions');
   },
 
   components: {
