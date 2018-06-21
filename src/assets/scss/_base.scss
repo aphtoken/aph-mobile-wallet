@@ -6,6 +6,7 @@
 }
 
 html, body {
+  -webkit-tap-highlight-color: transparent;
   background: $dark;
   color: white;
   font-family: Gilroy;
@@ -13,11 +14,6 @@ html, body {
   height: 100%;
   line-height: normal;
   overscroll-behavior-y: none;
-
-  // @include lowRes() {
-  //   font-size: $font-size-low-res;
-  // }
-
 }
 
 * {

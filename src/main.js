@@ -9,7 +9,7 @@ import axios from 'axios';
 import moment from 'moment';
 
 // Services, etc.
-import { contacts, network, settings, wallets } from './services';
+import { contacts, network, settings, storage, wallets } from './services';
 
 // Initial Vue Libraries.
 import './libraries';
@@ -17,7 +17,7 @@ import './error-handler';
 import * as mixins from './mixins';
 import App from './App';
 import router from './router';
-import { store } from './store';
+import { state, store } from './store';
 
 // Global Vue Components.
 import CopyText from './components/CopyText';
@@ -68,6 +68,10 @@ Vue.component('aph-simple-transactions', SimpleTransactions);
 Vue.component('aph-timestamp-from-now', TimestampFromNow);
 Vue.component('aph-token-icon', TokenIcon);
 Vue.component('aph-transaction-detail', TransactionDetail);
+
+// Save version
+const VERSION_STORAGE_KEY = 'aph.lastVerison';
+storage.set(VERSION_STORAGE_KEY, state.version);
 
 // Sync local storage to store.
 contacts.sync();
