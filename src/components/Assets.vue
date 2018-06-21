@@ -46,25 +46,28 @@ export default {
   },
 
   computed: {
+    holdingsWithCanRemove() {
+      return this.$store.state.holdings.map((holding) => {
+        const canRemove = holding.isCustom === true && holding.symbol !== 'APH';
+
+        return _.merge(holding, { canRemove });
+      });
+    },
+
     filteredHoldings() {
       const searchBy = this.searchBy.toLowerCase();
 
       if (!searchBy.length) {
-        return this.$store.state.holdings;
+        return this.holdingsWithCanRemove;
       }
 
-      return _.filter(this.$store.state.holdings, ({ name, symbol }) => {
+      return _.filter(this.holdingsWithCanRemove, ({ name, symbol }) => {
         if (!name || !symbol) {
           return false;
         }
 
         return name.toLowerCase().indexOf(searchBy) > -1
           || symbol.toLowerCase().indexOf(searchBy) > -1;
-      }).map((holding) => {
-        const canRemove = holding.isCustom === true && holding.symbol !== 'APH';
-        return _.merge(holding, {
-          canRemove,
-        });
       });
     },
 
@@ -97,6 +100,10 @@ export default {
     },
 
     onSwipe(holding, direction) {
+      if (!holding.canRemove) {
+        return;
+      }
+
       if (direction === 'right' && this.holdingWithActionsShowing
         && holding.asset === this.holdingWithActionsShowing.asset) {
         this.holdingWithActionsShowing = null;
