@@ -290,10 +290,11 @@ export default {
 
     return new Promise((resolve, reject) => {
       try {
-        return api.loadBalance(api.getTransactionHistoryFrom, {
+        return api.getTransactionHistoryFrom({
           address,
           net: currentNetwork.net,
-        })
+          url: currentNetwork.rpc,
+        }, api.neoscan)
           .then((res) => {
             resolve(res);
           })
@@ -422,11 +423,12 @@ export default {
                 return;
               }
               if (h.symbol === 'NEO') {
-                promises.push(api.loadBalance(api.getMaxClaimAmountFrom, {
+                promises.push(api.getMaxClaimAmountFrom({
                   net: currentNetwork.net,
+                  url: currentNetwork.rpc,
                   address: currentWallet.address,
                   privateKey: currentWallet.privateKey,
-                })
+                }, api.neoscan)
                   .then((res) => {
                     h.availableToClaim = toBigNumber(res);
                   })
@@ -474,6 +476,13 @@ export default {
                   if (val.balance > 0 || nep5.isCustom === true) {
                     if (restrictToSymbol && h.symbol !== restrictToSymbol) {
                       return;
+                    }
+
+                    if (nep5.isCustom !== true && val.balance > 0) {
+                      // saw a balance > 0 on this token but we haven't explicitly added to our tokens we hold,
+                      // mark isCustom = true so it will stay there until explicitly removed
+                      nep5.isCustom = true;
+                      tokens.add(nep5);
                     }
 
                     holdings.push(h);
@@ -553,11 +562,13 @@ export default {
           symbol: 'APH',
           assetId: '591eedcd379a8981edeefe04ef26207e1391904a',
           isCustom: true, // always show even if 0 balance
+          name: 'Aphelion',
           network: 'TestNet',
         }, {
           symbol: 'APH',
           assetId: 'a0777c3ce2b169d4a23bcba4565e3225a0122d95',
-          isCustom: true, // always show even if 0 balance
+          isCustom: true, // always show even if 0 balance,
+          name: 'Aphelion',
           network: 'MainNet',
         },
         ];
@@ -573,6 +584,7 @@ export default {
                   symbol: t.symbol,
                   assetId: t.scriptHash.replace('0x', ''),
                   isCustom: false,
+                  name: t.name,
                   network: currentNetwork.net,
                 };
                 let isDefaultToken = false;
@@ -738,10 +750,11 @@ export default {
       intentAmounts.GAS = gasAmount;
     }
 
-    return api.loadBalance(api.getBalanceFrom, {
+    return api.getBalanceFrom({
       net: currentNetwork.net,
+      url: currentNetwork.rpc,
       address: currentWallet.address,
-    })
+    }, api.neoscan)
     // maybe we should stand up our own version ?
       .then((balance) => {
         if (balance.net !== currentNetwork.net) {
@@ -776,17 +789,6 @@ export default {
     const currentNetwork = network.getSelectedNetwork();
     const currentWallet = wallets.getCurrentWallet();
 
-    const gasAmount = _.find(store.state.holdings, (o) => {
-      return o.asset === GAS_ASSET_ID;
-    }).balance;
-
-    if (gasAmount < 0.00000001) {
-      return new Promise((reject) => {
-        alerts.error('At least one drop of GAS is required to send NEP5 transfers.');
-        reject('At least one drop of GAS is required to send NEP5 transfers.');
-      });
-    }
-
     const config = {
       net: currentNetwork.net,
       url: currentNetwork.rpc,
@@ -805,8 +807,6 @@ export default {
     if (currentWallet.isLedger === true) {
       config.signingFunction = ledger.signWithLedger;
       config.address = currentWallet.address;
-      const intents = api.makeIntent({ GAS: 0.00000001 }, config.address);
-      config.intents = intents;
 
       return api.doInvoke(config)
         .then(res => res)
@@ -816,9 +816,7 @@ export default {
     }
 
     const account = new wallet.Account(currentWallet.wif);
-    const intents = api.makeIntent({ GAS: 0.00000001 }, currentWallet.address);
     config.account = account;
-    config.intents = intents;
 
     return api.doInvoke(config)
       .then(res => res)
@@ -835,7 +833,7 @@ export default {
           const interval = setInterval(() => {
             if (moment().utc().diff(startedMonitoring, 'milliseconds') > timeouts.MONITOR_TRANSACTIONS) {
               clearInterval(interval);
-              reject('Timed out waiting for transaction to be returned from third party block explorer');
+              reject('Timed out waiting for transaction to be returned from block explorer');
               return;
             }
 
@@ -935,11 +933,12 @@ export default {
       config.signingFunction = ledger.signWithLedger;
     }
 
-    api.loadBalance(api.getMaxClaimAmountFrom, {
+    api.getMaxClaimAmountFrom({
       net: network.getSelectedNetwork().net,
+      url: currentNetwork.rpc,
       address: wallets.getCurrentWallet().address,
       privateKey: wallets.getCurrentWallet().privateKey,
-    })
+    }, api.neoscan)
       .then((res) => {
         gasClaim.gasClaimAmount = toBigNumber(res);
         gasClaim.step = 3;
@@ -981,6 +980,7 @@ export default {
 
         const config = {
           net: currentNetwork.net,
+          url: currentNetwork.rpc,
           script: {
             scriptHash,
             operation: 'mintTokens',
@@ -1021,12 +1021,15 @@ export default {
 
             return api.nep5.getToken(currentNetwork.rpc, scriptHash, currentWallet.address)
               .then((token) => {
-                tokens.add({
-                  symbol: token.symbol,
-                  assetId: scriptHash.replace('0x', ''),
-                  isCustom: true,
-                  network: currentNetwork.net,
-                });
+                if (tokens.tokenExists(scriptHash.replace('0x', ''), currentNetwork.net) !== true) {
+                  tokens.add({
+                    symbol: token.symbol,
+                    assetId: scriptHash.replace('0x', ''),
+                    isCustom: true,
+                    name: token.name,
+                    network: currentNetwork.net,
+                  });
+                }
 
                 this.monitorTransactionConfirmation(res.tx)
                   .then(() => {
