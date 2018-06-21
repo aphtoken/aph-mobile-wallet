@@ -108,7 +108,7 @@ export default {
     },
 
     getSwipeHandler(contact) {
-      const fn = function (direction) {
+      const fn = function handleSwipe(direction) {
         if (direction === 'right' && this.contactWithActionsShowing
           && contact.address === this.contactWithActionsShowing.address) {
           this.contactWithActionsShowing = null;
@@ -117,7 +117,9 @@ export default {
         } else if (direction === 'left' && contact.address !== this.contactWithActionsShowing.address) {
           this.contactWithActionsShowing = contact;
         }
-      }.bind(this);
+      };
+
+      fn.bind(this);
 
       return fn;
     },

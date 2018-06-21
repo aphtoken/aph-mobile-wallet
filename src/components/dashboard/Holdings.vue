@@ -12,10 +12,6 @@
 
 <script>
 export default {
-  beforeMount() {
-    this.$store.dispatch('fetchHoldings');
-  },
-
   computed: {
     holdings() {
       return this.$store.state.holdings.filter(({ name, symbol }) => {

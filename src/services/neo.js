@@ -952,6 +952,8 @@ export default {
               .then(() => {
                 store.dispatch('fetchRecentTransactions');
                 gasClaim.step = 5;
+                store.commit('setShowClaimGasStatus', false);
+                alerts.succes('Gas claim was successful');
               })
               .catch((e) => {
                 gasClaim.error = e;
