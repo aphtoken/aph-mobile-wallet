@@ -37,7 +37,11 @@ export default {
     return key.trim().replace('.', '_').replace('[', '').replace(']', '');
   },
 
-  contactExists(name) {
+  contactExistsByAddress(address) {
+    return !!this.getOne(address.trim());
+  },
+
+  contactExistsByName(name) {
     return !!this.getOne(name.trim());
   },
 

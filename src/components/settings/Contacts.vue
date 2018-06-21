@@ -13,10 +13,10 @@
     </div>
     <div class="body">
       <div class="contacts">
-        <div v-for="(contact, index) in filteredContacts" :key="index" :class="['contact', {'show-actions': contactWithActionsShowing && contactWithActionsShowing.name === contact.name}]">
+        <div v-for="(contact) in filteredContacts" :key="`${contact.name}.${contact.address}`" :class="['contact', {'show-actions': contactWithActionsShowing && contactWithActionsShowing.name === contact.name}]">
         <!-- <div v-for="(contact, index) in filteredContacts" :key="index" :class="['contact', {'show-actions': contactWithActionsShowing.name === contact.name}]"> -->
           <div class="actions">
-            <div class="delete">Delete</div>
+            <div class="delete" @click="remove(contact)">Delete</div>
           </div>
           <div class="content" v-touch:swipe.left="showContactActions(contact)" v-touch:swipe.right="hideContactActions(contact)">
           <!-- <div class="content"> -->
@@ -85,8 +85,13 @@ export default {
 
   methods: {
     add() {
-      if (this.$services.contacts.contactExists(this.name.trim())) {
-        this.$services.alerts.error(`Contact ${this.name.trim()} already exists.`);
+      if (this.$services.contacts.contactExistsByName(this.name)) {
+        this.$services.alerts.error(`Contact with that name already exists.`);
+        return;
+      }
+
+      if (this.$services.contacts.contactExistsByAddress(this.address)) {
+        this.$services.alerts.error(`Contact with that address already exists.`);
         return;
       }
 
@@ -110,6 +115,11 @@ export default {
       }.bind(this);
 
       return fn;
+    },
+
+    remove({ address }) {
+      this.$services.contacts.remove(address).sync();
+      this.contactWithActionsShowing = null;
     },
 
     showContactActions(contact) {
