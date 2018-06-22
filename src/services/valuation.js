@@ -39,7 +39,7 @@ export default {
     return new Promise((resolve, reject) => {
       try {
         if (lastCheckedTicker && moment.utc().diff(lastCheckedTicker, 'seconds') < 60) {
-          let valuation = _.find(coinTickerList, {symbol});
+          let valuation = _.find(coinTickerList, { symbol });
 
           if (!valuation) {
             valuation = defaultValuation(symbol);
@@ -47,14 +47,14 @@ export default {
               valuation.total_supply = DEFAULT_APH_TOTAL_SUPPLY;
             }
           }
-          return resolve(valuation);
+          resolve(valuation);
         }
 
         axios.get(`${CMC_BASE_URL}ticker/?limit=1000&convert=${settings.getCurrency()}`)
           .then((res) => {
             lastCheckedTicker = moment.utc();
             coinTickerList = res.data;
-            resolve(_.find(coinTickerList, {symbol}));
+            resolve(_.find(coinTickerList, { symbol }));
           });
       } catch (e) {
         reject(e);
