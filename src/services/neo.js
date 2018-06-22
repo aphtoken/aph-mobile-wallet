@@ -712,6 +712,7 @@ export default {
             }
 
             alerts.success(`Transaction Hash: ${res.tx.hash} Successfully Sent, waiting for confirmation.`);
+            resolve(`Transaction Hash: ${res.tx.hash} Successfully Sent, waiting for confirmation.`);
 
             if (callback) {
               setTimeout(() => callback(), timeouts.NEO_API_CALL);
