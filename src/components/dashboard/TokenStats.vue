@@ -77,7 +77,7 @@
       </div>
     </template>
     <template v-else>
-      <div class="send" v-touch:swipe.down="hideSend">
+      <div class="send">
         <div class="control" @click="hideSend">
           <aph-icon name="arrow-down"></aph-icon>
           <div class="title">Send</div>
