@@ -25,6 +25,7 @@ export {
   setLastReceivedBlock,
   setLastSuccessfulRequest,
   setLatestVersion,
+  setNEP5Balances,
   setPortfolio,
   setRecentTransactions,
   setSearchTransactionFromDate,
@@ -116,7 +117,7 @@ function setCurrentWallet(state, currentWallet) {
 }
 
 function setCurrentNetwork(state, network) {
-  if (state.currentNetwork) {
+  if (state.currentNetwork && state.currentNetwork.net !== network.net) {
     clearLocalNetworkState(state);
   }
 
@@ -177,6 +178,10 @@ function clearLocalNetworkState(state) {
 
 function setLatestVersion(state, version) {
   state.latestVersion = version;
+}
+
+function setNEP5Balances(state, balances) {
+  state.nep5Balances = balances;
 }
 
 function setSearchTransactionFromDate(state, fromDate) {

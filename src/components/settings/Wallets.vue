@@ -21,7 +21,7 @@
         <aph-icon name="plus"></aph-icon>
       </div>
     </div>
-    <div class="import-wallet" v-touch:swipe.down="hideImportWallet">
+    <div class="import-wallet">
       <div class="control" @click="hideImportWallet">
         <aph-icon name="arrow-down"></aph-icon>
         <div class="title">Import Wallet</div>
@@ -41,7 +41,7 @@
       </div>
       <button class="submit-btn" @click="importWallet" :disabled="shouldDisableImportButton">{{ importButtonLabel }}</button>
     </div>
-    <div class="open-wallet" v-touch:swipe.down="hideOpenWallet">
+    <div class="open-wallet">
       <div class="control" @click="hideOpenWallet">
         <aph-icon name="arrow-down"></aph-icon>
         <div class="title">Open Wallet</div>

@@ -19,7 +19,7 @@
         <aph-icon name="plus"></aph-icon>
       </div>
     </div>
-    <div class="add-token" v-touch:swipe.down="hideAddToken">
+    <div class="add-token">
       <div class="control" @click="hideAddToken">
         <aph-icon name="arrow-down"></aph-icon>
         <div class="title">Add Token</div>
@@ -41,10 +41,6 @@
 
 <script>
 export default {
-  beforeMount() {
-    this.$store.dispatch('fetchHoldings');
-  },
-
   computed: {
     holdingsWithCanRemove() {
       return this.$store.state.holdings.map((holding) => {

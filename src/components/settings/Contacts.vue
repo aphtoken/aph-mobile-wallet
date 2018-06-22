@@ -31,7 +31,7 @@
         <aph-icon name="plus"></aph-icon>
       </div>
     </div>
-    <div class="add-contact" v-touch:swipe.down="hideAddContact">
+    <div class="add-contact">
       <div class="control" @click="hideAddContact">
         <aph-icon name="arrow-down"></aph-icon>
         <div class="title">Add Contact</div>

@@ -1,5 +1,5 @@
 <template>
-  <div :class="['aph-transaction-detail', {show: show}]" v-touch:swipe.down="onHide">
+  <div :class="['aph-transaction-detail', {show: show}]">
     <div class="control" @click="onHide">
       <aph-icon name="arrow-down"></aph-icon>
     </div>
