@@ -42,6 +42,7 @@
 import BackupWallet from './BackupWallet';
 import ClaimGasStatus from './ClaimGasStatus';
 
+let loadDataIntervalId;
 const ROUTES_USING_BACK_BUTTON = [
   'dashboard.token-stats',
   'settings.contacts',
@@ -51,6 +52,10 @@ const ROUTES_USING_BACK_BUTTON = [
 ];
 
 export default {
+  beforeDestroy() {
+    clearInterval(loadDataIntervalId);
+  },
+
   components: {
     BackupWallet,
     ClaimGasStatus,
@@ -73,13 +78,24 @@ export default {
       this.$router.back();
     },
 
+    loadData() {
+      this.$store.dispatch('fetchHoldings');
+      this.$store.dispatch('fetchRecentTransactions');
+    },
+
     toggleMenu() {
       this.menuOpen = !this.menuOpen;
     },
   },
 
   mounted() {
-    this.$services.neo.fetchNEP5Tokens();
+    this.$services.neo.fetchNEP5Tokens(() => {
+      this.loadData();
+    });
+
+    loadDataIntervalId = setInterval(() => {
+      this.loadData();
+    }, this.$constants.intervals.TRANSACTIONS_POLLING);
   },
 };
 </script>

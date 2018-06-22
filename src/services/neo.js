@@ -4,6 +4,7 @@ import {
   u,
 } from '@cityofzion/neon-js';
 import { BigNumber } from 'bignumber.js';
+import Async from 'async';
 
 import alerts from './alerts';
 import network from './network';
@@ -385,6 +386,7 @@ export default {
     const currentNetwork = network.getSelectedNetwork();
     const currentWallet = wallets.getCurrentWallet();
     const rpcClient = network.getRpcClient();
+    const nep5Balances = store.state.nep5Balances;
 
     return new Promise((resolve, reject) => {
       try {
@@ -436,6 +438,7 @@ export default {
                     alerts.networkException(e);
                   }));
               }
+
               holdings.push(h);
             });
 
@@ -443,9 +446,9 @@ export default {
               if (nep5.network !== currentNetwork.net) {
                 return;
               }
-              const inMemory = _.find(store.state.nep5Balances, (o) => {
-                return o.asset === nep5.assetId;
-              });
+
+              const inMemory = _.find(store.state.nep5Balances, {'asset': nep5.assetId});
+
               if (inMemory && inMemory.balance === 0) {
                 if (inMemory.balance > 0 || nep5.isCustom === true) {
                   if (restrictToSymbol && inMemory.symbol !== restrictToSymbol) {
@@ -456,7 +459,6 @@ export default {
                 }
                 return;
               }
-
               promises.push(this.fetchNEP5Balance(address, nep5.assetId)
                 .then((val) => {
                   if (!val.symbol) {
@@ -471,7 +473,7 @@ export default {
                     isNep5: true,
                     isCustom: nep5.isCustom,
                   };
-                  store.state.nep5Balances.push(h);
+                  nep5Balances.push(h);
 
                   if (val.balance > 0 || nep5.isCustom === true) {
                     if (restrictToSymbol && h.symbol !== restrictToSymbol) {
@@ -503,44 +505,47 @@ export default {
                 const lowercaseCurrency = settings.getCurrency().toLowerCase();
 
                 holdings.forEach((h) => {
-                  valuationsPromises.push(valuation.getValuation(h.symbol)
-                    .then((val) => {
-                      h.totalSupply = val.total_supply;
-                      h.marketCap = val[`market_cap_${lowercaseCurrency}`];
-                      h.change24hrPercent = val.percent_change_24h;
-                      h.unitValue = val[`price_${lowercaseCurrency}`];
-                      h.unitValue24hrAgo = h.unitValue / (1 + (h.change24hrPercent / 100.0));
-                      h.change24hrValue = (h.unitValue * h.balance)
-                        - (h.unitValue24hrAgo * h.balance);
-                      h.totalValue = h.unitValue * h.balance;
-                      if (h.unitValue === null) {
-                        h.totalValue = null;
-                        h.change24hrPercent = null;
-                        h.change24hrValue = null;
-                      }
-                    })
-                    .catch((e) => {
-                      alerts.networkException(e);
-                    }));
+                  valuationsPromises.push((done) => {
+                    valuation.getValuation(h.symbol)
+                      .then((val) => {
+                        h.totalSupply = val.total_supply;
+                        h.marketCap = val[`market_cap_${lowercaseCurrency}`];
+                        h.change24hrPercent = val.percent_change_24h;
+                        h.unitValue = val[`price_${lowercaseCurrency}`];
+                        h.unitValue24hrAgo = h.unitValue / (1 + (h.change24hrPercent / 100.0));
+                        h.change24hrValue = (h.unitValue * h.balance)
+                          - (h.unitValue24hrAgo * h.balance);
+                        h.totalValue = h.unitValue * h.balance;
+                        if (h.unitValue === null) {
+                          h.totalValue = null;
+                          h.change24hrPercent = null;
+                          h.change24hrValue = null;
+                        }
+
+                        done();
+                      })
+                      .catch((e) => {
+                        alerts.networkException(e);
+                        done(e);
+                      })
+                  });
                 });
 
-                return Promise.all(valuationsPromises)
-                  .then(() => {
-                    const res = { };
+                return Async.series(valuationsPromises, (e) => {
+                  if(e) {
+                    return reject(e)
+                  }
+                  const res = { };
 
-                    res.holdings = _.sortBy(holdings, [holding => holding.symbol.toLowerCase()], ['symbol']);
+                  res.holdings = _.sortBy(holdings, [holding => holding.symbol.toLowerCase()], ['symbol']);
+                  res.totalBalance = _.sumBy(holdings, 'totalValue');
+                  res.change24hrValue = _.sumBy(holdings, 'change24hrValue');
+                  res.change24hrPercent = Math.round(10000 * (res.change24hrValue
+                    / (res.totalBalance - res.change24hrValue))) / 100.0;
 
-                    res.totalBalance = 0;
-                    res.change24hrValue = 0;
-                    holdings.forEach((h) => {
-                      res.totalBalance += h.totalValue;
-                      res.change24hrValue += h.change24hrValue;
-                    });
-                    res.change24hrPercent = Math.round(10000 * (res.change24hrValue
-                      / (res.totalBalance - res.change24hrValue))) / 100.0;
-                    resolve(res);
-                  })
-                  .catch(e => reject(e));
+                  store.commit('setNEP5Balances', nep5Balances);
+                  resolve(res);
+                });
               })
               .catch(e => reject(e));
           })
@@ -553,7 +558,7 @@ export default {
     });
   },
 
-  fetchNEP5Tokens() {
+  fetchNEP5Tokens(done) {
     const currentNetwork = network.getSelectedNetwork();
 
     return new Promise((resolve, reject) => {
@@ -600,6 +605,8 @@ export default {
                   tokens.add(token);
                 }
               });
+
+              done();
             })
             .catch((e) => {
               alerts.exception(new Error(`APH API Error: ${e.message}`));

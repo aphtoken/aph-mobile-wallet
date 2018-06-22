@@ -23,6 +23,7 @@
     "@ledgerhq/hw-transport-node-hid": "^4.12.0",
     "@xkeshi/vue-qrcode": "^0.3.0",
     "accounting": "^0.4.1",
+    "async": "^2.6.1",
     "autoprefixer": "^7.1.2",
     "axios": "^0.18.0",
     "babel-core": "^6.22.1",

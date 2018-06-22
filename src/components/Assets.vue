@@ -41,10 +41,6 @@
 
 <script>
 export default {
-  beforeMount() {
-    this.$store.dispatch('fetchHoldings');
-  },
-
   computed: {
     holdingsWithCanRemove() {
       return this.$store.state.holdings.map((holding) => {
