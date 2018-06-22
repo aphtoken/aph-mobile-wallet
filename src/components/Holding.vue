@@ -1,4 +1,4 @@
-<template xmlns:v-touch="http://www.w3.org/1999/xhtml">
+<template>
   <div :class="['holding', {'show-actions': showActions}]" @click="handleOnClick">
     <div class="actions">
       <div class="delete" @click="handleOnRemove">Delete</div>
