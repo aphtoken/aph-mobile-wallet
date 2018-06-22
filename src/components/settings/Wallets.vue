@@ -21,7 +21,7 @@
         <aph-icon name="plus"></aph-icon>
       </div>
     </div>
-    <div class="import-wallet" v-touch:swipe.down="hideImportWallet">
+    <div class="import-wallet">
       <div class="control" @click="hideImportWallet">
         <aph-icon name="arrow-down"></aph-icon>
         <div class="title">Import Wallet</div>
