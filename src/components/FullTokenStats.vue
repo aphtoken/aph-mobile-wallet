@@ -1,5 +1,5 @@
 <template>
-  <div :class="['aph-fulll-token-stats', {show: show}]" v-touch:swipe.down="onHide">
+  <div :class="['aph-fulll-token-stats', {show: show}]">
     <div class="header">
       <div class="title">{{ token.name }} ({{ token.symbol }})</div>
       <div class="control" @click="onHide">

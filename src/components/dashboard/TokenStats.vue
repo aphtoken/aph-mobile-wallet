@@ -29,7 +29,7 @@
         <div :class="['control', {active: activeTile === 'transaction-history'}]" @click="goToTransactionHistory"></div>
       </div>
     </div>
-    <div class="receive" v-touch:swipe.down="hideReceive">
+    <div class="receive">
       <div class="control" @click="hideReceive">
         <aph-icon name="arrow-down"></aph-icon>
         <div class="title">Receive</div>
