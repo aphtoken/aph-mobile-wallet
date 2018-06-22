@@ -100,7 +100,6 @@ function createWallet({ commit }, { name, passphrase, passphraseConfirm }) {
 }
 
 async function fetchHoldings({ commit }) {
-  console.log('fetchHoldings');
   const currentWallet = wallets.getCurrentWallet();
   let holdings;
 
@@ -116,7 +115,6 @@ async function fetchHoldings({ commit }) {
       changePercent: holdings.change24hrPercent,
       changeValue: holdings.change24hrValue.toFixed(2),
     });
-    console.log('fetchHoldings:done');
   } catch (message) {
     alerts.networkException(message);
     commit('failRequest', { identifier: 'fetchHoldings', message });
@@ -126,7 +124,6 @@ async function fetchHoldings({ commit }) {
 }
 
 async function fetchRecentTransactions({ commit }) {
-  console.log('fetchRecentTransactions');
   const currentWallet = wallets.getCurrentWallet();
   const lastBlockIndex = 0;
   let recentTransactions;
@@ -137,7 +134,6 @@ async function fetchRecentTransactions({ commit }) {
     recentTransactions = await neo.fetchRecentTransactions(currentWallet.address, false, moment().subtract(30, 'days'), null, lastBlockIndex + 1); // eslint-disable-line
     commit('setRecentTransactions', recentTransactions);
     commit('endRequest', { identifier: 'fetchRecentTransactions' });
-    console.log('fetchRecentTransactions:done');
   } catch (message) {
     alerts.exception(message);
     commit('failRequest', { identifier: 'fetchRecentTransactions', message });
