@@ -447,7 +447,7 @@ export default {
                 return;
               }
 
-              const inMemory = _.find(store.state.nep5Balances, {'asset': nep5.assetId});
+              const inMemory = _.find(store.state.nep5Balances, { asset: nep5.assetId });
 
               if (inMemory && inMemory.balance === 0) {
                 if (inMemory.balance > 0 || nep5.isCustom === true) {
@@ -527,13 +527,13 @@ export default {
                       .catch((e) => {
                         alerts.networkException(e);
                         done(e);
-                      })
+                      });
                   });
                 });
 
                 return Async.series(valuationsPromises, (e) => {
-                  if(e) {
-                    return reject(e)
+                  if (e) {
+                    return reject(e);
                   }
                   const res = { };
 
@@ -544,7 +544,7 @@ export default {
                     / (res.totalBalance - res.change24hrValue))) / 100.0;
 
                   store.commit('setNEP5Balances', nep5Balances);
-                  resolve(res);
+                  return resolve(res);
                 });
               })
               .catch(e => reject(e));

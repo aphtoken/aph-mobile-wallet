@@ -12,6 +12,7 @@
         <aph-input placeholder="Passphrase" v-model="passphrase" type="password"></aph-input>
         <button class="login-btn" @click="login" :disabled="shouldDisableLButton">{{ buttonLabel }}</button>
       </login-form-wrapper>
+      <div class="switch-wallet-button" @click="gotoLanding()">switch</div>
     </div>
   </section>
 </template>
@@ -24,8 +25,9 @@ export default {
     this.wallet = this.$services.wallets.getLastWallet();
 
     if (!this.wallet) {
-      this.$router.replace('/login');
+      return this.$router.replace('/login');
     }
+    return true;
   },
 
   components: {
@@ -52,6 +54,11 @@ export default {
   methods: {
     goBack() {
       this.$router.back();
+    },
+
+    gotoLanding() {
+      // TODO: Go back to the landing page, but make it show a wallets button below import wallet
+      // this.$router.push('/login/landing');
     },
 
     login() {
@@ -110,11 +117,20 @@ export default {
   .body {
     flex: 2;
     padding: 0 $space-lg;
+    align-items: center;
 
     .login-btn {
       @extend %btn-outline;
 
       margin-top: $space-lg;
+    }
+
+    .switch-wallet-button {
+      text-align: center;
+      margin-top: toRem(15px);
+      margin-left: auto;
+      margin-right: auto;
+      color: $purple;
     }
   }
 }

@@ -73,7 +73,7 @@
             </div>
           </div>
         </div>
-        <button class="send-btn" @click="send">Send</button>
+        <button class="send-btn" :disabled="shouldDisableSendButton" @click="send">Send</button>
       </div>
     </template>
     <template v-else>
@@ -139,6 +139,10 @@ export default {
       return `active-tile-${this.activeTile}`;
     },
 
+    shouldDisableSendButton() {
+      return this.sendInProgress;
+    },
+
     shouldDisableNextButton() {
       return !this.address || !this.amount || !parseFloat(this.amount);
     },
@@ -154,6 +158,7 @@ export default {
       showReceive: false,
       showSend: false,
       showSendConfirmation: false,
+      sendInProgress: false,
       volume: 0,
     };
   },
@@ -194,10 +199,13 @@ export default {
     },
 
     send() {
+      this.sendInProgress = true;
       setTimeout(() => {
         this.$services.neo.sendFunds(this.address, this.$store.state.statsToken.asset,
           this.amount, this.$store.state.statsToken.isNep5)
           .then(() => {
+            this.sendInProgress = false;
+            this.showSendConfirmation = false;
             this.hideSend();
           })
           .catch((e) => {
