@@ -5,7 +5,7 @@
       <div class="btn-group">
         <router-link to="/login/create-wallet" class="create-wallet-btn">Create wallet</router-link>
         <router-link to="/login/import" class="import-wallet-btn">Import wallet</router-link>
-        <router-link to="/login/wallets" class="wallets-btn">Wallets</router-link>
+        <router-link to="/login/wallets" class="wallets-btn" v-if="$store.state.wallets.length">Wallets</router-link>
       </div>
     </div>
   </section>
