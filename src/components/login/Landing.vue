@@ -5,20 +5,11 @@
       <div class="btn-group">
         <router-link to="/login/create-wallet" class="create-wallet-btn">Create wallet</router-link>
         <router-link to="/login/import" class="import-wallet-btn">Import wallet</router-link>
+        <router-link to="/login/wallets" class="wallets-btn">Wallets</router-link>
       </div>
     </div>
   </section>
 </template>
-
-<script>
-export default {
-  beforeMount() {
-    if (this.$services.wallets.getLastWallet()) {
-      this.$router.replace('/login/saved');
-    }
-  },
-};
-</script>
 
 <style lang="scss">
 #login--landing {
@@ -53,6 +44,12 @@ export default {
 
     .create-wallet-btn {
       margin-bottom: $space-lg;
+    }
+
+    .wallets-btn {
+      display: block;
+      margin-top: $space-lg;
+      text-align: center;
     }
   }
 }

@@ -73,7 +73,7 @@ export default {
 
     > .content {
       align-items: center;
-      background-color: rgba($dark, .7);
+      background-color: rgba($dark, .5);
       display: flex;
       flex-direction: column;
       flex: 1;

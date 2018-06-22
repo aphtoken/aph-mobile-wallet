@@ -32,6 +32,10 @@ export default new Router({
           path: 'import',
           component: require('../components/login/Import').default,
         },
+        {
+          path: 'wallets',
+          component: require('../components/login/Wallets').default,
+        },
       ],
       redirect: '/login/landing',
     },

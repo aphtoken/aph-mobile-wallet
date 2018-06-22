@@ -202,10 +202,14 @@ export default {
     currentWallet = wallet;
 
     if (wallet) {
-      storage.set(LAST_WALLET_STORAGE_KEY, wallet);
+      this.setLastWallet(wallet);
     }
 
     return this;
+  },
+
+  setLastWallet(wallet) {
+    storage.set(LAST_WALLET_STORAGE_KEY, wallet);
   },
 
   sync() {
