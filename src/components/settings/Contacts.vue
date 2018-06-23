@@ -117,9 +117,7 @@ export default {
         } else if (direction === 'left' && contact.address !== this.contactWithActionsShowing.address) {
           this.contactWithActionsShowing = contact;
         }
-      };
-
-      fn.bind(this);
+      }.bind(this);
 
       return fn;
     },

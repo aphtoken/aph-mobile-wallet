@@ -1,5 +1,5 @@
 <template>
-  <div :class="['holding', {'show-actions': showActions}]" @click="handleOnClick">
+  <div :class="['holding', {'show-actions': showActions}]">
     <div class="actions">
       <div class="delete" @click="handleOnRemove">Delete</div>
     </div>
@@ -39,9 +39,7 @@ export default {
         if (this.onSwipe) {
           this.onSwipe(this.holding, direction);
         }
-      };
-
-      fn.bind(this);
+      }.bind(this);
 
       return fn;
     },
