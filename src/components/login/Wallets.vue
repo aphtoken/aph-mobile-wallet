@@ -36,7 +36,7 @@ export default {
       this.$services.wallets.setLastWallet(wallet);
 
       this.$router.push('/login/saved');
-    }
+    },
   },
 };
 </script>

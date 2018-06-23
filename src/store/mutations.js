@@ -13,6 +13,8 @@ export {
   failRequest,
   handleLogout,
   handleNetworkChange,
+  putAllNep5Balances,
+  putTransactionDetail,
   resetRequests,
   setActiveTransaction,
   setContacts,
@@ -25,7 +27,6 @@ export {
   setLastReceivedBlock,
   setLastSuccessfulRequest,
   setLatestVersion,
-  setNEP5Balances,
   setPortfolio,
   setRecentTransactions,
   setSearchTransactionFromDate,
@@ -68,8 +69,7 @@ function handleLogout(state) {
   state.holdings = [];
   state.recentTransactions = [];
   state.searchTransactions = [];
-  state.transactionDetails = [];
-  state.nep5Balances = [];
+  state.nep5Balances = {};
   state.sendInProgress = false;
 }
 
@@ -77,9 +77,20 @@ function handleNetworkChange(state) {
   state.holdings = [];
   state.recentTransactions = [];
   state.searchTransactions = [];
-  state.transactionDetails = [];
-  state.nep5Balances = [];
+  state.nep5Balances = {};
   state.sendInProgress = false;
+}
+
+function putAllNep5Balances(state, nep5balances) {
+  const balances = state.nep5Balances;
+  nep5balances.forEach((nep5balance) => {
+    _.set(balances, nep5balance.assetId, nep5balance);
+  });
+}
+
+function putTransactionDetail(state, transactionDetail) {
+  const details = state.transactionDetails;
+  _.set(details, transactionDetail.txid, transactionDetail);
 }
 
 function resetRequests(state) {
@@ -178,10 +189,6 @@ function clearLocalNetworkState(state) {
 
 function setLatestVersion(state, version) {
   state.latestVersion = version;
-}
-
-function setNEP5Balances(state, balances) {
-  state.nep5Balances = balances;
 }
 
 function setSearchTransactionFromDate(state, fromDate) {

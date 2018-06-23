@@ -5,13 +5,10 @@ const TOKENS_STORAGE_KEY = 'aph.tokens';
 export default {
 
   add(data) {
-    if (this.tokenExists(data.assetId, data.network)) {
+    if (!data.isCustom) {
       const existing = this.getOne(data.assetId, data.network);
-      if (existing) {
-        if (existing.isCustom === data.isCustom
-          || (existing.isCustom === true && data.isCustom === false)) {
-          return this;
-        }
+      if (existing && existing.isCustom === true) {
+        data.isCustom = true;
       }
     }
 

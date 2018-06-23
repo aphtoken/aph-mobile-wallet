@@ -62,44 +62,45 @@ export default {
     return new Promise((resolve, reject) => {
       try {
         return this.fetchSystemTransactions(address)
-          .then((res) => {
+          .then((fetchedTransactions) => {
             this.fetchNEP5Transfers(address, fromDate, toDate, fromBlock, toBlock)
               .then((nep5) => {
                 const splitTransactions = [];
 
-                nep5.data.transfers.forEach((t) => {
-                  res.push({
-                    txid: t.transactionHash.replace('0x', ''),
-                    symbol: t.symbol,
-                    value: toBigNumber(t.received - t.sent),
-                    block_index: t.blockIndex,
-                    blockHeight: t.blockIndex,
-                    block_time: t.blockTime,
+                nep5.data.transfers.forEach((nep5Transfer) => {
+                  fetchedTransactions.push({
+                    txid: nep5Transfer.transactionHash.replace('0x', ''),
+                    symbol: nep5Transfer.symbol,
+                    scriptHash: nep5Transfer.scriptHash,
+                    value: toBigNumber(nep5Transfer.received - nep5Transfer.sent),
+                    block_index: nep5Transfer.blockIndex,
+                    blockHeight: nep5Transfer.blockIndex,
+                    block_time: nep5Transfer.blockTime,
                     isNep5: true,
-                    from: t.fromAddress,
-                    to: t.toAddress,
+                    from: nep5Transfer.fromAddress,
+                    to: nep5Transfer.toAddress,
                     vin: [{
-                      address: t.fromAddress,
-                      symbol: t.symbol,
-                      value: toBigNumber(Math.abs(t.received - t.sent)),
+                      address: nep5Transfer.fromAddress,
+                      symbol: nep5Transfer.symbol,
+                      value: toBigNumber(Math.abs(nep5Transfer.received - nep5Transfer.sent)),
                     }],
                     vout: [{
-                      address: t.toAddress,
-                      symbol: t.symbol,
-                      value: toBigNumber(Math.abs(t.received - t.sent)),
+                      address: nep5Transfer.toAddress,
+                      symbol: nep5Transfer.symbol,
+                      value: toBigNumber(Math.abs(nep5Transfer.received - nep5Transfer.sent)),
                     }],
                   });
                 });
 
                 const promises = [];
-                res.forEach((t) => {
-                  if (fromBlock && t.blockHeight < fromBlock) {
+                fetchedTransactions.forEach((fetchedTransaction) => {
+                  if (fromBlock && fetchedTransaction.blockHeight < fromBlock) {
                     return;
                   }
-                  if (toBlock && t.blockHeight > toBlock) {
+                  if (toBlock && fetchedTransaction.blockHeight > toBlock) {
                     return;
                   }
-                  promises.push(this.fetchTransactionDetails(t.txid)
+                  promises.push(this.fetchTransactionDetails(fetchedTransaction.txid)
                     .then((transactionDetails) => {
                       if (!transactionDetails) {
                         return;
@@ -114,32 +115,32 @@ export default {
                         return;
                       }
 
-                      if (t.isNep5 !== true) {
+                      if (fetchedTransaction.isNep5 !== true) {
                         let movedNEO = false;
                         let movedGAS = false;
                         let outNEO = toBigNumber(0);
                         let outGAS = toBigNumber(0);
 
-                        transactionDetails.vin.forEach((i) => {
-                          if (i.address === address && i.symbol === 'NEO') {
-                            outNEO = outNEO.plus(i.value);
+                        transactionDetails.vin.forEach((input) => {
+                          if (input.address === address && input.symbol === 'NEO') {
+                            outNEO = outNEO.plus(input.value);
                             movedNEO = true;
                           }
-                          if (i.address === address && i.symbol === 'GAS') {
-                            outGAS = outGAS.plus(i.value);
+                          if (input.address === address && input.symbol === 'GAS') {
+                            outGAS = outGAS.plus(input.value);
                             movedGAS = true;
                           }
                         });
 
                         let inNEO = toBigNumber(0);
                         let inGAS = toBigNumber(0);
-                        transactionDetails.vout.forEach((o) => {
-                          if (o.address === address && o.symbol === 'NEO') {
-                            inNEO = inNEO.plus(o.value);
+                        transactionDetails.vout.forEach((output) => {
+                          if (output.address === address && output.symbol === 'NEO') {
+                            inNEO = inNEO.plus(output.value);
                             movedNEO = true;
                           }
-                          if (o.address === address && o.symbol === 'GAS') {
-                            inGAS = inGAS.plus(o.value);
+                          if (output.address === address && output.symbol === 'GAS') {
+                            inGAS = inGAS.plus(output.value);
                             movedGAS = true;
                           }
                         });
@@ -157,100 +158,98 @@ export default {
                         if (movedNEO === true) {
                           transactionDetails.symbol = 'NEO';
 
-                          transactionDetails.vin.forEach((i) => {
-                            if (i.symbol === 'NEO') {
+                          transactionDetails.vin.forEach((input) => {
+                            if (input.symbol === 'NEO') {
                               if (neoChange.isGreaterThan(0)) {
-                                if (i.address !== address) {
-                                  t.from = i.address;
+                                if (input.address !== address) {
+                                  fetchedTransaction.from = input.address;
                                 }
-                              } else if (i.address === address) {
-                                t.from = i.address;
+                              } else if (input.address === address) {
+                                fetchedTransaction.from = input.address;
                               }
                             }
                           });
 
-                          transactionDetails.vout.forEach((o) => {
-                            if (o.symbol === 'NEO') {
+                          transactionDetails.vout.forEach((output) => {
+                            if (output.symbol === 'NEO') {
                               if (neoChange.isGreaterThan(0)) {
-                                if (o.address === address) {
-                                  t.to = o.address;
+                                if (output.address === address) {
+                                  fetchedTransaction.to = output.address;
                                 }
-                              } else if (o.address !== address) {
-                                t.to = o.address;
+                              } else if (output.address !== address) {
+                                fetchedTransaction.to = output.address;
                               }
                             }
                           });
 
                           splitTransactions.push({
-                            hash: t.txid,
+                            hash: fetchedTransaction.txid,
                             block_index: transactionDetails.block,
                             symbol: transactionDetails.symbol,
                             value: toBigNumber(neoChange),
                             block_time: transactionDetails.blocktime,
                             details: transactionDetails,
                             isNep5: false,
-                            from: t.from,
-                            to: t.to,
+                            from: fetchedTransaction.from,
+                            to: fetchedTransaction.to,
                           });
                         }
 
                         if (movedGAS === true) {
                           transactionDetails.symbol = 'GAS';
 
-                          transactionDetails.vin.forEach((i) => {
-                            if (i.symbol === 'GAS') {
+                          transactionDetails.vin.forEach((input) => {
+                            if (input.symbol === 'GAS') {
                               if (gasChange.isGreaterThan(0)) {
-                                if (i.address !== address) {
-                                  t.from = i.address;
+                                if (input.address !== address) {
+                                  fetchedTransaction.from = input.address;
                                 }
-                              } else if (i.address === address) {
-                                t.from = i.address;
+                              } else if (input.address === address) {
+                                fetchedTransaction.from = input.address;
                               }
                             }
                           });
 
-                          transactionDetails.vout.forEach((o) => {
-                            if (o.symbol === 'GAS') {
+                          transactionDetails.vout.forEach((output) => {
+                            if (output.symbol === 'GAS') {
                               if (gasChange.isGreaterThan(0)) {
-                                if (o.address === address) {
-                                  t.to = o.address;
+                                if (output.address === address) {
+                                  fetchedTransaction.to = output.address;
                                 }
-                              } else if (o.address !== address) {
-                                t.to = o.address;
+                              } else if (output.address !== address) {
+                                fetchedTransaction.to = output.address;
                               }
                             }
                           });
 
                           splitTransactions.push({
-                            hash: t.txid,
+                            hash: fetchedTransaction.txid,
                             block_index: transactionDetails.block,
                             symbol: transactionDetails.symbol,
                             value: toBigNumber(gasChange),
                             block_time: transactionDetails.blocktime,
                             details: transactionDetails,
                             isNep5: false,
-                            from: t.from,
-                            to: t.to,
+                            from: fetchedTransaction.from,
+                            to: fetchedTransaction.to,
                           });
                         }
                       } else {
-                        transactionDetails.vout = t.vout;
-                        transactionDetails.vin = t.vin;
-                        transactionDetails.symbol = t.symbol;
+                        transactionDetails.vout = fetchedTransaction.vout;
+                        transactionDetails.vin = fetchedTransaction.vin;
+                        transactionDetails.symbol = fetchedTransaction.symbol;
                         splitTransactions.push({
-                          hash: t.txid,
+                          hash: fetchedTransaction.txid,
                           block_index: transactionDetails.block,
-                          symbol: t.symbol,
-                          value: toBigNumber(t.value),
+                          symbol: fetchedTransaction.symbol,
+                          value: toBigNumber(fetchedTransaction.value),
                           block_time: transactionDetails.blocktime,
                           details: transactionDetails,
-                          from: t.from,
-                          to: t.to,
+                          from: fetchedTransaction.from,
+                          to: fetchedTransaction.to,
                         });
 
-                        const inMemoryHolding = _.find(store.state.nep5Balances, (o) => {
-                          return o.symbol === t.symbol;
-                        });
+                        const inMemoryHolding = _.get(store.state.nep5Balances, fetchedTransaction.scriptHash);
                         if (inMemoryHolding) {
                           // set in memory holding balance to null so it will pick up the new balance
                           // if it was skipping it before because we didn't hold any
@@ -320,9 +319,7 @@ export default {
 
     return new Promise((resolve, reject) => {
       try {
-        const inMemory = _.find(store.state.transactionDetails, (o) => {
-          return o.txid.indexOf(hash) > -1;
-        });
+        const inMemory = _.get(store.state.transactionDetails, hash);
         if (inMemory) {
           inMemory.currentBlockHeight = network.getSelectedNetwork().bestBlock.index;
           inMemory.confirmations = inMemory.currentBlockHeight - inMemory.block;
@@ -368,7 +365,7 @@ export default {
 
             Promise.all(inputPromises)
               .then(() => {
-                store.state.transactionDetails.push(transaction);
+                store.commit('putTransactionDetail', transaction);
                 resolve(transaction);
               })
               .catch(e => reject(e));
@@ -386,12 +383,12 @@ export default {
     const currentNetwork = network.getSelectedNetwork();
     const currentWallet = wallets.getCurrentWallet();
     const rpcClient = network.getRpcClient();
-    const nep5Balances = store.state.nep5Balances;
 
     return new Promise((resolve, reject) => {
       try {
         return rpcClient.query({ method: 'getaccountstate', params: [address] })
           .then((res) => {
+            const localNep5Balances = [];
             const holdings = [];
             const promises = [];
 
@@ -447,7 +444,7 @@ export default {
                 return;
               }
 
-              const inMemory = _.find(store.state.nep5Balances, { asset: nep5.assetId });
+              const inMemory = _.get(store.state.nep5Balances, nep5.assetId);
 
               if (inMemory && inMemory.balance === 0) {
                 if (inMemory.balance > 0 || nep5.isCustom === true) {
@@ -465,7 +462,7 @@ export default {
                     return; // token not found on this network
                   }
 
-                  const h = {
+                  const nep5balance = {
                     asset: nep5.assetId,
                     balance: val.balance,
                     symbol: val.symbol,
@@ -473,10 +470,10 @@ export default {
                     isNep5: true,
                     isCustom: nep5.isCustom,
                   };
-                  nep5Balances.push(h);
+                  localNep5Balances.push(nep5balance);
 
                   if (val.balance > 0 || nep5.isCustom === true) {
-                    if (restrictToSymbol && h.symbol !== restrictToSymbol) {
+                    if (restrictToSymbol && nep5balance.symbol !== restrictToSymbol) {
                       return;
                     }
 
@@ -487,7 +484,7 @@ export default {
                       tokens.add(nep5);
                     }
 
-                    holdings.push(h);
+                    holdings.push(nep5balance);
                   }
                 })
                 .catch((e) => {
@@ -522,6 +519,7 @@ export default {
                           h.change24hrValue = null;
                         }
 
+                        store.commit('putAllNep5Balances', localNep5Balances);
                         done();
                       })
                       .catch((e) => {
@@ -543,7 +541,6 @@ export default {
                   res.change24hrPercent = Math.round(10000 * (res.change24hrValue
                     / (res.totalBalance - res.change24hrValue))) / 100.0;
 
-                  store.commit('setNEP5Balances', nep5Balances);
                   return resolve(res);
                 });
               })
@@ -578,8 +575,8 @@ export default {
         },
         ];
 
-        defaultList.forEach((t) => {
-          tokens.add(t);
+        defaultList.forEach((token) => {
+          tokens.add(token);
         });
         try {
           return axios.get(`${currentNetwork.aph}/tokens`)
