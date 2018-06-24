@@ -3,7 +3,7 @@
     <div class="actions">
       <div class="delete" @click="handleOnRemove">Delete</div>
     </div>
-    <div class="content" v-touch:swipe="getOnSwipeHandler()">
+    <div class="content" v-touch:swipe="getOnSwipeHandler()" @click="handleOnClick">
       <div class="left">
         <aph-token-icon :symbol="holding.symbol"></aph-token-icon>
         <div class="token">
