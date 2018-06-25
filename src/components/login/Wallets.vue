@@ -44,8 +44,8 @@ export default {
 
 <style lang="scss">
 #login--wallets {
-  background: url('~@/assets/img/Blurred_Bg_Wallets.png') center center no-repeat;
-  background-size: auto 100%;
+  background: url('~@/assets/img/Blurred_Bg_Wallets.png') no-repeat center center fixed;
+  background-size: cover;
   display: flex;
   flex-direction: column;
   height: 100%;

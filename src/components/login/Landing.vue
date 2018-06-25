@@ -1,6 +1,9 @@
 <template>
   <section id="login--landing">
-    <aph-icon name="logo"></aph-icon>
+    <div class="header">
+      <aph-icon name="word-mark"></aph-icon>
+      <div class="version">v{{ $store.state.version }}</div>
+    </div>
     <div class="body">
       <div class="btn-group">
         <router-link to="/login/create-wallet" class="create-wallet-btn">Create wallet</router-link>
@@ -13,26 +16,35 @@
 
 <style lang="scss">
 #login--landing {
-  background: url('~@/assets/img/Bg.png') center center no-repeat;
-  background-size: auto 100%;
+  background: url('~@/assets/img/Bg.png') no-repeat center center fixed;
+  background-size: cover;
   display: flex;
   flex-direction: column;
   height: 100%;
 
-  > .aph-icon {
-    flex: 1;
+  .header {
+    align-items: center;
     display: flex;
     flex-direction: column;
+    flex: 1;
     justify-content: center;
 
-    svg.logo {
-      height: 30vh;
+    > .aph-icon {
+      svg.word-mark {
+        height: 5vw;
+      }
+    }
+
+    > .version {
+      margin-top: $space-lg;
+      text-transform: uppercase;
+      font-size: toRem(12px);
     }
   }
 
   .body {
-    flex: 1;
-    padding: 0 $space-lg;
+    flex: none;
+    padding: 0 $space-lg $space-lg;
 
     .btn-group {
       flex: none;

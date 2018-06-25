@@ -1,8 +1,5 @@
 <template>
   <section id="about">
-    <video loop muted autoplay>
-      <source src="~@/assets/video/login.mp4" type="video/mp4">
-    </video>
     <div class="body">
       <div class="content">
         <aph-icon name="logo-mark"></aph-icon>
@@ -50,17 +47,11 @@ export default {
 
 <style lang="scss">
 #about {
-  background: $dark;
+  background: url('~@/assets/img/Blurred_Bg.png') no-repeat center center fixed;
+  background-size: cover;
   height: 100%;
   overflow: hidden;
   position: relative;
-
-  > video {
-    height: 100%;
-    position: absolute;
-    left: 0;
-    top: 0;
-  }
 
   > .body {
     height: 100%;
