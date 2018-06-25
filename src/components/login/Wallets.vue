@@ -14,7 +14,7 @@
     <div class="body">
       <div class="help-text">Switch to another wallet</div>
       <div class="wallets">
-        <div v-for="(wallet, index) in $store.state.wallets" :key="index" :class="['wallet', {active: isActive(wallet)}]" @click="switchTo(wallet)">
+        <div v-for="wallet in $store.state.wallets" :key="wallet.label" :class="['wallet', {active: isActive(wallet)}]" @click="switchTo(wallet)">
           <div class="label">{{ wallet.label }}</div>
         </div>
       </div>
@@ -27,8 +27,7 @@ export default {
   methods: {
     isActive({ label }) {
       const lastWallet = this.$services.wallets.getLastWallet();
-
-      return lastWallet.label === label;
+      return lastWallet && lastWallet.label === label;
     },
 
     goBack() {

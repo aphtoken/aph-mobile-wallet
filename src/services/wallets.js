@@ -66,7 +66,7 @@ export default {
   },
 
   getLastWallet() {
-    return storage.get(LAST_WALLET_STORAGE_KEY, _.first(this.getAllAsArray()));
+    return storage.get(LAST_WALLET_STORAGE_KEY);
   },
 
   getOne(name) {

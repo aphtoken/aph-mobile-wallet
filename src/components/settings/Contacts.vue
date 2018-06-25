@@ -14,12 +14,10 @@
     <div class="body">
       <div class="contacts">
         <div v-for="(contact) in filteredContacts" :key="`${contact.name}.${contact.address}`" :class="['contact', {'show-actions': contactWithActionsShowing && contactWithActionsShowing.name === contact.name}]">
-        <!-- <div v-for="(contact, index) in filteredContacts" :key="index" :class="['contact', {'show-actions': contactWithActionsShowing.name === contact.name}]"> -->
           <div class="actions">
             <div class="delete" @click="remove(contact)">Delete</div>
           </div>
           <div class="content" v-touch:swipe="getSwipeHandler(contact)">
-          <!-- <div class="content"> -->
             <div class="name">{{ contact.name }}</div>
             <div class="copy">
               <aph-copy-text :text="contact.address"></aph-copy-text>
@@ -235,10 +233,6 @@ export default {
             color: $dark;
             flex: 1;
             font-family: GilroyMedium;
-          }
-
-          .copy {
-            flex: none;
           }
         }
 

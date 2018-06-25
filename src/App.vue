@@ -12,9 +12,9 @@ export default {
   name: 'aph-mobile-wallet',
 
   mounted() {
-      setTimeout(() => {
-        this.$router.push('/login');
-      },TIME_BEFORE_FORWARD);
+    setTimeout(() => {
+      this.$router.push('/login');
+    }, TIME_BEFORE_FORWARD);
   },
 };
 </script>
