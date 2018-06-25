@@ -1,5 +1,8 @@
 <template>
   <section id="login--import">
+    <div class="background">
+      <img src="~@/assets/img/Blurred_Bg.png">
+    </div>
     <div class="header">
       <div class="back-btn" @click="goBack">
         <aph-icon name="arrow-left"></aph-icon>
@@ -68,11 +71,25 @@ export default {
 
 <style lang="scss">
 #login--import {
-  background: url('~@/assets/img/Blurred_Bg.png') no-repeat center center fixed;
-  background-size: cover;
   display: flex;
   flex-direction: column;
   height: 100%;
+  position: relative;
+  z-index: 1;
+
+  > .background {
+    display: block;
+    height: 100%;
+    left: 0;
+    position: absolute;
+    top: 0;
+    width: 100%;
+    z-index: -1;
+
+    img {
+      width: 100%;
+    }
+  }
 
   > .header {
     display: flex;

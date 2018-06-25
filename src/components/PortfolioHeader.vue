@@ -1,11 +1,11 @@
 <template>
   <section id="portfolio-header">
-      <div class="title-underlined">Total Balance</div>
-      <div class="total-balance">{{ $formatMoney($store.state.portfolio.balance) }}</div>
-      <div class="change">
-        <div class="label">24h Change</div>
-        <div :class="['amount', {increase: $store.state.portfolio.changeValue > 0, decrease: $store.state.portfolio.changeValue < 0}]">{{ $formatMoney($store.state.portfolio.changeValue) }} (<span class="percentage">{{ $formatNumber($store.state.portfolio.changePercent) }}</span>)</div>
-      </div>
+    <div class="title-underlined">Total Balance</div>
+    <div class="total-balance">{{ $formatMoney($store.state.portfolio.balance) }}</div>
+    <div class="change">
+      <div class="label">24h Change</div>
+      <div :class="['amount', {increase: $store.state.portfolio.changeValue > 0, decrease: $store.state.portfolio.changeValue < 0}]">{{ $formatMoney($store.state.portfolio.changeValue) }} (<span class="percentage">{{ $formatNumber($store.state.portfolio.changePercent) }}</span>)</div>
+    </div>
   </section>
 </template>
 
@@ -21,6 +21,8 @@ export default {
   display: flex;
   flex-direction: column;
   justify-content: center;
+  position: relative;
+  z-index: 1;
 
   .title-underlined {
     margin: $space-xl 0 $space;

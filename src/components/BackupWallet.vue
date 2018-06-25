@@ -1,39 +1,45 @@
 <template>
-  <section id="backup-wallet" :class="{show}">
+  <section id="backup-wallet">
+    <div class="background">
+      <img src="~@/assets/img/Blurred_Bg.png">
+    </div>
     <div class="header">
-      <div class="title">Backup Wallet</div>
-      <div class="control" @click="close">
-        <aph-icon name="arrow-down"></aph-icon>
+      <div class="title">
+        <aph-icon name="word-mark"></aph-icon>
       </div>
     </div>
     <div class="body">
-      <p>Save and backup the keys below. If you lose them, you lose access to your assets.</p>
+      <div class="help-text">You must save and backup the keys below. If you lose them, you lose access to your assets.</div>
+      <div class="keys">
+        <div class="row">
+          <div class="label">Private Key</div>
+          <div class="value">{{ $store.state.currentWallet.privateKey }}</div>
+          <aph-copy-text :text="$store.state.currentWallet.privateKey" :icon="false"></aph-copy-text>
+        </div>
+        <div class="row">
+          <div class="label">Encrypted Key</div>
+          <div class="value">{{ $store.state.currentWallet.encryptedWIF }}</div>
+          <aph-copy-text :text="$store.state.currentWallet.encryptedWIF" :icon="false"></aph-copy-text>
+        </div>
+        <div class="row">
+          <div class="label">WIF</div>
+          <div class="value">{{ $store.state.currentWallet.wif }}</div>
+          <aph-copy-text :text="$store.state.currentWallet.wif" :icon="false"></aph-copy-text>
+        </div>
+        <div class="qr-codes-btn" @click="showQrCodes = true">View QR Codes</div>
+      </div>
+    </div>
+    <div class="footer">
+      <div class="done-btn" @click="$store.commit('setWalletToBackup', null)">Done</div>
+    </div>
+    <div class="qr-codes-wrapper" v-if="showQrCodes">
       <div class="qr-codes">
-        <div class="qr-code">
-          <div class="canvas-wrapper">
-            <vue-qrcode :value="$store.state.currentWallet.address" :options="{ backgroundAlpha: 0, size: 120 }"></vue-qrcode>
-          </div>
-          <p class="help-text">Public<br />Address</p>
-        </div>
-        <div class="qr-code">
-          <div class="canvas-wrapper">
-            <vue-qrcode :value="$store.state.currentWallet.wif" :options="{ backgroundAlpha: 0, size: 120  }"></vue-qrcode>
-          </div>
-          <p class="help-text">Encrypted<br />Private Key</p>
-        </div>
+        <vue-qrcode :value="$store.state.currentWallet.address" :options="{ size: 130 }"></vue-qrcode>
+        <p class="help-text">Public Address</p>
+        <vue-qrcode :value="$store.state.currentWallet.privateKey" :options="{ size: 130 }"></vue-qrcode>
+        <p class="help-text">Private Key</p>
       </div>
-      <div class="row">
-        <aph-input v-model="$store.state.walletToBackup.encryptedWIF" placeholder="Encrypted key" :disabled="true"></aph-input>
-        <aph-copy-text :text="$store.state.walletToBackup.encryptedWIF"></aph-copy-text>
-      </div>
-      <div class="row">
-        <aph-input v-model="$store.state.walletToBackup.privateKey" placeholder="Private key" :disabled="true"></aph-input>
-        <aph-copy-text :text="$store.state.walletToBackup.privateKey"></aph-copy-text>
-      </div>
-      <div class="row">
-        <aph-input v-model="$store.state.walletToBackup.wif" placeholder="WIF" :disabled="true"></aph-input>
-        <aph-copy-text :text="$store.state.walletToBackup.wif"></aph-copy-text>
-      </div>
+      <div class="close-btn" @click="showQrCodes = false">Close</div>
     </div>
   </section>
 </template>
@@ -46,108 +52,86 @@ export default {
     VueQrcode,
   },
 
-  computed: {
-    show() {
-      return !_.isEmpty(this.$store.state.walletToBackup);
-    },
-  },
-
   data() {
     return {
+      showQrCodes: false,
     };
-  },
-
-  methods: {
-    close() {
-      this.$store.commit('setWalletToBackup', {});
-    },
   },
 };
 </script>
 
 <style lang="scss">
 #backup-wallet {
-  @include transition(top);
-
-  background: $dark;
   display: flex;
   flex-direction: column;
-  height: 100vh;
-  left: 0;
-  overflow: hidden;
+  height: 100%;
   position: fixed;
-  top: 100vh;
-  width: 100vw;
-  z-index: 1000;
+  z-index: 100000;
+  background: $dark;
+  width: 100%;
+  top: 0;
+  left: 0;
+
+  > .background {
+    display: block;
+    height: 100%;
+    left: 0;
+    opacity: .6;
+    position: absolute;
+    top: 0;
+    width: 100%;
+    z-index: -1;
+
+    img {
+      width: 100%;
+    }
+  }
 
   > .header {
-    align-items: center;
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     flex: none;
-    padding: $space 0;
+    justify-content: center;
+    position: relative;
 
     .title {
-      color: white;
-      font-size: toRem(18px);
-    }
-
-    .control {
-      padding: $space;
-      position: absolute;
-      left: 0;
-      top: 0;
+      margin-top: $space;
 
       svg {
-        height: toRem(20px);
+        height: toRem(16px);
+
+        .fill {
+          fill: white;
+        }
       }
     }
   }
 
-  > .body {
-    display: flex;
-    flex-direction: column;
+  .body {
     flex: 1;
-    overflow: hidden;
     padding: $space;
 
-    p {
+    .help-text {
       line-height: $copy-line-height;
-      margin: 0 0 $space;
-      padding: 0 $space-lg;
+      margin: $space-xl 0;
       text-align: center;
     }
 
-    .qr-codes {
-      display: flex;
-      margin-top: $space;
-      flex-direction: row;
-
-      .qr-code {
-        align-items: center;
-        display: flex;
-        flex-direction: column;
-        flex: 1;
-        font-size: 0;
-        text-align: center;
-
-        .canvas-wrapper {
-          background: white;
-          padding: $space-sm;
-        }
-
-        .help-text {
-          font-family: GilroySemibold;
-          font-size: toRem(10px);
-          margin-top: $space-sm;
-          text-transform: uppercase;
-        }
-      }
-    }
-
     .row {
-      margin-top: $space;
       position: relative;
+
+      .label {
+        @extend %small-uppercase-grey-label;
+
+        color: $purple;
+      }
+
+      .value {
+        @include truncate();
+
+        border-bottom: $border-width solid $purple;
+        padding: $space 0 $space-sm;
+      }
 
       .aph-copy-text {
         position: absolute;
@@ -155,16 +139,64 @@ export default {
         top: 0;
       }
 
-      .aph-input {
-        > input {
-          font-size: toRem(8px);
-        }
+      & + .row {
+        margin-top: $space-lg;
       }
+    }
+
+    .qr-codes-btn {
+      @extend %btn;
+
+      margin-top: $space-xl;
     }
   }
 
-  &.show {
+  .footer {
+    flex: none;
+
+    .done-btn {
+      @extend %btn-footer;
+
+      display: block;
+    }
+  }
+
+  .qr-codes-wrapper {
+    background: rgba($dark, .7);
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    justify-content: center;
+    left: 0;
+    padding: $space-xl;
+    position: absolute;
+    right: 0;
     top: 0;
+
+    .qr-codes {
+      background: white;
+      border-radius: $border-radius;
+      padding: $space;
+      text-align: center;
+
+      .help-text {
+        @extend %small-uppercase-grey-label;
+
+        color: $purple;
+        margin: 0;
+
+        & + canvas {
+          margin-top: $space;
+        }
+      }
+    }
+
+    .close-btn {
+      @extend %btn;
+
+      margin-top: $space;
+    }
   }
 }
 </style>

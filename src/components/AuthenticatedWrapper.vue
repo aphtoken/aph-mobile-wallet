@@ -33,7 +33,7 @@
       </div>
       <router-view></router-view>
     </div>
-    <backup-wallet></backup-wallet>
+    <backup-wallet v-if="$store.state.walletToBackup"></backup-wallet>
     <claim-gas-status v-if="$store.state.showClaimGasStatus"></claim-gas-status>
   </section>
 </template>

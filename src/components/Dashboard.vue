@@ -51,7 +51,7 @@ export default {
 
       .aph-icon {
         svg {
-          height: toRem(35px);
+          height: toRem(30px);
 
           &.transactions {
             height: toRem(18px);

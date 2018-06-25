@@ -90,7 +90,8 @@ function createWallet({ commit }, { name, passphrase, passphraseConfirm }) {
       .createWallet(name, passphrase, passphraseConfirm)
       .then(() => {
         commit('endRequest', { identifier: 'createWallet' });
-        router.replace('/login/wallet-created');
+        commit('setWalletToBackup', wallets.getCurrentWallet());
+        router.replace('/authenticated');
       })
       .catch((message) => {
         commit('failRequest', { identifier: 'createWallet', message });

@@ -1,5 +1,8 @@
 <template>
   <section id="login--landing">
+    <div class="background">
+      <img src="~@/assets/img/Bg.png">
+    </div>
     <div class="header">
       <aph-icon name="word-mark"></aph-icon>
       <div class="version">v{{ $store.state.version }}</div>
@@ -16,11 +19,25 @@
 
 <style lang="scss">
 #login--landing {
-  background: url('~@/assets/img/Bg.png') no-repeat center center fixed;
-  background-size: cover;
   display: flex;
   flex-direction: column;
   height: 100%;
+  position: relative;
+  z-index: 1;
+
+  > .background {
+    display: block;
+    height: 100%;
+    left: 0;
+    position: absolute;
+    top: 0;
+    width: 100%;
+    z-index: -1;
+
+    img {
+      width: 100%;
+    }
+  }
 
   .header {
     align-items: center;

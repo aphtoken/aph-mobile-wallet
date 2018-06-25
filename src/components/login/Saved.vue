@@ -1,5 +1,8 @@
 <template>
   <section id="login--saved">
+    <div class="background">
+      <img src="~@/assets/img/Bg.png">
+    </div>
     <div class="header">
       <div class="title">
         <aph-icon name="word-mark"></aph-icon>
@@ -72,19 +75,33 @@ export default {
 
 <style lang="scss">
 #login--saved {
-  background: url('~@/assets/img/Bg.png') no-repeat center center fixed;
-  background-size: cover;
   display: flex;
   flex-direction: column;
   height: 100%;
-  z-index: 100;
+  position: relative;
+  z-index: 1;
+
+  > .background {
+    display: block;
+    height: 100%;
+    left: 0;
+    opacity: .6;
+    position: absolute;
+    top: 0;
+    width: 100%;
+    z-index: -1;
+
+    img {
+      width: 100%;
+    }
+  }
 
   > .header {
     align-items: center;
     display: flex;
     flex-direction: column;
     flex: none;
-    padding: $space-xl 0;
+    padding: $space-xl 0 $space-xxl;
 
     .title {
       svg.word-mark {
@@ -97,7 +114,7 @@ export default {
     }
 
     .wallet-name {
-      margin: $space-lg 0;
+      padding: $space-xl 0;
     }
 
     .aph-icon {
@@ -112,7 +129,7 @@ export default {
   }
 
   .body {
-    flex: 2;
+    flex: 1;
     padding: 0 $space-lg;
 
     .login-btn {
