@@ -33,6 +33,10 @@ export default new Router({
           component: require('../components/login/Import').default,
         },
         {
+          path: 'wallet-created',
+          component: require('../components/login/WalletCreated').default,
+        },
+        {
           path: 'wallets',
           component: require('../components/login/Wallets').default,
         },

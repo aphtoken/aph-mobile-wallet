@@ -89,9 +89,8 @@ function createWallet({ commit }, { name, passphrase, passphraseConfirm }) {
     neo
       .createWallet(name, passphrase, passphraseConfirm)
       .then(() => {
-        commit('setWalletToBackup', wallets.getCurrentWallet());
         commit('endRequest', { identifier: 'createWallet' });
-        router.replace('/authenticated');
+        router.replace('/login/wallet-created');
       })
       .catch((message) => {
         commit('failRequest', { identifier: 'createWallet', message });

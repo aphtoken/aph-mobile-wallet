@@ -10,7 +10,9 @@
     </div>
     <div class="body">
     <login-form-wrapper identifier="createWallet">
+      <div class="help-text">Choose a name for your wallet.</div>
       <aph-input v-model="walletName" placeholder="Wallet name"></aph-input>
+      <div class="help-text">You will use this passphrase to unlock your wallet.</div>
       <aph-input v-model="passphrase" placeholder="Passphrase" type="password"></aph-input>
       <aph-input v-model="passphraseConfirm" placeholder="Confirm passphrase" type="password"></aph-input>
       <button class="create-wallet-btn" @click="create" :disabled="shouldDisableCreateButton">{{ buttonLabel }}</button>
@@ -29,7 +31,7 @@ export default {
 
   computed: {
     buttonLabel() {
-      return this.$isPending('createWallet') ? 'Creating...' : 'Create';
+      return this.$isPending('createWallet') ? 'Creating...' : 'Create Wallet';
     },
 
     passphrasesMatch() {
@@ -68,6 +70,8 @@ export default {
 
 <style lang="scss">
 #login--create-wallet {
+  background: url('~@/assets/img/Blurred_Bg.png') center center no-repeat;
+  background-size: auto 100%;
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -75,7 +79,7 @@ export default {
   > .header {
     display: flex;
     flex-direction: row;
-    flex: 1;
+    flex: none;
     justify-content: center;
     position: relative;
 
@@ -106,8 +110,14 @@ export default {
   }
 
   .body {
-    flex: 2;
+    flex: 1;
     padding: 0 $space-lg;
+
+    .help-text {
+      padding: $space-xl $space-lg;
+      text-align: center;
+      font-size: toRem(12px);
+    }
 
     .aph-input + .aph-input {
       margin-top: $space;
@@ -116,7 +126,7 @@ export default {
     .create-wallet-btn {
       @extend %btn-outline;
 
-      margin-top: $space-lg;
+      margin-top: $space-xl;
     }
   }
 }

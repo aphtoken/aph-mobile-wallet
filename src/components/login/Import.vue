@@ -68,6 +68,8 @@ export default {
 
 <style lang="scss">
 #login--import {
+  background: url('~@/assets/img/Blurred_Bg.png') center center no-repeat;
+  background-size: auto 100%;
   display: flex;
   flex-direction: column;
   height: 100%;

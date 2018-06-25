@@ -72,6 +72,8 @@ export default {
 
 <style lang="scss">
 #login--saved {
+  background: url('~@/assets/img/Bg.png') center center no-repeat;
+  background-size: auto 100%;
   display: flex;
   flex-direction: column;
   height: 100%;

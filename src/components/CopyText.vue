@@ -1,6 +1,7 @@
 <template>
   <span class="aph-copy-text" @click.stop="copy" title="Copy to Clipboard">
-    <aph-icon name="copy" ref="icon"></aph-icon>
+    <aph-icon name="copy" ref="icon" v-if="icon"></aph-icon>
+    <span v-else class="text-label">Copy</span>
     <span :class="['aph-copy-text--confirmation-text', {show: showConfirmationText}]" ref="confirmationText" v-dom-portal>Copied</span>
   </span>
 </template>
@@ -55,6 +56,11 @@ export default {
   },
 
   props: {
+    icon: {
+      default: true,
+      type: Boolean,
+    },
+
     text: {
       type: String,
     },
@@ -106,6 +112,11 @@ export default {
         }
       }
     }
+  }
+
+  .text-label {
+    font-size: toRem(12px);
+    text-transform: uppercase;
   }
 }
 </style>
