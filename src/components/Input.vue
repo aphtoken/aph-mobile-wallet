@@ -140,10 +140,7 @@ export default {
     border-color: $purple;
 
     .placeholder {
-      color: $grey;
-      font-size: toRem(12px);
-      padding: 0;
-      top: 0;
+      display: none;
     }
   }
 

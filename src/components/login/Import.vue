@@ -118,7 +118,7 @@ export default {
     .import-btn {
       @extend %btn-outline;
 
-      margin-top: $space-lg;
+      margin-top: $space-xl;
     }
   }
 }

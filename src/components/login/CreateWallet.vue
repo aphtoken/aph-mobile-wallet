@@ -114,9 +114,10 @@ export default {
     padding: 0 $space-lg;
 
     .help-text {
+      font-size: toRem(12px);
+      line-height: $copy-line-height;
       padding: $space-xl $space-lg;
       text-align: center;
-      font-size: toRem(12px);
     }
 
     .aph-input + .aph-input {
