@@ -38,7 +38,7 @@ const state = {
   statsToken: null,
   transactionDetails: {},
   version: pjson.version,
-  walletToBackup: {},
+  walletToBackup: null,
   wallets: [],
 };
 
