@@ -83,6 +83,8 @@ export default {
 <style lang="scss">
 .holding {
   align-items: center;
+  border-radius: $border-radius;
+  overflow: hidden;
   position: relative;
 
   .content {

@@ -299,6 +299,7 @@ export default {
       overflow: auto;
 
       .wallet {
+        border-radius: $border-radius;
         overflow: hidden;
         position: relative;
 
