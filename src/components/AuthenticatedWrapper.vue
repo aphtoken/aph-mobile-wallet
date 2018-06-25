@@ -214,6 +214,7 @@ export default {
       position: absolute;
       top: $space;
       width: $space-lg;
+      z-index: 100;
 
       > span {
         @include transitionFast(all);

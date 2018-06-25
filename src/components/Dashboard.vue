@@ -36,8 +36,9 @@ export default {
   }
 
   > .footer {
-    flex: none;
+    background: $dark-purple;
     display: flex;
+    flex: none;
 
     > a {
       align-items: center;

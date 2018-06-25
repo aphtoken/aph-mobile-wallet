@@ -76,7 +76,7 @@ export default {
     display: block;
     height: 100%;
     left: 0;
-    opacity: .6;
+    opacity: .5;
     position: absolute;
     top: 0;
     width: 100%;

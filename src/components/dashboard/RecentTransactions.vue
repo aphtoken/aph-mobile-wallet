@@ -1,5 +1,8 @@
 <template>
   <section id="dashboard--recent-transactions">
+    <div class="background">
+      <img src="~@/assets/img/Blurred_Bg_Wallets.png">
+    </div>
     <div class="header">
       <div class="title">Recent Transactions</div>
       <aph-portfolio-header></aph-portfolio-header>
@@ -50,6 +53,23 @@ export default {
   flex-direction: column;
   height: 100%;
   overflow: hidden;
+  position: relative;
+  z-index: 1;
+
+  > .background {
+    display: block;
+    height: 100%;
+    left: 0;
+    opacity: .5;
+    position: absolute;
+    top: 0;
+    width: 100%;
+    z-index: -1;
+
+    img {
+      width: 100%;
+    }
+  }
 
   > .header {
     align-items: center;

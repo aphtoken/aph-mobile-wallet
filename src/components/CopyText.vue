@@ -85,7 +85,7 @@ export default {
     transform: translate(-50%, -30px);
     transition: all 0.5s;
     visibility: visible;
-    z-index: 100000;
+    z-index: 1000000;
   }
 }
 
