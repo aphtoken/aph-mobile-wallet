@@ -40,6 +40,7 @@
               <aph-input placeholder="Name" v-model="walletName" :light="true"></aph-input>
               <aph-input placeholder="Private key" v-model="wif" :light="true"></aph-input>
               <aph-input placeholder="Passphrase" v-model="passphrase" type="password" :light="true"></aph-input>
+              <aph-input placeholder="Confirm passphrase" v-model="passphraseConfirm" type="password" :light="true"></aph-input>
             </div>
           </div>
         </div>
@@ -101,9 +102,14 @@ export default {
       return this.$isPending('openSavedWallet') ? 'Opening...' : 'Open';
     },
 
+    passphrasesMatch() {
+      return this.passphrase === this.passphraseConfirm;
+    },
+
     shouldDisableImportButton() {
       return this.$isPending('importWallet') || this.wif.length === 0
-        || this.walletName.length === 0 || this.passphrase.length === 0;
+        || this.walletName.length === 0 || this.passphrase.length === 0
+        || !this.passphrasesMatch;
     },
 
     shouldDisableOpenButton() {
@@ -114,6 +120,7 @@ export default {
   data() {
     return {
       passphrase: '',
+      passphraseConfirm: '',
       searchBy: '',
       showImportWallet: false,
       showOpenWallet: false,
