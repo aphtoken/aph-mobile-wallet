@@ -11,13 +11,13 @@
 </template>
 
 <script>
-import imagesLoaded from 'vue-images-loaded'
+import imagesLoaded from 'vue-images-loaded';
 
 export default {
   name: 'aph-mobile-wallet',
 
   directives: {
-      imagesLoaded,
+    imagesLoaded,
   },
 
   methods: {
