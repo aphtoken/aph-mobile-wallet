@@ -16,6 +16,7 @@
         <aph-input placeholder="Name" v-model="walletName"></aph-input>
         <aph-input placeholder="Private key" v-model="wif"></aph-input>
         <aph-input placeholder="Passphrase" v-model="passphrase" type="password"></aph-input>
+        <aph-input placeholder="Confirm passphrase" v-model="passphraseConfirm" type="password"></aph-input>
         <button class="import-btn" @click="importWallet" :disabled="shouldDisableLButton">{{ buttonLabel }}</button>
       </login-form-wrapper>
     </div>
@@ -35,17 +36,23 @@ export default {
       return this.$isPending('importWallet') ? 'Importing...' : 'Import';
     },
 
+    passphrasesMatch() {
+      return this.passphrase === this.passphraseConfirm;
+    },
+
     shouldDisableLButton() {
       return this.$isPending('importWallet') || this.wif.length === 0
-        || this.walletName.length === 0 || this.passphrase.length === 0;
+        || this.walletName.length === 0 || this.passphrase.length === 0
+        || !this.passphrasesMatch;
     },
   },
 
   data() {
     return {
+      passphrase: '',
+      passphraseConfirm: '',
       walletName: '',
       wif: '',
-      passphrase: '',
     };
   },
 
@@ -94,7 +101,7 @@ export default {
   > .header {
     display: flex;
     flex-direction: row;
-    flex: 1;
+    flex: none;
     justify-content: center;
     position: relative;
 
@@ -125,7 +132,10 @@ export default {
   }
 
   .body {
-    flex: 2;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    justify-content: center;
     padding: 0 $space-lg;
 
     .aph-input + .aph-input {
