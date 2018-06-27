@@ -2,19 +2,28 @@
   <div id="app">
     <router-view></router-view>
     <flash-message class="vue-flash-container"></flash-message>
+    <div class="preload" v-images-loaded.on.done="onAllLoaded">
+      <img src="~@/assets/img/Bg.png">
+      <img src="~@/assets/img/Blurred_Bg.png">
+      <img src="~@/assets/img/Blurred_Bg_Wallets.png">
+    </div>
   </div>
 </template>
 
 <script>
-const TIME_BEFORE_FORWARD = 3000;
+import imagesLoaded from 'vue-images-loaded';
 
 export default {
   name: 'aph-mobile-wallet',
 
-  mounted() {
-    setTimeout(() => {
+  directives: {
+    imagesLoaded,
+  },
+
+  methods: {
+    onAllLoaded() {
       this.$router.push('/login');
-    }, TIME_BEFORE_FORWARD);
+    },
   },
 };
 </script>
@@ -26,5 +35,12 @@ export default {
   height: 100%;
   overflow: hidden;
   position: relative;
+
+  .preload {
+    height: 0;
+    overflow: hidden;
+    visibility: hidden;
+    width: 0;
+  }
 }
 </style>
