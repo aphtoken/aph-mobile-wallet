@@ -129,7 +129,10 @@ export default {
   }
 
   .body {
+    display: flex;
+    flex-direction: column;
     flex: 1;
+    justify-content: center;
     padding: 0 $space-lg;
 
     .login-btn {
