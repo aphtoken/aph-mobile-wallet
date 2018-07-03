@@ -4,17 +4,30 @@ const TOKENS_STORAGE_KEY = 'aph.tokens';
 
 export default {
 
-  add(data) {
-    if (!data.isCustom) {
-      const existing = this.getOne(data.assetId, data.network);
-      if (existing && existing.isCustom === true) {
-        data.isCustom = true;
+  putInternal(existingTokens, token) {
+    if (!token.isCustom) {
+      const existingToken = _.get(existingTokens, `${token.assetId}_${token.network}`);
+      if (existingToken && existingToken.isCustom === true) {
+        token.isCustom = true;
       }
     }
+    _.set(existingTokens, `${token.assetId}_${token.network}`, token);
+  },
 
-    const tokens = this.getAll();
-    storage.set(TOKENS_STORAGE_KEY, _.set(tokens, `${data.assetId}_${data.network}`, data));
-    return this;
+  add(token) {
+    const existingTokens = this.getAll();
+
+    this.putInternal(existingTokens, token);
+    storage.set(TOKENS_STORAGE_KEY, existingTokens);
+  },
+
+  putAll(tokens) {
+    const existingTokens = this.getAll();
+
+    tokens.forEach((token) => {
+      this.putInternal(existingTokens, token);
+    });
+    storage.set(TOKENS_STORAGE_KEY, existingTokens);
   },
 
   remove(assetId, network) {
@@ -42,7 +55,7 @@ export default {
   },
 
   tokenExists(assetId, network) {
-    return !!this.getOne(`${assetId}_${network}`);
+    return !!this.getOne(assetId, network);
   },
 
 };

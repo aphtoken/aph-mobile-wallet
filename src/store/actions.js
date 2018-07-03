@@ -145,10 +145,11 @@ function findTransactions({ state, commit }) {
 
   commit('startRequest', { identifier: 'findTransactions' });
 
+  const fromDate = state.searchTransactionFromDate;
+  const toDate = state.searchTransactionToDate ? moment(state.searchTransactionToDate).add(1, 'days') : null;
   neo
     .fetchRecentTransactions(currentWallet.address, true,
-      state.searchTransactionFromDate,
-      state.searchTransactionToDate ? moment(state.searchTransactionToDate).add(1, 'days') : null)
+      fromDate, toDate)
     .then((data) => {
       commit('setSearchTransactions', data);
       commit('endRequest', { identifier: 'findTransactions' });
