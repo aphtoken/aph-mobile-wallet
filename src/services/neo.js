@@ -574,35 +574,37 @@ export default {
           network: 'MainNet',
         },
         ];
+        const localTokens = [];
 
         defaultList.forEach((token) => {
-          tokens.add(token);
+          localTokens.add(token);
         });
         try {
           return axios.get(`${currentNetwork.aph}/tokens`)
             .then((res) => {
-              res.data.tokens.forEach((t) => {
+              res.data.tokens.forEach((fetchedToken) => {
                 const token = {
-                  symbol: t.symbol,
-                  assetId: t.scriptHash.replace('0x', ''),
+                  symbol: fetchedToken.symbol,
+                  assetId: fetchedToken.scriptHash.replace('0x', ''),
                   isCustom: false,
-                  name: t.name,
+                  name: fetchedToken.name,
                   network: currentNetwork.net,
                 };
                 let isDefaultToken = false;
                 defaultList.forEach((defaultToken) => {
-                  if (defaultToken.assetId === token.assetId) {
+                  if (defaultToken.assetId === token.assetId && defaultToken.network === token.network) {
                     isDefaultToken = true;
                   }
                 });
-                if (t.sale) {
-                  token.sale = t.sale;
+                if (fetchedToken.sale) {
+                  token.sale = fetchedToken.sale;
                 }
                 if (!isDefaultToken) {
-                  tokens.add(token);
+                  localTokens.add(token);
                 }
               });
 
+              tokens.putAll(localTokens);
               done();
             })
             .catch((e) => {
