@@ -577,7 +577,7 @@ export default {
         const localTokens = [];
 
         defaultList.forEach((token) => {
-          localTokens.add(token);
+          localTokens.push(token);
         });
         try {
           return axios.get(`${currentNetwork.aph}/tokens`)
@@ -600,7 +600,7 @@ export default {
                   token.sale = fetchedToken.sale;
                 }
                 if (!isDefaultToken) {
-                  localTokens.add(token);
+                  localTokens.push(token);
                 }
               });
 

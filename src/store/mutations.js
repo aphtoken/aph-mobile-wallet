@@ -79,6 +79,7 @@ function handleNetworkChange(state) {
   state.searchTransactions = [];
   state.nep5Balances = {};
   state.sendInProgress = false;
+  neo.fetchNEP5Tokens();
 }
 
 function putAllNep5Balances(state, nep5balances) {
