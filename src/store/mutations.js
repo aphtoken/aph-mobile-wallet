@@ -3,7 +3,7 @@ import Vue from 'vue';
 import moment from 'moment';
 
 import { requests } from '../constants';
-import { alerts } from '../services';
+import { alerts, neo } from '../services';
 
 export {
   clearActiveTransaction,
@@ -79,7 +79,7 @@ function handleNetworkChange(state) {
   state.searchTransactions = [];
   state.nep5Balances = {};
   state.sendInProgress = false;
-  neo.fetchNEP5Tokens();
+  neo.fetchNEP5Tokens(() => {});
 }
 
 function putAllNep5Balances(state, nep5balances) {
