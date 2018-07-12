@@ -1,0 +1,90 @@
+
+@import "~normalize.css/normalize";
+
+::-webkit-scrollbar {
+  width: 0;
+}
+
+html, body {
+  -webkit-tap-highlight-color: transparent;
+  background: $dark;
+  color: white;
+  font-family: Gilroy;
+  font-size: $font-size;
+  height: 100%;
+  line-height: normal;
+  overscroll-behavior-y: none;
+}
+
+* {
+  box-sizing: border-box;
+  letter-spacing: $letter-spacing;
+}
+
+a {
+  color: $purple;
+  text-decoration: none;
+
+  &:active {
+    color: $purple-hover;
+  }
+
+  &:focus {
+    outline: none;
+  }
+}
+
+.vue-flash-container {
+  bottom: 0;
+  left: 0;
+  position: absolute;
+  width: 100%;
+  z-index: 10000;
+}
+
+.flash__message {
+  background: rgba($dark, .9) !important;
+  border-radius: 0;
+  border: none;
+  line-height: $copy-line-height;
+  margin: 0;
+  padding: $space;
+  word-wrap: break-word;
+  position: relative;
+
+  .flash__message-content {
+    text-align: center;
+  }
+
+
+  .flash__close-button {
+    bottom: 0;
+    height: 100%;
+    left: 0;
+    opacity: 0;
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 100%;
+  }
+
+  &.error {
+    color: $red;
+  }
+
+  &.info {
+    color: $purple;
+  }
+
+  &.success {
+    color: $green;
+  }
+
+  &.warning {
+    color: $orange;
+  }
+
+  & + .flash__message {
+    margin-top: $space-sm;
+  }
+}
