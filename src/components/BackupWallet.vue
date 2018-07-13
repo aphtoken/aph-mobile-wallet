@@ -127,10 +127,9 @@ export default {
       }
 
       .value {
-        @include truncate();
-
         border-bottom: $border-width solid $purple;
         padding: $space 0 $space-sm;
+        overflow-wrap: break-word;
       }
 
       .aph-copy-text {
