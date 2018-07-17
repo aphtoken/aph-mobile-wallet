@@ -1,3 +1,20 @@
+import en from './l10n/en';
+import de from './l10n/de';
+
+// i18n
+const messages = {
+  en,
+  de,
+};
+
+const languages = [{
+  label: 'English',
+  value: 'en',
+}, {
+  label: 'German',
+  value: 'de',
+}];
+
 const charts = {
   DEBOUNCE: 500,
 };
@@ -58,5 +75,7 @@ export {
   loadStates,
   requests,
   timeouts,
+  messages,
+  languages,
 };
 

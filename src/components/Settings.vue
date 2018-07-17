@@ -7,7 +7,7 @@
       <div class="inner">
         <div class="tile">
           <div class="row" @click="$router.push('/authenticated/settings/about')">
-            <div class="label">About</div>
+            <div class="label">{{$t('About')}}</div>
             <div class="value">
               <aph-icon name="about"></aph-icon>
             </div>
@@ -27,6 +27,10 @@
         </div>
         <div class="underlined">Preferences</div>
         <div class="tile">
+          <div class="row" @click="$router.push('/authenticated/settings/languages')">
+            <div class="label">Language</div>
+            <div class="value">{{ selectedLanguage }}</div>
+          </div>
           <div class="row" @click="$router.push('/authenticated/settings/currencies')">
             <div class="label">Currency</div>
             <div class="value">{{ selectedCurrency }}</div>
@@ -58,6 +62,7 @@
 <script>
 export default {
   beforeMount() {
+    this.selectedLanguage = localStorage.getItem('language') || 'en';
     this.currencies = this.$services.settings.getCurrenciesAsArray();
     this.networks = this.$services.network.getNetworks();
     this.selectedCurrency = this.$services.settings.getCurrency();
@@ -75,6 +80,7 @@ export default {
       networks: [],
       selectedCurrency: null,
       selectedNetwork: null,
+      selectedLanguage: null,
     };
   },
 
