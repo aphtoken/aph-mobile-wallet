@@ -1,12 +1,12 @@
 <template>
   <section id="contacts" :class="[{'show-add-contact': showAddContact}]">
     <div class="header">
-      <div class="title">Contacts</div>
+      <div class="title">{{$t('Contacts')}}</div>
       <div class="search">
         <div class="inner">
           <aph-icon name="search"></aph-icon>
           <div class="input">
-            <input type="text" placeholder="Search" v-model="searchBy">
+            <input type="text" :placeholder="$t('Search')" v-model="searchBy">
           </div>
         </div>
       </div>
@@ -15,7 +15,7 @@
       <div class="contacts">
         <div v-for="(contact) in filteredContacts" :key="`${contact.name}.${contact.address}`" :class="['contact', {'show-actions': contactWithActionsShowing && contactWithActionsShowing.name === contact.name}]">
           <div class="actions">
-            <div class="delete" @click="remove(contact)">Delete</div>
+            <div class="delete" @click="remove(contact)">{{$t('Delete')}}</div>
           </div>
           <div class="content" v-touch:swipe="getSwipeHandler(contact)">
             <div class="name">{{ contact.name }}</div>
@@ -32,21 +32,21 @@
     <div class="add-contact">
       <div class="control" @click="hideAddContact">
         <aph-icon name="arrow-down"></aph-icon>
-        <div class="title">Add Contact</div>
+        <div class="title">{{$t('addContact')}}</div>
       </div>
       <div class="body">
         <div class="inner">
           <div class="body">
             <aph-icon name="user"></aph-icon>
-            <div class="title">Enter contact details.</div>
+            <div class="title">{{$t('enterContactDetails')}}</div>
             <div class="form">
-              <aph-input :light="true" placeholder="Name" v-model="name"></aph-input>
-              <aph-input :light="true" placeholder="Address" v-model="address"></aph-input>
+              <aph-input :light="true" :placeholder="$t('Name')" v-model="name"></aph-input>
+              <aph-input :light="true" :placeholder="$t('Address')" v-model="address"></aph-input>
             </div>
           </div>
         </div>
       </div>
-      <button class="submit-btn" @click="add" :disabled="shouldDisableAddButton">Add</button>
+      <button class="submit-btn" @click="add" :disabled="shouldDisableAddButton">{{$t('Add')}}</button>
     </div>
   </section>
 </template>
@@ -84,12 +84,12 @@ export default {
   methods: {
     add() {
       if (this.$services.contacts.contactExistsByName(this.name)) {
-        this.$services.alerts.error('Contact with that name already exists.');
+        this.$services.alerts.error(this.$t('contactWithNameExists'));
         return;
       }
 
       if (this.$services.contacts.contactExistsByAddress(this.address)) {
-        this.$services.alerts.error('Contact with that address already exists.');
+        this.$services.alerts.error(this.$t('contactWithAddressExists'));
         return;
       }
 

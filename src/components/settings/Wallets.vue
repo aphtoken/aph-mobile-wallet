@@ -1,12 +1,12 @@
 <template>
   <section id="wallets" :class="[{'show-import-wallet': showImportWallet, 'show-open-wallet': showOpenWallet}]">
     <div class="header">
-      <div class="title">Wallets</div>
+      <div class="title">{{$t('Wallets')}}</div>
       <div class="search">
         <div class="inner">
           <aph-icon name="search"></aph-icon>
           <div class="input">
-            <input type="text" placeholder="Search" v-model="searchBy">
+            <input type="text" :placeholder="$t('Search')" v-model="searchBy">
           </div>
         </div>
       </div>
@@ -15,7 +15,7 @@
       <div class="wallets">
         <div v-for="(wallet) in filteredWallets" :key="wallet.label" :class="['wallet', {active: isActive(wallet), 'show-actions': walletWithActionsShowing && walletWithActionsShowing.label === wallet.label}]">
           <div class="actions">
-            <div class="delete" @click="initDeleteWallet(wallet)">Delete</div>
+            <div class="delete" @click="initDeleteWallet(wallet)">{{$t('Delete')}}</div>
           </div>
           <div class="content" v-touch:swipe="getSwipeHandler(wallet)">
             <div class="label" @click="beginOpenWallet(wallet)">{{ wallet.label }}</div>
@@ -29,18 +29,18 @@
     <div class="import-wallet">
       <div class="control" @click="hideImportWallet">
         <aph-icon name="arrow-down"></aph-icon>
-        <div class="title">Import Wallet</div>
+        <div class="title">{{$t('importWallet')}}</div>
       </div>
       <div class="body">
         <div class="inner">
           <div class="body">
             <aph-icon name="wallet"></aph-icon>
-            <div class="title">Enter wallet details.</div>
+            <div class="title">{{$t('enterWalletDetails')}}</div>
             <div class="form">
-              <aph-input placeholder="Name" v-model="walletName" :light="true"></aph-input>
-              <aph-input placeholder="Private key" v-model="wif" :light="true"></aph-input>
-              <aph-input placeholder="Passphrase" v-model="passphrase" type="password" :light="true"></aph-input>
-              <aph-input placeholder="Confirm passphrase" v-model="passphraseConfirm" type="password" :light="true"></aph-input>
+              <aph-input :placeholder="$t('Name')" v-model="walletName" :light="true"></aph-input>
+              <aph-input :placeholder="$t('privateKey')" v-model="wif" :light="true"></aph-input>
+              <aph-input :placeholder="$t('passphrase')" v-model="passphrase" type="password" :light="true"></aph-input>
+              <aph-input :placeholder="$t('confirmPassphrase')" v-model="passphraseConfirm" type="password" :light="true"></aph-input>
             </div>
           </div>
         </div>
@@ -50,7 +50,7 @@
     <div class="open-wallet">
       <div class="control" @click="hideOpenWallet">
         <aph-icon name="arrow-down"></aph-icon>
-        <div class="title">Open Wallet</div>
+        <div class="title">{{$t('openWallet')}}</div>
       </div>
       <div class="body">
         <div class="inner">
@@ -69,12 +69,12 @@
       <div class="inner">
         <div class="body">
           <aph-icon name="unconfirmed-big"></aph-icon>
-          <div class="help-text">Are you sure you want to delete? <span class="red">Loss of funds is possible</span>, if you have not properly backed up this wallet's keys.</div>
+          <div class="help-text">{{$t('confirmDelete')}} <span class="red">{{$t('lossOfFunds')}}</span>{{$t('notProperlyBackedUp')}}</div>
           <div class="label">{{ walletToDelete.label }}</div>
         </div>
-        <button class="delete-btn" @click="deleteWallet" :disabled="$isPending('deleteWallet')">Delete</button>
+        <button class="delete-btn" @click="deleteWallet" :disabled="$isPending('deleteWallet')">{{$t('Delete')}}</button>
       </div>
-      <div class="cancel-btn" @click="walletToDelete = null">Cancel</div>
+      <div class="cancel-btn" @click="walletToDelete = null">{{$t('Cancel')}}</div>
     </div>
   </section>
 </template>
@@ -95,11 +95,11 @@ export default {
     },
 
     importButtonLabel() {
-      return this.$isPending('importWallet') ? 'Importing...' : 'Import';
+      return this.$isPending('importWallet') ? this.$t('importing') : this.$t('Import');
     },
 
     openButtonLabel() {
-      return this.$isPending('openSavedWallet') ? 'Opening...' : 'Open';
+      return this.$isPending('openSavedWallet') ? this.$t('opening') : this.$t('Open');
     },
 
     passphrasesMatch() {
@@ -146,7 +146,7 @@ export default {
       this.$store.dispatch('deleteWallet', {
         name: this.walletToDelete.label,
         done: () => {
-          this.$services.alerts.success(`Deleted Wallet ${this.walletToDelete.label}`);
+          this.$services.alerts.success(this.$t('deletedWallet', { name: this.walletToDelete.label}));
           if (this.walletToDelete.label === this.$store.state.currentWallet.label) {
             this.$services.wallets.clearCurrentWallet();
             this.$services.wallets.setLastWallet(null);
