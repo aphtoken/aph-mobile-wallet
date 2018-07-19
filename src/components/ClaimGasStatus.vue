@@ -3,12 +3,12 @@
     <!-- <div class="body" v-if="$store.state.gasClaim"> -->
     <div class="body">
       <aph-icon name="claim-gas"></aph-icon>
-      <div class="title">Claim GAS</div>
-      <p>Claiming GAS which has accumulated from your NEO holdings takes several steps. We've automated the process for you but it may take up to 5 minutes.</p>
-      <p>Please wait for the GAS claim to complete.</p>
-      <p>Closing your wallet during this process may result in the GAS claim failing and require you to run it again.</p>
+      <div class="title">{{$t('claimGas')}}</div>
+      <p>{{$t('claimingGas')}}</p>
+      <p>{{$t('pleaseWaitForGas')}}</p>
+      <p>{{$t('closingYourWallet')}}</p>
       <div class="checklist">
-        <div class="checklist-header">Steps:</div>
+        <div class="checklist-header">{{$t('Steps')}}</div>
         <ul>
           <li :class="stepClass(1)"><span>{{ stepIndicator(1) }}</span>{{ step1Label }}</li>
           <li :class="stepClass(2)"><span>{{ stepIndicator(2) }}</span>{{ step2Label }}</li>
