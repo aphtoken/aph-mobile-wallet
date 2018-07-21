@@ -26,45 +26,45 @@ export default {
   computed: {
     step1Label() {
       if (this.$store.state.gasClaim && this.$store.state.gasClaim.step > 1) {
-        return `Transferred ${this.$store.state.gasClaim.neoTransferAmount} NEO to yourself.`;
+        return this.$t('transferredNEOToYourself', { amount: this.$store.state.gasClaim.neoTransferAmount });
       } else if (this.$store.state.gasClaim && this.$store.state.gasClaim.step === 1) {
-        return `Transferring ${this.$store.state.gasClaim.neoTransferAmount} NEO to yourself.`;
+        return this.$t('transferringNEOToYourself', { amount: this.$store.state.gasClaim.neoTransferAmount });
       }
-      return 'Transfer all NEO to yourself.';
+      return this.$t('transferAllNEO');
     },
 
     step2Label() {
       if (this.$store.state.gasClaim && this.$store.state.gasClaim.step > 2) {
-        return 'Received NEO transfer confirmation.';
+        return this.$t('receivedNEOTransferConfirmation');
       } else if (this.$store.state.gasClaim && this.$store.state.gasClaim.step === 2) {
-        return 'Waiting for NEO transfer confirmation.';
+        return this.$t('waitingForNEOTransferConfirmation');
       }
-      return 'Wait for NEO transfer confirmation.';
+      return this.$t('waitForNEOTransferConfirmation');
     },
 
     step3Label() {
       if (this.$store.state.gasClaim && this.$store.state.gasClaim.step > 3) {
-        return `Sent claim for ~${this.$store.state.gasClaim.gasClaimAmount} GAS.`;
+        return this.$t('sentClaimForGas', { amount: this.$store.state.gasClaim.gasClaimAmount})
       } else if (this.$store.state.gasClaim && this.$store.state.gasClaim.step === 3) {
-        return `Sending claim for ~${this.$store.state.gasClaim.gasClaimAmount} GAS.`;
+        return this.$t('sendingClaimForGas', { amount: this.$store.state.gasClaim.gasClaimAmount})
       }
-      return 'Send GAS claim.';
+      return this.$t('sendGasClaim');
     },
 
     step4Label() {
       if (this.$store.state.gasClaim && this.$store.state.gasClaim.step > 4) {
-        return 'GAS claim confirmed.';
+        return this.$t('gasClaimConfirmed');
       } else if (this.$store.state.gasClaim && this.$store.state.gasClaim.step === 4) {
-        return 'Waiting for GAS claim confirmation.';
+        return this.$t('waitingForGasClaim');
       }
-      return 'Wait for GAS claim confirmation.';
+      return this.$t('waitForGasClaim');
     },
 
     step5Label() {
       if (this.$store.state.gasClaim && this.$store.state.gasClaim.step === 5) {
-        return 'Success!';
+        return this.$t('Success');
       }
-      return 'Wait for GAS claim transaction details.';
+      return this.$t('waitForGasClaimDetails');
     },
   },
 
