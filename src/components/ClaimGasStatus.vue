@@ -44,9 +44,9 @@ export default {
 
     step3Label() {
       if (this.$store.state.gasClaim && this.$store.state.gasClaim.step > 3) {
-        return this.$t('sentClaimForGas', { amount: this.$store.state.gasClaim.gasClaimAmount})
+        return this.$t('sentClaimForGas', { amount: this.$store.state.gasClaim.gasClaimAmount });
       } else if (this.$store.state.gasClaim && this.$store.state.gasClaim.step === 3) {
-        return this.$t('sendingClaimForGas', { amount: this.$store.state.gasClaim.gasClaimAmount})
+        return this.$t('sendingClaimForGas', { amount: this.$store.state.gasClaim.gasClaimAmount });
       }
       return this.$t('sendGasClaim');
     },

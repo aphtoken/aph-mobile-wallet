@@ -146,7 +146,7 @@ export default {
       this.$store.dispatch('deleteWallet', {
         name: this.walletToDelete.label,
         done: () => {
-          this.$services.alerts.success(this.$t('deletedWallet', { name: this.walletToDelete.label}));
+          this.$services.alerts.success(this.$t('deletedWallet', { name: this.walletToDelete.label }));
           if (this.walletToDelete.label === this.$store.state.currentWallet.label) {
             this.$services.wallets.clearCurrentWallet();
             this.$services.wallets.setLastWallet(null);
