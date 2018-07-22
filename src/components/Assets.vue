@@ -1,12 +1,12 @@
 <template>
   <section id="assets" :class="{'show-add-token': showAddToken}">
     <div class="header">
-      <div class="title">Assets</div>
+      <div class="title">{{$t('Assets')}}</div>
       <div class="search">
         <div class="inner">
           <aph-icon name="search"></aph-icon>
           <div class="input">
-            <input type="text" placeholder="Search" v-model="searchBy">
+            <input type="text" :placeholder="$t('Search')" v-model="searchBy">
           </div>
         </div>
       </div>
@@ -22,19 +22,19 @@
     <div class="add-token">
       <div class="control" @click="hideAddToken">
         <aph-icon name="arrow-down"></aph-icon>
-        <div class="title">Add Token</div>
+        <div class="title">{{$t('addToken')}}</div>
       </div>
       <div class="body">
         <div class="inner">
           <div class="body">
             <aph-icon name="create"></aph-icon>
             <div class="form">
-              <aph-input placeholder="Script Hash or Token Symbol" :light="true" v-model="hashOrSymbol"></aph-input>
+              <aph-input :placeholder="$t('hashOrToken')" :light="true" v-model="hashOrSymbol"></aph-input>
             </div>
           </div>
         </div>
       </div>
-      <button class="submit-btn" @click="add" :disabled="shouldDisableAddButton">Add</button>
+      <button class="submit-btn" @click="add" :disabled="shouldDisableAddButton">{{$t('Add')}}</button>
     </div>
   </section>
 </template>

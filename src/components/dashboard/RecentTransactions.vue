@@ -4,7 +4,7 @@
       <img src="~@/assets/img/Blurred_Bg_Wallets.png">
     </div>
     <div class="header">
-      <div class="title">Recent Transactions</div>
+      <div class="title">{{$t('recentTransactions')}}</div>
       <aph-portfolio-header></aph-portfolio-header>
     </div>
     <div class="body">

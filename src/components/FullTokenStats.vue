@@ -8,7 +8,7 @@
     </div>
     <div class="body">
       <div class="header">
-        <div class="label">Value</div>
+        <div class="label">{{$t('Value')}}</div>
         <div class="value">{{ $formatMoney(token.unitValue) }}</div>
         <div :class="['change', {increase: percentChange > 0, decrease: percentChange < 0}]">{{ $formatNumber(percentChange) }}%</div>
       </div>
@@ -24,21 +24,21 @@
       <div class="footer">
         <div class="row">
           <div class="col">
-            <div class="label">Low</div>
+            <div class="label">{{$t('Low')}}</div>
             <div class="value">{{ $formatMoney(low) }}</div>
           </div>
           <div class="col">
-            <div class="label">High</div>
+            <div class="label">{{$t('High')}}</div>
             <div class="value">{{ $formatMoney(high) }}</div>
           </div>
         </div>
         <div class="row">
           <div class="col">
-            <div class="label">Open</div>
+            <div class="label">{{$t('Open')}}</div>
             <div class="value">{{ $formatMoney(open) }}</div>
           </div>
           <div class="col">
-            <div class="label">Volume</div>
+            <div class="label">{{$t('Volume')}}</div>
             <div class="value">{{ $formatMoney(volume) }}</div>
           </div>
         </div>

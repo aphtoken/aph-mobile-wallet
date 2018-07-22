@@ -13,10 +13,10 @@
     </div>
     <div class="body">
       <login-form-wrapper identifier="importWallet">
-        <aph-input placeholder="Name" v-model="walletName"></aph-input>
-        <aph-input placeholder="Private key" v-model="wif"></aph-input>
-        <aph-input placeholder="Passphrase" v-model="passphrase" type="password"></aph-input>
-        <aph-input placeholder="Confirm passphrase" v-model="passphraseConfirm" type="password"></aph-input>
+        <aph-input :placeholder="$t('Name')" v-model="walletName"></aph-input>
+        <aph-input :placeholder="$t('privateKey')" v-model="wif"></aph-input>
+        <aph-input :placeholder="$t('Passphrase')" v-model="passphrase" type="password"></aph-input>
+        <aph-input :placeholder="$t('confirmPassphrase')" v-model="passphraseConfirm" type="password"></aph-input>
         <button class="import-btn" @click="importWallet" :disabled="shouldDisableLButton">{{ buttonLabel }}</button>
       </login-form-wrapper>
     </div>
@@ -33,7 +33,7 @@ export default {
 
   computed: {
     buttonLabel() {
-      return this.$isPending('importWallet') ? 'Importing...' : 'Import';
+      return this.$isPending('importWallet') ? this.$t('importing') : this.$t('Import');
     },
 
     passphrasesMatch() {

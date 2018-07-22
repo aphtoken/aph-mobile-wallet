@@ -1,7 +1,7 @@
 <template>
   <div :class="['holding', {'show-actions': showActions}]">
     <div class="actions">
-      <div class="delete" @click="handleOnRemove">Delete</div>
+      <div class="delete" @click="handleOnRemove">{{$t('Delete')}}</div>
     </div>
     <div class="content" v-touch:swipe="getOnSwipeHandler()" @click="handleOnClick">
       <div class="left">
