@@ -11,8 +11,14 @@ const languages = [{
   label: 'English',
   value: 'en',
 }, {
-  label: 'German',
+  label: '中文',
+  value: 'cn',
+}, {
+  label: 'Deutsche',
   value: 'de',
+}, {
+  label: '한국어',
+  value: 'ko',
 }];
 
 const charts = {
