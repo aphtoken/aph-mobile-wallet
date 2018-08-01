@@ -80,7 +80,7 @@
         </div>
         <div class="col">
           <div class="label">{{$t('Size')}}</div>
-          <div class="value">{{$t('sizeInBytes', { bytes: $formatNumber(transaction.details.size})}}</div>
+          <div class="value">{{$t('sizeInBytes', { bytes: $formatNumber(transaction.details.size)})}}</div>
         </div>
       </div>
     </div>
