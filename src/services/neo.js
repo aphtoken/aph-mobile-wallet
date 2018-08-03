@@ -501,6 +501,7 @@ export default {
                 const valuationsPromises = [];
                 const lowercaseCurrency = settings.getCurrency().toLowerCase();
 
+                store.commit('putAllNep5Balances', localNep5Balances);
                 holdings.forEach((h) => {
                   valuationsPromises.push((done) => {
                     valuation.getValuation(h.symbol)
@@ -519,7 +520,6 @@ export default {
                           h.change24hrValue = null;
                         }
 
-                        store.commit('putAllNep5Balances', localNep5Balances);
                         done();
                       })
                       .catch((e) => {
