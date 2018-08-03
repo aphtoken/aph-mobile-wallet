@@ -29,7 +29,7 @@
     data() {
       return {
         languages: [],
-        selectedLanguages: null,
+        selectedLanguage: null,
       };
     },
 
