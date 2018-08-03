@@ -1,10 +1,10 @@
-import { en } from './l10n/en.json';
-import { de } from './l10n/de.json';
+import en from './l10n/en';
+// import de from './l10n/de.json';
 
 // i18n
 const messages = {
   en,
-  de,
+  // de,
 };
 
 const languages = [{
