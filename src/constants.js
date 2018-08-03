@@ -1,5 +1,5 @@
-import en from './l10n/en';
-import de from './l10n/de';
+import { en } from './l10n/en.json';
+import { de } from './l10n/de.json';
 
 // i18n
 const messages = {
@@ -10,7 +10,7 @@ const messages = {
 const languages = [{
   label: 'English',
   value: 'en',
-}, {
+}, /* , {
   label: '中文',
   value: 'cn',
 }, {
@@ -19,7 +19,7 @@ const languages = [{
 }, {
   label: '한국어',
   value: 'ko',
-}];
+} */];
 
 const charts = {
   DEBOUNCE: 500,
