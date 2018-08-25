@@ -6,6 +6,9 @@ const langs = [
   'cn',
   'de',
   'ko',
+  'jp',
+  'ru',
+  'nl'
 ];
 const argv = require('minimist')(process.argv.slice(2));
 const enData = require('../src/l10n/en');
