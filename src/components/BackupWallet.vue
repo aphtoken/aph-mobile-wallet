@@ -9,15 +9,15 @@
       </div>
     </div>
     <div class="body">
-      <div class="help-text">{{$t('youMustSaveAndBackup')}}</div>
+      <div class="help-text">{{ $t('youMustSaveAndBackup') }}</div>
       <div class="keys">
         <div class="row">
-          <div class="label">{{$t('PrivateKey')}}</div>
+          <div class="label">{{ $t('PrivateKey') }}</div>
           <div class="value">{{ $store.state.currentWallet.privateKey }}</div>
           <aph-copy-text :text="$store.state.currentWallet.privateKey" :icon="false"></aph-copy-text>
         </div>
         <div class="row">
-          <div class="label">{{$t('EncryptedKey')}}</div>
+          <div class="label">{{ $t('EncryptedKey') }}</div>
           <div class="value">{{ $store.state.currentWallet.encryptedWIF }}</div>
           <aph-copy-text :text="$store.state.currentWallet.encryptedWIF" :icon="false"></aph-copy-text>
         </div>
@@ -26,20 +26,20 @@
           <div class="value">{{ $store.state.currentWallet.wif }}</div>
           <aph-copy-text :text="$store.state.currentWallet.wif" :icon="false"></aph-copy-text>
         </div>
-        <div class="qr-codes-btn" @click="showQrCodes = true">{{$t('viewQRCodes')}}</div>
+        <div class="qr-codes-btn" @click="showQrCodes = true">{{ $t('viewQRCodes') }}</div>
       </div>
     </div>
     <div class="footer">
-      <div class="done-btn" @click="$store.commit('setWalletToBackup', null)">{{$t('Done')}}</div>
+      <div class="done-btn" @click="$store.commit('setWalletToBackup', null)">{{ $t('Done') }}</div>
     </div>
     <div class="qr-codes-wrapper" v-if="showQrCodes">
       <div class="qr-codes">
         <vue-qrcode :value="$store.state.currentWallet.address" :options="{ size: 130 }"></vue-qrcode>
-        <p class="help-text">{{$t('PublicAddress')}}</p>
+        <p class="help-text">{{ $t('PublicAddress') }}</p>
         <vue-qrcode :value="$store.state.currentWallet.privateKey" :options="{ size: 130 }"></vue-qrcode>
-        <p class="help-text">{{$t('PrivateKey')}}</p>
+        <p class="help-text">{{ $t('PrivateKey') }}</p>
       </div>
-      <div class="close-btn" @click="showQrCodes = false">{{$t('Close')}}</div>
+      <div class="close-btn" @click="showQrCodes = false">{{ $t('Close') }}</div>
     </div>
   </section>
 </template>

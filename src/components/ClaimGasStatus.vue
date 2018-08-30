@@ -3,12 +3,12 @@
     <!-- <div class="body" v-if="$store.state.gasClaim"> -->
     <div class="body">
       <aph-icon name="claim-gas"></aph-icon>
-      <div class="title">{{$t('claimGas')}}</div>
-      <p>{{$t('claimingGas')}}</p>
-      <p>{{$t('pleaseWaitForGas')}}</p>
-      <p>{{$t('closingYourWallet')}}</p>
+      <div class="title">{{ $t('claimGas') }}</div>
+      <p>{{ $t('claimingGas') }}</p>
+      <p>{{ $t('pleaseWaitForGas') }}</p>
+      <p>{{ $t('closingYourWallet') }}</p>
       <div class="checklist">
-        <div class="checklist-header">{{$t('Steps')}}</div>
+        <div class="checklist-header">{{ $t('Steps') }}</div>
         <ul>
           <li :class="stepClass(1)"><span>{{ stepIndicator(1) }}</span>{{ step1Label }}</li>
           <li :class="stepClass(2)"><span>{{ stepIndicator(2) }}</span>{{ step2Label }}</li>

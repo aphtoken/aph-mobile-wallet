@@ -73,6 +73,12 @@ export default new Router({
           redirect: '/authenticated/dashboard/holdings',
         },
         {
+          path: 'commit',
+          component: require('../components/Commit').default,
+          children: [
+          ],
+        },
+        {
           path: 'assets',
           component: require('../components/Assets').default,
           children: [

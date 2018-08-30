@@ -1,60 +1,60 @@
 <template>
   <section id="settings">
     <div class="header">
-      <div class="title">{{$t('Settings')}}</div>
+      <div class="title">{{ $t('Settings') }}</div>
     </div>
     <div class="body">
       <div class="inner">
         <div class="tile">
           <div class="row" @click="$router.push('/authenticated/settings/about')">
-            <div class="label">{{$t('About')}}</div>
+            <div class="label">{{ $t('About') }}</div>
             <div class="value">
               <aph-icon name="about"></aph-icon>
             </div>
           </div>
           <div class="row" @click="$router.push('/authenticated/settings/contacts')">
-            <div class="label">{{$t('addressBook')}}</div>
+            <div class="label">{{ $t('addressBook') }}</div>
             <div class="value">
               <aph-icon name="contacts"></aph-icon>
             </div>
           </div>
           <div class="row">
-            <div class="label" @click="sendFeedback">{{$t('sendFeedback')}}</div>
+            <div class="label" @click="sendFeedback">{{ $t('sendFeedback') }}</div>
             <div class="value">
               <aph-icon name="feedback"></aph-icon>
             </div>
           </div>
         </div>
-        <div class="underlined">{{$t('Preferences')}}</div>
+        <div class="underlined">{{ $t('Preferences') }}</div>
         <div class="tile">
           <div class="row" @click="$router.push('/authenticated/settings/languages')">
-            <div class="label">{{$t('Language')}}</div>
+            <div class="label">{{ $t('Language') }}</div>
             <div class="value">{{ selectedLanguage }}</div>
           </div>
           <div class="row" @click="$router.push('/authenticated/settings/currencies')">
-            <div class="label">{{$t('Currency')}}</div>
+            <div class="label">{{ $t('Currency') }}</div>
             <div class="value">{{ selectedCurrency }}</div>
           </div>
           <div class="row" @click="$router.push('/authenticated/settings/networks')">
-            <div class="label">{{$t('Network')}}</div>
+            <div class="label">{{ $t('Network') }}</div>
             <div class="value">{{ selectedNetwork.net }}</div>
           </div>
         </div>
-        <div class="underlined">{{$t('Wallets')}}</div>
+        <div class="underlined">{{ $t('Wallets') }}</div>
         <div class="tile">
           <div class="row" @click="$router.push('/authenticated/settings/wallets')">
-            <div class="label">{{$t('Wallet')}}</div>
+            <div class="label">{{ $t('Wallet') }}</div>
             <div class="value">{{ $store.state.currentWallet.label }}</div>
           </div>
           <div class="row" @click="logout">
-            <div class="label">{{$t('Logout')}}</div>
+            <div class="label">{{ $t('Logout') }}</div>
             <div class="value">
               <aph-icon name="arrow-right"></aph-icon>
             </div>
           </div>
         </div>
       </div>
-      <button class="backup-wallet-btn" @click="backupWallet">{{$t('backupWallet')}}</button>
+      <button class="backup-wallet-btn" @click="backupWallet">{{ $t('backupWallet') }}</button>
     </div>
   </section>
 </template>

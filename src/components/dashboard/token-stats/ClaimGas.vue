@@ -2,14 +2,14 @@
   <div class="tile claim-gas">
     <div class="inner" v-if="this.$store.state.statsToken.availableToClaim">
       <aph-icon name="claim-gas"></aph-icon>
-      <div class="title">{{$t('claimGas')}}</div>
-      <div class="underlined">{{$t('youCurrentlyHave')}}</div>
+      <div class="title">{{ $t('claimGas') }}</div>
+      <div class="underlined">{{ $t('youCurrentlyHave') }}</div>
       <div class="amount">{{ $formatNumber(this.$store.state.statsToken.availableToClaim) }}</div>
-      <button class="claim-btn" @click="claim">{{$t('Claim')}}</button>
+      <button class="claim-btn" @click="claim">{{ $t('Claim') }}</button>
     </div>
     <div class="inner cannot-claim" v-else>
       <aph-icon name="claim-gas"></aph-icon>
-      <div class="title">{{$t('cannotClaimGas')}}</div>
+      <div class="title">{{ $t('cannotClaimGas') }}</div>
     </div>
   </div>
 </template>

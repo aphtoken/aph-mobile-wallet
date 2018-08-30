@@ -1,7 +1,7 @@
 <template>
   <section id="history">
     <div class="header">
-      <div class="title">{{$t('History')}}</div>
+      <div class="title">{{ $t('History') }}</div>
       <div class="filters">
         <aph-date-picker :placeholder="$t('From')" v-model="fromDate" ref="fromDate"></aph-date-picker>
         <aph-date-picker :placeholder="$t('To')" v-model="toDate" ref="toDate"></aph-date-picker>
@@ -10,9 +10,9 @@
     <div class="body">
       <div class="inner">
         <div class="header">
-          <div :class="['tab', {active: activeTab === 'all'}]" @click="activeTab = 'all'">{{$t('All')}}</div>
-          <div :class="['tab', {active: activeTab === 'sent'}]" @click="activeTab = 'sent'">{{$t('Sent')}}</div>
-          <div :class="['tab', {active: activeTab === 'received'}]" @click="activeTab = 'received'">{{$t('Received')}}</div>
+          <div :class="['tab', {active: activeTab === 'all'}]" @click="activeTab = 'all'">{{ $t('All') }}</div>
+          <div :class="['tab', {active: activeTab === 'sent'}]" @click="activeTab = 'sent'">{{ $t('Sent') }}</div>
+          <div :class="['tab', {active: activeTab === 'received'}]" @click="activeTab = 'received'">{{ $t('Received') }}</div>
         </div>
         <div class="history">
           <div class="all" v-if="activeTab === 'all'">

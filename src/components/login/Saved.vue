@@ -15,7 +15,7 @@
         <aph-input :placeholder="$t('Passphrase')" v-model="passphrase" type="password"></aph-input>
         <button class="login-btn" @click="login" :disabled="shouldDisableLButton">{{ buttonLabel }}</button>
       </login-form-wrapper>
-      <router-link class="switch-btn" to="/login/landing">{{$t('Switch')}}</router-link>
+      <router-link class="switch-btn" to="/login/landing">{{ $t('Switch') }}</router-link>
     </div>
   </section>
 </template>

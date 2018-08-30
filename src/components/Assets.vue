@@ -1,7 +1,7 @@
 <template>
   <section id="assets" :class="{'show-add-token': showAddToken}">
     <div class="header">
-      <div class="title">{{$t('Assets')}}</div>
+      <div class="title">{{ $t('Assets') }}</div>
       <div class="search">
         <div class="inner">
           <aph-icon name="search"></aph-icon>
@@ -22,7 +22,7 @@
     <div class="add-token">
       <div class="control" @click="hideAddToken">
         <aph-icon name="arrow-down"></aph-icon>
-        <div class="title">{{$t('addToken')}}</div>
+        <div class="title">{{ $t('addToken') }}</div>
       </div>
       <div class="body">
         <div class="inner">
@@ -34,7 +34,7 @@
           </div>
         </div>
       </div>
-      <button class="submit-btn" @click="add" :disabled="shouldDisableAddButton">{{$t('Add')}}</button>
+      <button class="submit-btn" @click="add" :disabled="shouldDisableAddButton">{{ $t('Add') }}</button>
     </div>
   </section>
 </template>

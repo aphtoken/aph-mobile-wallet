@@ -1,7 +1,7 @@
 <template>
   <section id="networks">
     <div class="header">
-      <div class="title">{{$t('Network')}}</div>
+      <div class="title">{{ $t('Network') }}</div>
       <div class="search">
         <div class="inner">
           <aph-icon name="search"></aph-icon>

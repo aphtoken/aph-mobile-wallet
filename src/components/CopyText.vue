@@ -1,8 +1,8 @@
 <template>
   <span class="aph-copy-text" @click.stop="copy" :title="$t('copyToClipboard')">
     <aph-icon name="copy" ref="icon" v-if="icon"></aph-icon>
-    <span v-else class="text-label">{{$t('Copy')}}</span>
-    <span :class="['aph-copy-text--confirmation-text', {show: showConfirmationText}]" ref="confirmationText" v-dom-portal>{{$t('Copied')}}</span>
+    <span v-else class="text-label">{{ $t('Copy') }}</span>
+    <span :class="['aph-copy-text--confirmation-text', {show: showConfirmationText}]" ref="confirmationText" v-dom-portal>{{ $t('Copied') }}</span>
   </span>
 </template>
 

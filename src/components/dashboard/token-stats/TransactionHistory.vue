@@ -2,8 +2,8 @@
   <div class="tile transaction-history">
     <div class="inner">
       <div class="header">
-        <div :class="['tab', {active: activeTransactionHistoryTab === 'sent'}]" @click="activeTransactionHistoryTab = 'sent'">{{$t('Sent')}}</div>
-        <div :class="['tab', {active: activeTransactionHistoryTab === 'received'}]" @click="activeTransactionHistoryTab = 'received'">{{$t('Received')}}</div>
+        <div :class="['tab', {active: activeTransactionHistoryTab === 'sent'}]" @click="activeTransactionHistoryTab = 'sent'">{{ $t('Sent') }}</div>
+        <div :class="['tab', {active: activeTransactionHistoryTab === 'received'}]" @click="activeTransactionHistoryTab = 'received'">{{ $t('Received') }}</div>
       </div>
       <div class="body">
         <div class="sent" v-if="activeTransactionHistoryTab === 'sent'">

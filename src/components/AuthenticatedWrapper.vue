@@ -7,19 +7,23 @@
       <div class="menu" @click="menuOpen = false">
         <router-link to="/authenticated/dashboard">
           <aph-icon name="dashboard"></aph-icon>
-          <p>{{$t('Dashboard')}}</p>
+          <p>{{ $t('Dashboard') }}</p>
+        </router-link>
+        <router-link v-if="$store.state.currentNetwork.net !== 'MainNet'" to="/authenticated/commit">
+          <aph-icon name="commit"></aph-icon>
+          <p>{{ $t('Commit') }}</p>
         </router-link>
         <router-link to="/authenticated/assets">
           <aph-icon name="wallet"></aph-icon>
-          <p>{{$t('Assets')}}</p>
+          <p>{{ $t('Assets') }}</p>
         </router-link>
         <router-link to="/authenticated/history">
           <aph-icon name="history"></aph-icon>
-          <p>{{$t('History')}}</p>
+          <p>{{ $t('History') }}</p>
         </router-link>
         <router-link to="/authenticated/settings">
           <aph-icon name="settings"></aph-icon>
-          <p>{{$t('Settings')}}</p>
+          <p>{{ $t('Settings') }}</p>
         </router-link>
       </div>
     </aside>
@@ -122,7 +126,7 @@ export default {
 
     .logo {
       flex: none;
-      padding: $space-xl 0 $space;
+      padding: $space-lg 0 0;
       text-align: center;
 
       .aph-icon > svg {
@@ -134,24 +138,35 @@ export default {
       flex: 1;
       display: flex;
       flex-direction: column;
-      justify-content: space-between;
-      margin: $space-lg 0 $space-xl;
+      justify-content: center;
 
       .aph-icon > svg {
           &.dashboard {
-            height: toRem(45px);
+            height: toRem(35px);
+          }
+
+          &.dex {
+            height: toRem(35px);
+          }
+
+          &.commit {
+            height: toRem(34px);
           }
 
           &.wallet {
-            height: toRem(38px);
+            height: toRem(30px);
+          }
+
+          &.ico {
+            height: toRem(35px);
           }
 
           &.history {
-            height: toRem(45px);
+            height: toRem(35px);
           }
 
           &.settings {
-            height: toRem(38px);
+            height: toRem(30px);
           }
 
           .fill {
@@ -168,7 +183,7 @@ export default {
 
         > p {
           color: white;
-          margin: $space 0 0;
+          margin: $space-sm 0 0;
         }
 
         &.router-link-active {
@@ -177,6 +192,10 @@ export default {
           .fill {
             fill: white;
           }
+        }
+
+        & + a {
+          margin-top: $space-lg;
         }
       }
     }
