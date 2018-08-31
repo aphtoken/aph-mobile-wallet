@@ -1,25 +1,44 @@
 import en from './l10n/en';
-// import de from './l10n/de.json';
+import de from './l10n/de';
+import nl from './l10n/nl';
+import cn from './l10n/cn';
+import ko from './l10n/ko';
+import jp from './l10n/jp';
+import ru from './l10n/ru';
 
 // i18n
 const messages = {
   en,
-  // de,
+  de,
+  nl,
+  cn,
+  ko,
+  jp,
+  ru,
 };
 
 const languages = [{
   label: 'English',
   value: 'en',
-}, /* , {
+}, {
   label: '中文',
   value: 'cn',
 }, {
-  label: 'Deutsche',
+  label: 'Deutsch',
   value: 'de',
+}, {
+  label: '日本語',
+  value: 'jp',
 }, {
   label: '한국어',
   value: 'ko',
-} */];
+}, {
+  label: 'Nederlands',
+  value: 'nl',
+}, {
+  label: 'Русский',
+  value: 'ru',
+}];
 
 const charts = {
   DEBOUNCE: 500,
