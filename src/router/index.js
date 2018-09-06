@@ -85,6 +85,29 @@ export default new Router({
           ],
         },
         {
+          path: 'dex',
+          component: require('../components/Dex').default,
+          children: [
+            {
+              path: 'pair',
+              component: require('../components/dex/Pair').default,
+            },
+            {
+              path: 'trade',
+              component: require('../components/dex/Trade').default,
+            },
+            {
+              path: 'orders',
+              component: require('../components/dex/Orders').default,
+            },
+            {
+              path: 'charts',
+              component: require('../components/dex/Charts').default,
+            },
+          ],
+          redirect: '/authenticated/dex/pair',
+        },
+        {
           path: 'settings',
           component: require('../components/Settings').default,
         },

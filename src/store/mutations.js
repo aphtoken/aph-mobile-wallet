@@ -20,6 +20,7 @@ export {
   setContacts,
   setCurrency,
   setCurrencySymbol,
+  setCurrentMarket,
   setCurrentNetwork,
   setCurrentWallet,
   setGasClaim,
@@ -27,6 +28,7 @@ export {
   setLastReceivedBlock,
   setLastSuccessfulRequest,
   setLatestVersion,
+  setMarkets,
   setPortfolio,
   setRecentTransactions,
   setSearchTransactionFromDate,
@@ -36,6 +38,7 @@ export {
   setShowClaimGasStatus,
   setShowSendRequestLedgerSignature,
   setStatsToken,
+  setTradeHistory,
   setWalletToBackup,
   setWallets,
   startRequest,
@@ -128,6 +131,23 @@ function setCurrentWallet(state, currentWallet) {
   state.currentWallet = currentWallet;
 }
 
+function setCurrentMarket(state, market) {
+  // if (state.currentMarket) {
+  //   if (!market || state.currentMarket.marketName !== market.marketName) {
+  //     this.dispatch('unsubscribeFromMarket', {
+  //       market: state.currentMarket,
+  //     });
+  //   }
+  // }
+  state.currentMarket = market;
+  state.ordersToShow = market.marketName;
+  // if (state.currentMarket) {
+  //   this.dispatch('subscribeToMarket', {
+  //     market: state.currentMarket,
+  //   });
+  // }
+}
+
 function setCurrentNetwork(state, network) {
   if (state.currentNetwork && state.currentNetwork.net !== network.net) {
     clearLocalNetworkState(state);
@@ -156,6 +176,10 @@ function setLastReceivedBlock(state) {
 
 function setLastSuccessfulRequest(state) {
   state.lastSuccessfulRequest = moment().unix();
+}
+
+function setMarkets(state, markets) {
+  state.markets = markets;
 }
 
 function setPortfolio(state, portfolio) {
@@ -228,6 +252,10 @@ function setWallets(state, wallets) {
 
 function setGasClaim(state, value) {
   state.gasClaim = value;
+}
+
+function setTradeHistory(state, tradeHistory) {
+  state.tradeHistory = tradeHistory;
 }
 
 function startRequest(state, payload) {
