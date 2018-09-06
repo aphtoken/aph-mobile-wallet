@@ -26,6 +26,10 @@ export default {
       return formatting.formatTime.apply(null, args);
     },
 
+    $formatTokenAmount(...args) {
+      return formatting.formatTokenAmount.apply(null, args);
+    },
+
     $formatWeekdayAndTime(...args) {
       return formatting.formatWeekdayAndTime.apply(null, args);
     },
