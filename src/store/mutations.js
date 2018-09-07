@@ -132,6 +132,7 @@ function setCurrentWallet(state, currentWallet) {
 }
 
 function setCurrentMarket(state, market) {
+  // Add lines below when API is live
   // if (state.currentMarket) {
   //   if (!market || state.currentMarket.marketName !== market.marketName) {
   //     this.dispatch('unsubscribeFromMarket', {
@@ -141,6 +142,7 @@ function setCurrentMarket(state, market) {
   // }
   state.currentMarket = market;
   state.ordersToShow = market.marketName;
+  // Add lines below when API is live
   // if (state.currentMarket) {
   //   this.dispatch('subscribeToMarket', {
   //     market: state.currentMarket,

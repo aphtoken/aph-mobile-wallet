@@ -1,7 +1,6 @@
 <template>
   <section id="dex--market-pair-chart">
     <div class="header">
-      {{ debug() }}
       {{ $store.state.currentMarket ? $store.state.currentMarket.marketName : '' }}
     </div>
     <div class="body">
@@ -60,9 +59,6 @@ export default {
   },
 
   methods: {
-    debug() {
-      console.log('tradeHistory', this.$store);
-    },
   },
 
   watch: {

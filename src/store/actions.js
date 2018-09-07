@@ -165,6 +165,7 @@ async function fetchTradeHistory({ state, commit }, { marketName }) {
     if (state.tradeHistory && state.tradeHistory.apiBuckets && state.tradeHistory.marketName === marketName) {
       history.apiBuckets = state.tradeHistory.apiBuckets;
     } else {
+      // Add line when api is live
       // history.apiBuckets = await dex.fetchTradesBucketed(marketName);
     }
     commit('setTradeHistory', history);
