@@ -3,8 +3,13 @@
     <div class="body">
       <market-pair-chart></market-pair-chart>
       <market-selector></market-selector>
-      <div>
-        Search Component
+      <div class="search">
+        <div class="inner">
+          <aph-icon name="search"></aph-icon>
+          <div class="input">
+            <input type="text" :placeholder="$t('Search')" v-model="searchBy">
+          </div>
+        </div>
       </div>
       <div>
         Table Component <br>
