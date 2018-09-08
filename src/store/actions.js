@@ -1,7 +1,7 @@
 /* eslint-disable no-use-before-define */
 import moment from 'moment';
 
-import { alerts, neo, network, tokens, wallets, ledger } from '../services';
+import { alerts, dex, neo, network, tokens, wallets, ledger } from '../services';
 import { timeouts } from '../constants';
 import router from '../router';
 
@@ -12,7 +12,9 @@ export {
   deleteWallet,
   fetchHoldings,
   fetchLatestVersion,
+  fetchMarkets,
   fetchRecentTransactions,
+  fetchTradeHistory,
   findTransactions,
   importWallet,
   openEncryptedKey,
@@ -123,6 +125,21 @@ async function fetchHoldings({ commit }) {
   return holdings;
 }
 
+async function fetchMarkets({ commit }, { done }) {
+  let markets;
+  commit('startRequest', { identifier: 'fetchMarkets' });
+
+  try {
+    markets = await dex.fetchMarkets();
+    commit('setMarkets', markets);
+    done();
+    commit('endRequest', { identifier: 'fetchMarkets' });
+  } catch (message) {
+    alerts.networkException(message);
+    commit('failRequest', { identifier: 'fetchMarkets', message });
+  }
+}
+
 async function fetchRecentTransactions({ commit }) {
   const currentWallet = wallets.getCurrentWallet();
   const lastBlockIndex = 0;
@@ -139,6 +156,26 @@ async function fetchRecentTransactions({ commit }) {
     commit('failRequest', { identifier: 'fetchRecentTransactions', message });
   }
 }
+
+async function fetchTradeHistory({ state, commit }, { marketName }) {
+  let history;
+
+  try {
+    history = await dex.fetchTradeHistory(marketName);
+    if (state.tradeHistory && state.tradeHistory.apiBuckets && state.tradeHistory.marketName === marketName) {
+      history.apiBuckets = state.tradeHistory.apiBuckets;
+    } else {
+      // Add line when api is live
+      // history.apiBuckets = await dex.fetchTradesBucketed(marketName);
+    }
+    commit('setTradeHistory', history);
+    commit('endRequest', { identifier: 'fetchTradeHistory' });
+  } catch (message) {
+    alerts.networkException(message);
+    commit('failRequest', { identifier: 'fetchTradeHistory', message });
+  }
+}
+
 
 function findTransactions({ state, commit }) {
   const currentWallet = wallets.getCurrentWallet();
