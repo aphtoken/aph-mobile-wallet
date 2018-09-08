@@ -2,7 +2,9 @@
   <section id="dex--pair">
     <div class="body">
       <market-pair-chart></market-pair-chart>
-      <market-selector></market-selector>
+      <div>
+        Ticker Component?
+      </div>
       <div>
         Search Component
       </div>
@@ -19,7 +21,6 @@
 <script>
 
 import MarketPairChart from './MarketPairChart';
-import MarketSelector from './MarketSelector';
 
 export default {
   mounted() {
@@ -28,7 +29,6 @@ export default {
 
   components: {
     MarketPairChart,
-    MarketSelector,
   },
 
   computed: {
