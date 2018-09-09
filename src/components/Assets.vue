@@ -142,6 +142,10 @@ export default {
       color: white;
       font-size: toRem(18px);
     }
+
+    .aph-search-bar {
+      margin: $space 0 toRem(-26px);
+    }
   }
 
   > .body {

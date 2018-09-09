@@ -1,5 +1,5 @@
 <template>
-  <section id="search-bar">
+  <section id="search-bar" class="aph-search-bar">
     <div class="search-bar-wrapper">
       <aph-icon name="search"></aph-icon>
       <div class="input">

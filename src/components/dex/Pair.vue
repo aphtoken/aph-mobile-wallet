@@ -3,14 +3,7 @@
     <div class="body">
       <market-pair-chart></market-pair-chart>
       <market-selector></market-selector>
-      <div class="search">
-        <div class="inner">
-          <aph-icon name="search"></aph-icon>
-          <div class="input">
-            <input type="text" :placeholder="$t('Search')" v-model="searchBy">
-          </div>
-        </div>
-      </div>
+      <aph-search-bar v-model="searchBy"></aph-search-bar>
       <div>
         Table Component <br>
         Ticker <br>
@@ -42,7 +35,7 @@ export default {
 
   data() {
     return {
-      //
+      searchBy: '',
     };
   },
 
@@ -74,6 +67,18 @@ export default {
     flex-direction: column;
     flex: 1;
     overflow: hidden;
+
+    .aph-search-bar {
+      margin-top: $space;
+
+      .search-bar-wrapper {
+        background: $dark-purple;
+
+        input {
+          color: $grey;
+        }
+      }
+    }
 
     > div {
       margin: $space;
