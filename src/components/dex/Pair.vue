@@ -56,8 +56,8 @@ export default {
 <style lang="scss">
 #dex--pair {
   display: flex;
-  flex: 1;
   flex-direction: column;
+  flex: 1;
   height: 100%;
   overflow: hidden;
 
@@ -81,8 +81,8 @@ export default {
     }
 
     > div {
-      margin: $space;
       background: $dark-purple;
+      margin: $space;
     }
   }
 }

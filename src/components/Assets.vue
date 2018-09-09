@@ -84,10 +84,6 @@ export default {
       });
     },
 
-    handleNewSearch(value) {
-      this.searchby = value;
-    },
-
     hideAddToken() {
       this.showAddToken = false;
     },
