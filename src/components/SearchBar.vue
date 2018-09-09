@@ -3,11 +3,22 @@
     <div class="search-bar-wrapper">
       <aph-icon name="search"></aph-icon>
       <div class="input">
-        <input type="text" :placeholder="$t('Search')" v-model="searchBy">
+        <input type="text" :placeholder="$t('Search')" :value="value" @input="$emit('input', $event.target.value)">
       </div>
     </div>
   </section>
 </template>
+
+<script>
+export default {
+  props: {
+    value: {
+      default: '',
+      type: String,
+    },
+  },
+};
+</script>
 
 <style lang="scss">
 #search-bar {
