@@ -1,5 +1,6 @@
 import alerts from './alerts';
 import contacts from './contacts';
+import dex from './dex';
 import formatting from './formatting';
 import ledger from './ledger';
 import neo from './neo';
@@ -13,6 +14,7 @@ import wallets from './wallets';
 export {
   alerts,
   contacts,
+  dex,
   formatting,
   ledger,
   neo,
