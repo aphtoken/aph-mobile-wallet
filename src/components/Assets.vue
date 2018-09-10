@@ -2,14 +2,7 @@
   <section id="assets" :class="{'show-add-token': showAddToken}">
     <div class="header">
       <div class="title">{{$t('Assets')}}</div>
-      <div class="search">
-        <div class="inner">
-          <aph-icon name="search"></aph-icon>
-          <div class="input">
-            <input type="text" :placeholder="$t('Search')" v-model="searchBy">
-          </div>
-        </div>
-      </div>
+      <aph-search-bar v-model="searchBy"></aph-search-bar>
     </div>
     <div class="body">
       <div class="holdings">
@@ -146,46 +139,8 @@ export default {
       font-size: toRem(18px);
     }
 
-    > .search {
+    .aph-search-bar {
       margin: $space 0 toRem(-26px);
-      padding: 0 $space;
-      width: 100%;
-      z-index: 100;
-
-      .inner {
-        align-items: center;
-        background: white;
-        border-radius: $border-radius;
-        box-shadow: $box-shadow;
-        display: flex;
-        flex-direction: row;
-        height: $input-height;
-        padding: 0 $space;
-        width: 100%;
-
-        .aph-icon {
-          flex: none;
-          margin-right: $space;
-
-          svg {
-            height: toRem(20px);
-
-            .fill {
-              fill: $purple;
-            }
-          }
-        }
-
-        .input {
-          flex: 1;
-
-          input {
-            background: none;
-            border: none;
-            outline: none;
-          }
-        }
-      }
     }
   }
 

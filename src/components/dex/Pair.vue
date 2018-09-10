@@ -2,12 +2,8 @@
   <section id="dex--pair">
     <div class="body">
       <market-pair-chart></market-pair-chart>
-      <div>
-        Ticker Component?
-      </div>
-      <div>
-        Search Component
-      </div>
+      <market-selector></market-selector>
+      <aph-search-bar v-model="searchBy"></aph-search-bar>
       <div>
         Table Component <br>
         Ticker <br>
@@ -21,6 +17,7 @@
 <script>
 
 import MarketPairChart from './MarketPairChart';
+import MarketSelector from './MarketSelector';
 
 export default {
   mounted() {
@@ -29,6 +26,7 @@ export default {
 
   components: {
     MarketPairChart,
+    MarketSelector,
   },
 
   computed: {
@@ -37,7 +35,7 @@ export default {
 
   data() {
     return {
-      //
+      searchBy: '',
     };
   },
 
@@ -58,8 +56,8 @@ export default {
 <style lang="scss">
 #dex--pair {
   display: flex;
-  flex: 1;
   flex-direction: column;
+  flex: 1;
   height: 100%;
   overflow: hidden;
 
@@ -70,9 +68,21 @@ export default {
     flex: 1;
     overflow: hidden;
 
+    .aph-search-bar {
+      margin-top: $space;
+
+      .search-bar-wrapper {
+        background: $dark-purple;
+
+        input {
+          color: $grey;
+        }
+      }
+    }
+
     > div {
-      margin: $space;
       background: $dark-purple;
+      margin: $space;
     }
   }
 }
