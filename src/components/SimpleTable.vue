@@ -1,27 +1,25 @@
 <template>
   <section class="aph-simple-table">
-    <div>
-      <table>
-        <thead>
-          <tr>
-            <th v-for="key in columns"
-              @click="sortBy(key)"
-              :class="{ active: sortKey == key }">
-              {{ key | capitalize }}
-              <span class="arrow" :class="sortOrders[key] > 0 ? 'asc' : 'dsc'">
-              </span>
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="entry in filteredData">
-            <td v-for="key in columns">
-              {{entry[key]}}
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+    <table>
+      <thead>
+        <tr>
+          <th v-for="key in columns"
+            @click="sortBy(key)"
+            :class="{ active: sortKey == key }">
+            {{ key | capitalize }}
+            <span class="arrow" :class="sortOrders[key] > 0 ? 'asc' : 'dsc'">
+            </span>
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="entry in filteredData">
+          <td v-for="key in columns">
+            {{entry[key]}}
+          </td>
+        </tr>
+      </tbody>
+    </table>
   </section>
 </template>
 
@@ -113,39 +111,81 @@ export default {
 
   table {
     border-radius: $border-radius;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
 
-    th {
-      font-size: toRem(16px);
-      user-select: none;
+    thead {
+      display: flex;
+      flex: none;
+
+      tr {
+        display: flex;
+        flex: 1;
+        padding: $space $space 0;
+        color: $darker-grey;
+
+
+        th {
+          display: flex;
+          flex: 1;
+          font-size: toRem(10px);
+          user-select: none;
+        }
+
+        span {
+          margin: auto 0;
+        }
+
+        .arrow {
+          display: inline-block;
+          vertical-align: middle;
+          width: 0;
+          height: 0;
+          margin-left: toRem(2px);
+        }
+
+        th.active .arrow.asc {
+          border-left: 4px solid transparent;
+          border-right: 4px solid transparent;
+          border-bottom: 4px solid #fff;
+        }
+
+        th.active .arrow.dsc {
+          border-left: 4px solid transparent;
+          border-right: 4px solid transparent;
+          border-top: 4px solid #fff;
+        }
+
+        th.active .arrow {
+          opacity: .66;
+        }
+      }
     }
 
-    td {
-      font-size: toRem(18px);
-    }
+    tbody {
+      display: flex;
+      flex: 1;
+      flex-direction: column;
 
-    th.active .arrow {
-      opacity: 1;
-    }
+      tr {
+        display: flex;
+        padding: $space;
+        flex-direction: row;
 
-    arrow {
-      display: inline-block;
-      vertical-align: middle;
-      width: 0;
-      height: 0;
-      margin-left: 5px;
-      opacity: 0.66;
-    }
 
-    .arrow.asc {
-      border-left: 4px solid transparent;
-      border-right: 4px solid transparent;
-      border-bottom: 4px solid #fff;
-    }
+        td {
+          display: flex;
+          flex: 1;
+          font-size: toRem(12px);
+          border-top: 1px solid $darker-grey/2;
+          padding-top: $space;
 
-    .arrow.dsc {
-      border-left: 4px solid transparent;
-      border-right: 4px solid transparent;
-      border-top: 4px solid #fff;
+          &:last-child {
+            justify-content: flex-end;
+          }
+        }
+      }
     }
   }
 }

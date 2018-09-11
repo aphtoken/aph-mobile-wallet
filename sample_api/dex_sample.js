@@ -280,32 +280,32 @@ const TICKER_LIST = {
       'asset': 'APH',
       'price': 0.00087,
       'volume': 7248482,
-      'change24Hour': 35
+      '24H change': 35
     },
     {
       'asset': 'EFI',
       'price': 0.00087,
       'volume': 7248482,
-      'change24Hour': 35
+      '24H change': 35
     },
     {
       'asset': 'GAS',
       'price': 0.00087,
       'volume': 7248482,
-      'change24Hour': 35
+      '24H change': 35
     },
     {
       'asset': 'MSTR',
       'price': 0.00087,
       'volume': 7248482,
-      'change24Hour': 35
+      '24H change': 35
     },
     {
       'asset': 'SCOTT',
       'price': 0.00087,
       'volume': 7248482,
-      'change24Hour': 35
+      '24H change': 35
     }
   ],
-  COLUMNS: ['asset', 'price', 'volume', 'change24Hour'],
+  COLUMNS: ['asset', 'price', 'volume', '24H change'],
 }

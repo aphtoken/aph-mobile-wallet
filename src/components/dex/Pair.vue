@@ -78,6 +78,11 @@ export default {
       }
     }
 
+    .aph-simple-table {
+      margin: $space;
+      background: $dark-purple;
+    }
+
     > div {
       background: $dark-purple;
       margin: $space;
