@@ -21,28 +21,6 @@
   </section>
 </template>
 
-
-<!-- <table>
-      <thead>
-        <tr>
-          <th v-for="key in columns"
-            @click="sortBy(key)"
-            :class="{ active: sortKey == key }">
-            {{ key | capitalize }}
-            <span class="arrow" :class="sortOrders[key] > 0 ? 'asc' : 'dsc'">
-            </span>
-          </th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="entry in filteredData">
-          <td v-for="key in columns">
-            {{entry[key]}}
-          </td>
-        </tr>
-      </tbody>
-    </table> -->
-
 <script>
 
 export default {
@@ -55,7 +33,6 @@ export default {
       default: [],
       type: Array,
     },
-    // Not sure if we plan on filtering this list
     filterKey: {
       default: '',
       type: String,
@@ -186,7 +163,7 @@ export default {
       display: flex;
       flex: none;
       flex-direction: column;
-      
+
       .row {
         display: flex;
         padding: 0 $space-xs 0 $space;
