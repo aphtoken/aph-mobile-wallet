@@ -165,13 +165,18 @@ export default {
 
     tbody {
       display: flex;
-      flex: 1;
+      flex: none;
       flex-direction: column;
+      overflow-y: scroll;
 
       tr {
         display: flex;
-        padding: $space;
+        margin: $space;
         flex-direction: row;
+
+        &:active {
+          background: $darker-grey/2;
+        }
 
 
         td {
