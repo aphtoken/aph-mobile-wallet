@@ -4,18 +4,14 @@
       <market-pair-chart></market-pair-chart>
       <market-selector></market-selector>
       <aph-search-bar v-model="searchBy"></aph-search-bar>
-      <div>
-        Table Component <br>
-        Ticker <br>
-        Another Ticker <br>
-        Another One
-      </div>
+      <aph-simple-table v-bind:data=data v-bind:columns=columns></aph-simple-table>
     </div>
   </section>
 </template>
 
 <script>
 
+import { TICKER_LIST } from '../../../sample_api/dex_sample.js';
 import MarketPairChart from './MarketPairChart';
 import MarketSelector from './MarketSelector';
 
@@ -36,6 +32,8 @@ export default {
   data() {
     return {
       searchBy: '',
+      data: TICKER_LIST.DATA,
+      columns: TICKER_LIST.COLUMNS,
     };
   },
 

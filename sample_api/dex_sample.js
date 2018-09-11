@@ -1,6 +1,7 @@
 export {
   HISTORY,
   MARKETS,
+  TICKER_LIST
 };
 
 const HISTORY = {
@@ -272,3 +273,39 @@ const MARKETS = [
     "isOpen": true
   }
 ]
+
+const TICKER_LIST = {
+  DATA: [
+    {
+      'asset': 'APH',
+      'price': 0.00087,
+      'volume': 7248482,
+      'change24Hour': 35
+    },
+    {
+      'asset': 'EFI',
+      'price': 0.00087,
+      'volume': 7248482,
+      'change24Hour': 35
+    },
+    {
+      'asset': 'GAS',
+      'price': 0.00087,
+      'volume': 7248482,
+      'change24Hour': 35
+    },
+    {
+      'asset': 'MSTR',
+      'price': 0.00087,
+      'volume': 7248482,
+      'change24Hour': 35
+    },
+    {
+      'asset': 'SCOTT',
+      'price': 0.00087,
+      'volume': 7248482,
+      'change24Hour': 35
+    }
+  ],
+  COLUMNS: ['asset', 'price', 'volume', 'change24Hour'],
+}
