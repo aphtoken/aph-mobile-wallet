@@ -9,7 +9,7 @@
           <aph-icon name="dashboard"></aph-icon>
           <p>{{ $t('Dashboard') }}</p>
         </router-link>
-        <router-link v-if="$store.state.currentNetwork.net !== 'MainNet'" to="/authenticated/commit">
+        <router-link v-if="shouldShowCommitLink" to="/authenticated/commit">
           <aph-icon name="commit"></aph-icon>
           <p>{{ $t('Commit') }}</p>
         </router-link>
@@ -28,7 +28,7 @@
       </div>
     </aside>
     <div id="content" :class="[{'menu-open': menuOpen}]">
-      <div id="back-button" @click="goBack" v-if="showBackButton">
+      <div id="back-button" @click="goBack" v-if="shouldShowBackButton">
         <aph-icon name="arrow-left"></aph-icon>
       </div>
       <div id="menu-toggle" :class="[{open: menuOpen}]" @click="toggleMenu" v-else>
@@ -66,8 +66,12 @@ export default {
   },
 
   computed: {
-    showBackButton() {
+    shouldShowBackButton() {
       return _.includes(ROUTES_USING_BACK_BUTTON, this.$route.name);
+    },
+
+    shouldShowCommitLink() {
+      return this.$store.state.currentNetwork.net !== 'MainNet';
     },
   },
 
@@ -126,7 +130,7 @@ export default {
 
     .logo {
       flex: none;
-      padding: $space-lg 0 0;
+      padding: $space-lg 0;
       text-align: center;
 
       .aph-icon > svg {
@@ -138,7 +142,7 @@ export default {
       flex: 1;
       display: flex;
       flex-direction: column;
-      justify-content: center;
+      // justify-content: center;
 
       .aph-icon > svg {
           &.dashboard {

@@ -128,6 +128,20 @@ export default {
           }
         }
       }
+
+      @include lowRes() {
+        margin-bottom: toRem(-35px);
+
+        .hex {
+          height: toRem(70px);
+        }
+
+        .aph-icon:last-child {
+          svg {
+            height: toRem(35px);
+          }
+        }
+      }
     }
 
     .content {

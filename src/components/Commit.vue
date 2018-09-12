@@ -178,8 +178,8 @@ export default {
 
     aphHolding() {
       if (this.$store.state.holdings) {
-        const holding = _.find(this.$store.state.holdings, (o) => {
-          return o.assetId === this.$services.assets.APH;
+        const holding = _.find(this.$store.state.holdings, (holding) => {
+          return holding.assetId === this.$services.assets.APH;
         });
 
         if (holding) {
@@ -359,7 +359,11 @@ export default {
           .slide {
             .content {
               background: $light-grey;
-              padding: $space $space $space $space-xxl;
+              padding: $space $space $space (toRem(50px + $space));
+
+              @include lowRes() {
+                padding: $space $space $space (toRem(35px + $space));
+              }
             }
           }
         }
@@ -394,22 +398,25 @@ export default {
         display: flex;
         flex-direction: column;
         flex: 1;
-        justify-content: space-around;
         padding-bottom: toRem(62.5px);
 
         .line {
           background: $purple;
           content: " ";
-          height: $border-width-thick;
-          margin-top: $space-lg;
+          height: $border-width;
+          margin: $space-lg 0;
           width: 5vw;
+
+          @include lowRes() {
+            margin: $space 0;
+          }
         }
 
         .copy {
           @extend %small-uppercase-grey-label-dark;
 
           line-height: 200%;
-          margin-bottom: $space-lg;
+          // margin-bottom: $space-lg;
           text-align: center;
 
           .block {
@@ -435,6 +442,16 @@ export default {
 
           > p {
             margin-top: 0;
+          }
+
+          @include lowRes() {
+            height: 100px;
+
+            .aph-icon {
+              svg {
+                height: toRem(35px);
+              }
+            }
           }
         }
 
@@ -490,7 +507,7 @@ export default {
             align-items: center;
             display: flex;
             flex: none;
-            margin-right: toRem(-47px);
+            margin-right: toRem(-50px);
             position: relative;
             z-index: 10;
 
@@ -512,6 +529,20 @@ export default {
                 }
               }
             }
+
+            @include lowRes() {
+              margin-right: toRem(-35px);
+
+              .hex {
+                height: toRem(70px);
+              }
+
+              .aph-icon:last-child {
+                svg {
+                  height: toRem(35px);
+                }
+              }
+            }
           }
 
           .content {
@@ -528,17 +559,30 @@ export default {
 
               font-size: toRem(16px);
               margin-bottom: 0;
+
+              @include lowRes() {
+                font-size: toRem(14px);
+              }
             }
 
             .title {
               font-family: GilroySemibold;
               font-size: toRem(16px);
+
+              @include lowRes() {
+                font-size: toRem(14px);
+              }
             }
 
             .highlight {
               color: $purple;
               font-size: toRem(18px);
               margin: $space 0;
+
+              @include lowRes() {
+                font-size: toRem(16px);
+                margin: $space-sm 0;
+              }
             }
 
             .pair {
@@ -554,6 +598,10 @@ export default {
 
               & + .pair {
                 margin-top: $space-sm;
+              }
+
+              @include lowRes() {
+                font-size: toRem(10px);
               }
             }
           }
