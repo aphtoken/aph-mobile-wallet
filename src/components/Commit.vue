@@ -135,7 +135,7 @@
             <aph-icon name="commit"></aph-icon>
             <p>{{ $t('Commit') }}</p>
           </div>
-          <div class="compound-btn" v-if="shouldShowCompoundButton">
+          <div class="compound-btn" v-if="shouldShowCompoundButton" @click="compound">
             <aph-icon name="compound"></aph-icon>
             <p>{{ $t('Compound') }}</p>
           </div>
@@ -149,7 +149,6 @@
 </template>
 
 <script>
-// import { BigNumber } from 'bignumber.js';
 import { mapGetters } from 'vuex';
 import CommitClaimModal from './modals/CommitClaim';
 import CommitInfoModal from './modals/CommitInfo';
@@ -237,6 +236,10 @@ export default {
   },
 
   methods: {
+    compound() {
+      this.$services.dex.compoundAPH();
+    },
+
     goToAmountCommitted() {
       this.activeMiddleSlide = 'amount-committed';
     },
