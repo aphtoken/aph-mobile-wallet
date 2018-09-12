@@ -8,7 +8,14 @@ import settings from './settings';
 import { formats } from '../constants';
 
 const nullOrUndefined = value => _.isNull(value) || _.isUndefined(value);
-const toBigNumber = value => new BigNumber(String(value));
+
+export const toBigNumber = (value) => {
+  if (BigNumber.isBigNumber(value)) {
+    return value;
+  }
+
+  return new BigNumber(String(value));
+};
 
 const formatNumberBase = (value, wholeNumberFormat) => {
   let bigNumber = toBigNumber(value);
@@ -16,11 +23,14 @@ const formatNumberBase = (value, wholeNumberFormat) => {
   bigNumber = bigNumber.abs();
   let wholeNumber = bigNumber.integerValue(BigNumber.ROUND_FLOOR);
   const fractionalNumber = bigNumber.minus(wholeNumber);
+
   if (!wholeNumber.isZero()) {
     wholeNumber = isNegative ? wholeNumber.multipliedBy(-1) : wholeNumber;
+
     return `${numeral(wholeNumber).format(wholeNumberFormat)}`
       + `${numeral(fractionalNumber).format(formats.FRACTIONAL_NUMBER)}`;
   }
+
   return (isNegative ? '-0' : '0') + numeral(fractionalNumber).format(formats.FRACTIONAL_NUMBER);
 };
 
@@ -81,20 +91,20 @@ export default {
     return moment.unix(timestamp).format(formats.TIME);
   },
 
-  formatTokenAmount(value, threshold = 1000, defaultValue = 'N/A') {
-    if (nullOrUndefined(value)) {
-      return defaultValue;
-    }
-
-    return value > threshold ?
-      accounting.formatMoney(toBigNumber(value), ' ', 0) : formatNumberBase(value, formats.WHOLE_NUMBER);
-  },
-
   formatWeekdayAndTime(timestamp, defaultValue = '--') {
     if (nullOrUndefined(timestamp)) {
       return defaultValue;
     }
 
     return moment.unix(timestamp).format(formats.WEEKDAY_AND_TIME);
+  },
+
+  formatTokenAmount(value, threshold = 1000, defaultValue = 'N/A') {
+    if (nullOrUndefined(value)) {
+      return defaultValue;
+    }
+
+    return toBigNumber(value).isGreaterThan(threshold) ?
+      accounting.formatMoney(toBigNumber(value), '', 0) : formatNumberBase(value);
   },
 };

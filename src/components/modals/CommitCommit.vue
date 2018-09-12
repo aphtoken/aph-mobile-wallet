@@ -1,5 +1,5 @@
 <template>
-  <section id="commit--claim-modal">
+  <section id="commit--commit-modal">
     <div class="body">
       <div class="icons">
         <aph-icon name="hex"></aph-icon>
@@ -10,7 +10,7 @@
         <div class="help-text">{{ $t('howMuchWouldYouLikeToCommit') }}</div>
         <aph-input type="number" :light="true" v-model="amount"></aph-input>
         <div class="max">{{ $t('max') }}</div>
-        <button class="commit-btn" @click="onConfirmed(amount)" :disabled="shouldDisableCommitButton">{{ $t('commit') }}</button>
+        <button class="commit-btn" @click="onCommit" :disabled="shouldDisableCommitButton">{{ $t('commit') }}</button>
       </div>
     </div>
     <div class="cancel-btn" @click="onClose">{{ $t('cancel') }}</div>
@@ -18,6 +18,8 @@
 </template>
 
 <script>
+import { BigNumber } from 'bignumber.js';
+
 export default {
   computed: {
     aphHolding() {
@@ -52,6 +54,11 @@ export default {
   },
 
   methods: {
+    onCommit() {
+      this.$services.dex.commitAPH(new BigNumber(this.amount).toNumber());
+      this.onClose();
+    },
+
     setAmountToMax() {
       if (this.aphHolding) {
         this.amount = this.aphHolding.balance.toString();
@@ -69,7 +76,7 @@ export default {
 </script>
 
 <style lang="scss">
-#commit--claim-modal {
+#commit--commit-modal {
   background: rgba($dark, .7);
   bottom: 0;
   display: flex;

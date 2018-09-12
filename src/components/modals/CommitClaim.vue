@@ -1,5 +1,5 @@
 <template>
-  <section id="commit--info-modal">
+  <section id="commit--claim-modal">
     <div class="body">
       <div class="icons">
         <aph-icon name="hex"></aph-icon>
@@ -31,7 +31,7 @@
             })}}
           </p>
         </div>
-        <button class="commit-btn" @click="onConfirmed()">{{$t('claim')}}</button>
+        <button class="claim-btn" @click="onClaim">{{$t('claim')}}</button>
       </div>
     </div>
     <div class="cancel-btn" @click="onClose">{{ $t('cancel') }}</div>
@@ -47,22 +47,17 @@ export default {
       return this.currentNetwork && this.currentNetwork.bestBlock ? this.currentNetwork.bestBlock.index : 0;
     },
 
-    shouldDisableCommitButton() {
-      return !this.amount.length || this.amount <= 0;
-    },
-
     ...mapGetters([
       'currentNetwork',
     ]),
   },
 
-  data() {
-    return {
-      amount: '',
-    };
-  },
-
   methods: {
+    onClaim() {
+      this.$services.dex.claimAPH();
+      this.onClose();
+    },
+
     setAmountToMax() {
       if (this.aphHolding) {
         this.amount = this.aphHolding.balance.toString();
@@ -80,7 +75,7 @@ export default {
 </script>
 
 <style lang="scss">
-#commit--info-modal {
+#commit--claim-modal {
   background: rgba($dark, .7);
   bottom: 0;
   display: flex;
@@ -162,7 +157,7 @@ export default {
         text-align: right;
       }
 
-      .commit-btn {
+      .claim-btn {
         @extend %btn;
 
         margin-top: $space-lg;
