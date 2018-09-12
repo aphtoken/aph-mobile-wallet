@@ -3,7 +3,7 @@
     <div class="header">
       <div class="title">{{ $t('commit') }}</div>
       <div class="icon" @click="showInfoModal = true">
-        <aph-icon name="info" @click="showInfoModal = true"></aph-icon>
+        <aph-icon name="info"></aph-icon>
       </div>
     </div>
     <div class="body">
@@ -127,11 +127,11 @@
           </div>
         </template>
         <div class="btn-group">
-          <div class="claim-btn">
+          <div class="claim-btn" @click="showClaimModal = true">
             <aph-icon name="claim"></aph-icon>
             <p>{{ $t('Claim') }}</p>
           </div>
-          <div class="commit-btn" v-if="shouldShowCommitButton">
+          <div class="commit-btn" v-if="shouldShowCommitButton" @click="showCommitModal = true">
             <aph-icon name="commit"></aph-icon>
             <p>{{ $t('Commit') }}</p>
           </div>
@@ -142,36 +142,30 @@
         </div>
       </div>
     </div>
-    <div id="commit--info-modal" v-if="showInfoModal">
-      <div class="body">
-        <div class="icons">
-          <aph-icon name="hex"></aph-icon>
-          <aph-icon name="commit"></aph-icon>
-        </div>
-        <div class="content">
-          <p>{{$t('commitInfoBody1')}}</p>
-          <p>{{$t('commitInfoBody2', { minClaimBlocks: $store.state.commitState.minimumClaimBlocks})}}</p>
-          <p>{{$t('commitInfoBody3')}}</p>
-          <p>{{$t('commitInfoBody4')}}</p>
-        </div>
-      </div>
-      <div class="close-btn" @click="showInfoModal = false">{{ $t('close') }}</div>
-    </div>
+     <commit-claim-modal v-if="showClaimModal" :onClose="() => this.showClaimModal = false"></commit-claim-modal>
+     <commit-commit-modal v-if="showCommitModal" :onClose="() => this.showCommitModal = false"></commit-commit-modal>
+     <commit-info-modal v-if="showInfoModal" :onClose="() => this.showInfoModal = false"></commit-info-modal>
   </section>
 </template>
 
 <script>
 // import { BigNumber } from 'bignumber.js';
 import { mapGetters } from 'vuex';
-// import CommitInfo from './modals/CommitInfo';
-// import CommitModal from './modals/CommitModal';
-// import ClaimModal from './modals/ClaimModal';
+import CommitClaimModal from './modals/CommitClaim';
+import CommitInfoModal from './modals/CommitInfo';
+import CommitCommitModal from './modals/CommitCommit';
 
 let loadCommitStateIntervalId;
 
 export default {
   beforeDestroy() {
     clearInterval(loadCommitStateIntervalId);
+  },
+
+  components: {
+    CommitClaimModal,
+    CommitCommitModal,
+    CommitInfoModal,
   },
 
   computed: {
@@ -236,6 +230,8 @@ export default {
     return {
       activeMiddleSlide: 'amount-committed',
       activeTopSlide: 'total-dex-fees',
+      showClaimModal: false,
+      showCommitModal: false,
       showInfoModal: false,
     };
   },
@@ -619,86 +615,6 @@ export default {
           }
         }
       }
-    }
-  }
-
-  #commit--info-modal {
-    background: rgba($dark, .7);
-    bottom: 0;
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    left: 0;
-    position: fixed;
-    right: 0;
-    top: 0;
-    width: 100%;
-    z-index: 100;
-
-    > .body {
-      display: flex;
-      flex-direction: column;
-      flex: 1;
-      justify-content: center;
-      overflow: hidden;
-      padding: $space;
-
-      .icons {
-        align-items: center;
-        justify-content: center;
-        display: flex;
-        flex: none;
-        position: relative;
-        z-index: 10;
-        margin-bottom: toRem(-50px);
-
-        .hex {
-          height: toRem(100px);
-
-          .fill {
-            fill: $purple;
-          }
-        }
-
-        .aph-icon:last-child {
-          left: 50%;
-          position: absolute;
-          top: 50%;
-          transform: translate(-50%, -50%);
-
-          svg {
-            height: toRem(50px);
-
-            .fill {
-              fill: white;
-            }
-          }
-        }
-      }
-
-      .content {
-        @extend %tile-light;
-
-        color: $dark;
-        overflow: auto;
-        padding: $space-xxl $space $space;
-
-        p {
-          font-size: toRem(12px);
-          margin: 0;
-
-          & + P {
-            margin-top: $space;
-          }
-        }
-      }
-    }
-
-    > .close-btn {
-      @extend %btn-footer;
-
-      flex: none;
-      width: 100%;
     }
   }
 }
