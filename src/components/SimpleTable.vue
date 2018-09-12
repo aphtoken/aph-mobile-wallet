@@ -1,23 +1,25 @@
 <template>
   <section class="aph-simple-table">
-    <div class="table-wrapper">
-      <div class="table-header-row">
-        <div v-for="key in columns"
-          @click="sortBy(key)"
-          class="header-cell"
-          :class="{ active: sortKey === key }">
-          {{ key | capitalize }}
-          <div class="arrow" :class="sortOrders[key] > 0 ? 'asc' : 'dsc'"></div>
-        </div>
-      </div>
-      <div class="table-body-wrapper">
-        <div class="row" v-for="entry in filteredData">
-          <div class="cell" v-for="key in columns">
+    <table class="table-wrapper">
+      <thead>
+        <tr class="table-header-row">
+          <th v-for="key in columns"
+            @click="sortBy(key)"
+            class="header-cell"
+            :class="{ active: sortKey === key }">
+            {{ key | capitalize }}
+            <span class="arrow" :class="sortOrders[key] > 0 ? 'asc' : 'dsc'"></span>
+          </th>
+        </tr>
+      </thead>
+      <tbody class="table-body-wrapper">
+        <tr class="row" v-for="entry in filteredData">
+          <td class="cell" v-for="key in columns">
             {{entry[key]}}
-          </div>
-        </div>
-      </div>
-    </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
   </section>
 </template>
 
@@ -170,8 +172,18 @@ export default {
 
         &:active {
           background: $darker-grey/2;
-        }
 
+          .cell {
+            border-top: 1px solid transparent;
+          }
+        }
+        
+        &:active + tr {
+          .cell {
+            border-top: 1px solid transparent;
+          }
+        }
+        
         .cell {
           padding: $space 0 $space-lg;
           display: flex;
