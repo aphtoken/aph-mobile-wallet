@@ -1,47 +1,46 @@
 <template>
-  <section id="commit--claim-modal">
-    <div class="body">
-      <div class="icons">
-        <aph-icon name="hex"></aph-icon>
-        <aph-icon name="commit"></aph-icon>
-      </div>
-      <div class="content">
-        <div v-if="$store.state.commitState.ableToClaimHeight <= this.currentBlock">
-          <p>
-            {{$t('areYouSureYouWantToClaim')}}
-          </p>
-          <p>
-            {{$t('committedAPHBalance', {
-              balance: $store.state.commitState.quantityCommitted
-            })}}
-          </p>
-        </div>
-        <div v-else>
-          <p>
-            {{$t('notMetMinimumBlocksToClaim')}}
-          </p>
-          <p>
-            {{$t('youMayStillClaim', {
-              balance: $store.state.commitState.quantityCommitted
-            })}}
-          </p>
-          <p>
-            {{$t('waitAnAdditionalBlocks', {
-              blocks: $store.state.commitState.ableToClaimHeight - this.currentBlock
-            })}}
-          </p>
-        </div>
-        <button class="claim-btn" @click="onClaim">{{$t('claim')}}</button>
-      </div>
-    </div>
-    <div class="cancel-btn" @click="onClose">{{ $t('cancel') }}</div>
-  </section>
+  <commit-modal-wrapper id="commit--claim-modal">
+    <template v-if="$store.state.commitState.ableToClaimHeight <= this.currentBlock">
+      <p>
+        {{$t('areYouSureYouWantToClaim')}}
+      </p>
+      <p>
+        {{$t('committedAPHBalance', {
+          balance: $store.state.commitState.quantityCommitted
+        })}}
+      </p>
+    </template>
+    <template v-else>
+      <p>
+        {{$t('notMetMinimumBlocksToClaim')}}
+      </p>
+      <p>
+        {{$t('youMayStillClaim', {
+          balance: $store.state.commitState.quantityCommitted
+        })}}
+      </p>
+      <p>
+        {{$t('waitAnAdditionalBlocks', {
+          blocks: $store.state.commitState.ableToClaimHeight - this.currentBlock
+        })}}
+      </p>
+    </template>
+    <button class="claim-btn" @click="onClaim">{{$t('claim')}}</button>
+    <template slot="footer">
+      <div class="cancel-btn" @click="onClose">{{ $t('cancel') }}</div>
+    </template>
+  </commit-modal-wrapper>
 </template>
 
 <script>
 import { mapGetters } from 'vuex';
+import CommitModalWrapper from './CommitModalWrapper';
 
 export default {
+  components: {
+    CommitModalWrapper,
+  },
+
   computed: {
     currentBlock() {
       return this.currentNetwork && this.currentNetwork.bestBlock ? this.currentNetwork.bestBlock.index : 0;
@@ -76,80 +75,8 @@ export default {
 
 <style lang="scss">
 #commit--claim-modal {
-  background: rgba($dark, .7);
-  bottom: 0;
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  left: 0;
-  position: fixed;
-  right: 0;
-  top: 0;
-  width: 100%;
-  z-index: 100;
-
   > .body {
-    display: flex;
-    flex-direction: column;
-    flex: 1;
-    justify-content: center;
-    overflow: hidden;
-    padding: $space;
-
-    .icons {
-      align-items: center;
-      justify-content: center;
-      display: flex;
-      flex: none;
-      position: relative;
-      z-index: 10;
-      margin-bottom: toRem(-50px);
-
-      .hex {
-        height: toRem(100px);
-
-        .fill {
-          fill: $purple;
-        }
-      }
-
-      .aph-icon:last-child {
-        left: 50%;
-        position: absolute;
-        top: 50%;
-        transform: translate(-50%, -50%);
-
-        svg {
-          height: toRem(50px);
-
-          .fill {
-            fill: white;
-          }
-        }
-      }
-
-      @include lowRes() {
-        margin-bottom: toRem(-35px);
-
-        .hex {
-          height: toRem(70px);
-        }
-
-        .aph-icon:last-child {
-          svg {
-            height: toRem(35px);
-          }
-        }
-      }
-    }
-
     .content {
-      @extend %tile-light;
-
-      color: $dark;
-      overflow: auto;
-      padding: $space-xxl $space $space;
-
       .title {
         color: $purple;
         font-family: GilroySemibold;
@@ -179,11 +106,12 @@ export default {
     }
   }
 
-  > .cancel-btn {
-    @extend %btn-footer-light;
+  > .footer {
+    .cancel-btn {
+      @extend %btn-footer-light;
 
-    flex: none;
-    width: 100%;
+      width: 100%;
+    }
   }
 }
 </style>
