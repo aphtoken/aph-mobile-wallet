@@ -44,6 +44,10 @@ const charts = {
   DEBOUNCE: 500,
 };
 
+const claiming = {
+  DEFAULT_CLAIM_BLOCKS: 180,
+};
+
 const database = {
   NAME: 'aphelion.db',
 };
@@ -93,6 +97,7 @@ const timeouts = {
 
 export {
   charts,
+  claiming,
   database,
   defaultSettings,
   formats,

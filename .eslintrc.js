@@ -35,6 +35,6 @@ module.exports = {
     'no-underscore-dangle': 0,
     'arrow-body-style': 0,
     'array-callback-return': 0,
-    'max-len': [2, 120],
+    'max-len': [2, 150],
   }
 }

@@ -17,6 +17,7 @@ export {
   putTransactionDetail,
   resetRequests,
   setActiveTransaction,
+  setCommitState,
   setContacts,
   setCurrency,
   setCurrencySymbol,
@@ -104,6 +105,14 @@ function resetRequests(state) {
 function setActiveTransaction(state, transaction) {
   state.activeTransaction = transaction;
   state.showPriceTile = false;
+}
+
+async function setCommitState(state, commitState) {
+  if (!state.currentWallet || !state.currentNetwork) {
+    return;
+  }
+
+  state.commitState = commitState;
 }
 
 function setWalletToBackup(state, wallet) {

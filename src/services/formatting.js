@@ -25,6 +25,14 @@ const formatNumberBase = (value, wholeNumberFormat) => {
 };
 
 export default {
+  abbreviateNumber(value, wholeNumberFormat = formats.WHOLE_NUMBER, defaultValue = 'N/A') {
+    if (nullOrUndefined(value)) {
+      return defaultValue;
+    }
+
+    return numeral(formatNumberBase(value, wholeNumberFormat)).format('0.0a');
+  },
+
   formatDate(timestamp, defaultValue = '--') {
     if (nullOrUndefined(timestamp)) {
       return defaultValue;
