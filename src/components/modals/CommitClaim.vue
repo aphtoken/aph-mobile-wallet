@@ -27,7 +27,7 @@
     </template>
     <button class="claim-btn" @click="onClaim">{{$t('claim')}}</button>
     <template slot="footer">
-      <div class="cancel-btn" @click="onClose">{{ $t('cancel') }}</div>
+      <button class="cancel-btn" @click="onClose">{{ $t('cancel') }}</button>
     </template>
   </commit-modal-wrapper>
 </template>

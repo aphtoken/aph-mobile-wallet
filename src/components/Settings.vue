@@ -40,7 +40,7 @@
             <div class="value">{{ selectedNetwork.net }}</div>
           </div>
         </div>
-        <div class="underlined">{{ $t('Wallets') }}</div>
+        <div class="underlined">{{ $t('wallets') }}</div>
         <div class="tile">
           <div class="row" @click="$router.push('/authenticated/settings/wallets')">
             <div class="label">{{ $t('Wallet') }}</div>

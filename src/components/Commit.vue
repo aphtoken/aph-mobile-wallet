@@ -127,18 +127,18 @@
           </div>
         </template>
         <div class="btn-group">
-          <div class="claim-btn" @click="showClaimModal = true">
+          <button class="claim-btn" @click="showClaimModal = true" :disabled="shouldDisableClaimButton">
             <aph-icon name="claim"></aph-icon>
             <p>{{ $t('Claim') }}</p>
-          </div>
-          <div class="commit-btn" v-if="shouldShowCommitButton" @click="showCommitModal = true">
+          </button>
+          <button class="commit-btn" v-if="shouldShowCommitButton" @click="showCommitModal = true">
             <aph-icon name="commit"></aph-icon>
             <p>{{ $t('Commit') }}</p>
-          </div>
-          <div class="compound-btn" v-if="shouldShowCompoundButton" @click="compound">
+          </button>
+          <button class="compound-btn" v-if="shouldShowCompoundButton" @click="compound">
             <aph-icon name="compound"></aph-icon>
             <p>{{ $t('Compound') }}</p>
-          </div>
+          </button>
         </div>
       </div>
     </div>
@@ -434,7 +434,7 @@ export default {
         width: 100%;
         z-index: 100;
 
-        .commit-btn, .claim-btn, .compound-btn {
+        > * {
           @extend %btn-square;
 
           box-shadow: $box-shadow;
@@ -442,6 +442,10 @@ export default {
 
           > p {
             margin-top: 0;
+          }
+
+          &.disabled, &:disabled {
+            opacity: 0.7;
           }
 
           @include lowRes() {

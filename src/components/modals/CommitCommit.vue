@@ -6,7 +6,7 @@
     <div class="max">{{ $t('max') }}</div>
     <button class="commit-btn" @click="onCommit" :disabled="shouldDisableCommitButton">{{ $t('commit') }}</button>
     <template slot="footer">
-      <div class="cancel-btn" @click="onClose">{{ $t('cancel') }}</div>
+      <button class="cancel-btn" @click="onClose">{{ $t('cancel') }}</button>
     </template>
   </commit-modal-wrapper>
 </template>

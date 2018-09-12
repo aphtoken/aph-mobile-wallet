@@ -5,7 +5,7 @@
     <p>{{$t('commitInfoBody3')}}</p>
     <p>{{$t('commitInfoBody4')}}</p>
     <template slot="footer">
-      <div class="close-btn" @click="onClose">{{ $t('close') }}</div>
+      <button class="close-btn" @click="onClose">{{ $t('close') }}</button>
     </template>
   </commit-modal-wrapper>
 </template>

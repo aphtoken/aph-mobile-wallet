@@ -1,7 +1,7 @@
 <template>
   <section id="wallets" :class="[{'show-import-wallet': showImportWallet, 'show-open-wallet': showOpenWallet}]">
     <div class="header">
-      <div class="title">{{ $t('Wallets') }}</div>
+      <div class="title">{{ $t('wallets') }}</div>
       <div class="search">
         <div class="inner">
           <aph-icon name="search"></aph-icon>
