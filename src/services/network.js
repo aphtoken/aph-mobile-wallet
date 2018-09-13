@@ -50,11 +50,16 @@ export default {
 
     rpcClient.getBestBlockHash()
       .then((blockHash) => {
-        rpcClient.getBlock(blockHash)
-          .then((data) => {
-            if (network.bestBlock && network.bestBlock.index === data.index) {
-              return;
-            }
+        if (network.bestBlock && network.bestBlock.hash === blockHash) {
+          // Don't redundantly fetch the block we already fetched.
+          return;
+        }
+        rpcClient.query({
+          method: 'getblockheader',
+          params: [blockHash, true],
+        })
+          .then((res) => {
+            const data = res.result;
             store.commit('setLastReceivedBlock');
             store.commit('setLastSuccessfulRequest');
             this.normalizeAndStore(_.set(network, 'bestBlock', data)).sync();
