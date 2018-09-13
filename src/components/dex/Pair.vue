@@ -100,17 +100,17 @@ export default {
     }
 
     .aph-simple-table {
-      margin: $space;
       background: $dark-purple;
+      margin: $space;
 
       .cell-price {
         display: flex;
         flex-direction: column;
 
         .price-conversion {
+          color: $darker-grey;
           font-size: toRem(10px);
           padding-top: toRem(4px);
-          color: $darker-grey;
         }
       }
 

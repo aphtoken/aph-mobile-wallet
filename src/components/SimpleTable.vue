@@ -29,11 +29,11 @@
 
 export default {
   props: {
-    data: {
+    columns: {
       default: [],
       type: Array,
     },
-    columns: {
+    data: {
       default: [],
       type: Array,
     },
@@ -46,8 +46,7 @@ export default {
       type: Function,
     },
     injectStyling: {
-      default: () => {
-      },
+      default: () => {},
       type: Function,
     },
   },
@@ -117,19 +116,19 @@ export default {
 
     .table-header-row {
       display: flex;
+      flex-direction: row;
       flex: none;
       font-size: toRem(10px);
-      flex-direction: row;
       padding: $space $space-xs $space $space;
 
       .header-cell {
-        padding: 0;
-        margin: 0;
+        color: $darker-grey;
         display: flex;
         flex-basis: auto;
-        color: $darker-grey;
-        width: 100%;
+        margin: 0;
+        padding: 0;
         user-select: none;
+        width: 100%;
 
         &:last-child {
           justify-content: flex-end;
@@ -137,19 +136,19 @@ export default {
 
         .arrow {
           display: inline-block;
-          width: 0;
           height: 0;
-          opacity: 0;
           margin: auto 0 auto toRem(2px);
+          opacity: 0;
+          width: 0;
         }
       }
 
       .header-cell .arrow.asc {
-        text-transform: uppercase;
+        border-bottom: 4px solid #fff;
         border-left: 4px solid transparent;
         border-right: 4px solid transparent;
-        border-bottom: 4px solid #fff;
         opacity: 0;
+        text-transform: uppercase;
       }
 
       .header-cell .arrow.dsc {
@@ -164,9 +163,8 @@ export default {
     }
 
     .table-body-wrapper {
-      display: flex;
-      flex: none;
-      flex-direction: column;
+      display: block;
+      overflow: auto;
 
       .row {
         display: flex;
@@ -187,11 +185,11 @@ export default {
         }
         
         .cell {
-          padding: $space 0;
+          border-top: 1px solid $darker-grey/2;
           display: flex;
           flex: 1;
           font-size: toRem(12px);
-          border-top: 1px solid $darker-grey/2;
+          padding: $space 0;
 
           &:last-child {
             justify-content: flex-end;
