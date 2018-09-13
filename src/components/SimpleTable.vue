@@ -7,7 +7,7 @@
             @click="sortBy(key)"
             class="header-cell"
             :class="{ active: sortKey === key }">
-            {{ key | capitalize }}
+            {{ key }}
             <span class="arrow" :class="sortOrders[key] > 0 ? 'asc' : 'dsc'"></span>
           </th>
         </tr>
@@ -78,7 +78,7 @@ export default {
         });
       }
       if (sortKey) {
-        data = data.slice().sort((a, b) => {
+        data = data.sort((a, b) => {
           a = a[sortKey];
           b = b[sortKey];
           if (a === b) {
@@ -90,12 +90,6 @@ export default {
         });
       }
       return data;
-    },
-  },
-
-  filters: {
-    capitalize(str) {
-      return str.toUpperCase();
     },
   },
 
@@ -151,6 +145,7 @@ export default {
       }
 
       .header-cell .arrow.asc {
+        text-transform: uppercase;
         border-left: 4px solid transparent;
         border-right: 4px solid transparent;
         border-bottom: 4px solid #fff;

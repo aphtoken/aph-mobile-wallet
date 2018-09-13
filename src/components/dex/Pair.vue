@@ -20,7 +20,6 @@
 
 <script>
 
-import Vue from 'vue';
 import { TICKER_LIST } from '../../../sample_api/dex_sample.js';
 import MarketPairChart from './MarketPairChart';
 import MarketSelector from './MarketSelector';
