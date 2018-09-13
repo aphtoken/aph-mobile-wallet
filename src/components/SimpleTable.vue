@@ -14,8 +14,8 @@
       </thead>
       <tbody class="table-body-wrapper">
         <tr class="row" v-for="entry in filteredData">
-          <td class="cell" v-for="key in columns">
-            {{entry[key]}}
+          <td class="cell" :class="[key, injectStyling(entry[key], entry, key)]" v-for="key in columns">
+            {{ formatEntry !== 'null' ? formatEntry(entry[key], entry, key) : entry[key] }}
           </td>
         </tr>
       </tbody>
@@ -38,6 +38,15 @@ export default {
     filterKey: {
       default: '',
       type: String,
+    },
+    formatEntry: {
+      default: null,
+      type: Function,
+    },
+    injectStyling: {
+      default: () => {
+      },
+      type: Function,
     },
   },
 
@@ -89,10 +98,6 @@ export default {
   },
 
   methods: {
-    debug() {
-      console.log('here', this.props.data)
-    },
-
     sortBy(key) {
       this.sortKey = key;
       this.sortOrders[key] = this.sortOrders[key] * -1;
@@ -177,7 +182,7 @@ export default {
             border-top: 1px solid transparent;
           }
         }
-        
+
         &:active + tr {
           .cell {
             border-top: 1px solid transparent;

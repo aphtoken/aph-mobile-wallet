@@ -4,7 +4,7 @@
       <market-pair-chart></market-pair-chart>
       <market-selector></market-selector>
       <aph-search-bar v-model="searchBy"></aph-search-bar>
-      <aph-simple-table v-bind:data=data v-bind:columns=columns></aph-simple-table>
+      <aph-simple-table v-bind="{columns, data, formatEntry, injectStyling: getRelativeChange}"></aph-simple-table>
     </div>
   </section>
 </template>
@@ -42,6 +42,18 @@ export default {
       this.$store.dispatch('fetchTradeHistory', {
         marketName: this.$store.state.currentMarket.marketName,
       });
+    },
+    formatEntry(value, entry, key) {
+      if (key === '24H change') {
+        return `${this.$services.formatting.formatNumber(value)}%`;
+      }
+      return value;
+    },
+    getRelativeChange(value, entry, key) {
+      if (key === '24H change') {
+        return value > 0 ? 'increase' : 'decrease';
+      }
+      return null;
     },
   },
 
@@ -81,6 +93,22 @@ export default {
     .aph-simple-table {
       margin: $space;
       background: $dark-purple;
+
+      .change {
+        font-size: toRem(12px);
+
+        &.increase {
+          color: $green;
+
+          &:before {
+            content: "+";
+          }
+        }
+
+        &.decrease {
+          color: $red;
+        }
+      }
     }
 
     > div {
