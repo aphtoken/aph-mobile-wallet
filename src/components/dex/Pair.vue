@@ -4,13 +4,23 @@
       <market-pair-chart></market-pair-chart>
       <market-selector></market-selector>
       <aph-search-bar v-model="searchBy"></aph-search-bar>
-      <aph-simple-table v-bind="{columns, data, formatEntry, injectStyling: getRelativeChange}"></aph-simple-table>
+      <aph-simple-table v-bind="{columns, data, formatEntry, injectStyling: getRelativeChange}">
+        <div class="cell-price" slot="price" slot-scope="slotProps">
+          <div>
+            {{ slotProps.value }}
+          </div>
+          <div class="price-conversion">
+            $137.99
+          </div>
+        </div>
+      </aph-simple-table>
     </div>
   </section>
 </template>
 
 <script>
 
+import Vue from 'vue';
 import { TICKER_LIST } from '../../../sample_api/dex_sample.js';
 import MarketPairChart from './MarketPairChart';
 import MarketSelector from './MarketSelector';
@@ -93,6 +103,17 @@ export default {
     .aph-simple-table {
       margin: $space;
       background: $dark-purple;
+
+      .cell-price {
+        display: flex;
+        flex-direction: column;
+
+        .price-conversion {
+          font-size: toRem(10px);
+          padding-top: toRem(4px);
+          color: $darker-grey;
+        }
+      }
 
       .change {
         font-size: toRem(12px);

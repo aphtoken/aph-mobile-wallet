@@ -15,7 +15,9 @@
       <tbody class="table-body-wrapper">
         <tr class="row" v-for="entry in filteredData">
           <td class="cell" :class="[key, injectStyling(entry[key], entry, key)]" v-for="key in columns">
-            {{ formatEntry !== 'null' ? formatEntry(entry[key], entry, key) : entry[key] }}
+            <slot :name=key :value=entry[key]>
+              {{ formatEntry !== 'null' ? formatEntry(entry[key], entry, key) : entry[key] }}
+            </slot>
           </td>
         </tr>
       </tbody>
@@ -190,7 +192,7 @@ export default {
         }
         
         .cell {
-          padding: $space 0 $space-lg;
+          padding: $space 0;
           display: flex;
           flex: 1;
           font-size: toRem(12px);
