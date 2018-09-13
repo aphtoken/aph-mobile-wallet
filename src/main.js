@@ -2,6 +2,7 @@ import DomPortal from 'vue-dom-portal';
 import Vue from 'vue';
 import Vue2TouchEvents from 'vue2-touch-events';
 import VueFlashMessage from 'vue-flash-message';
+import VueI18n from 'vue-i18n';
 import VueHighCharts from 'vue-highcharts';
 import _ from 'lodash';
 import accounting from 'accounting';
@@ -33,6 +34,10 @@ import TimestampFromNow from './components/TimestampFromNow';
 import TokenIcon from './components/TokenIcon';
 import TransactionDetail from './components/TransactionDetail';
 
+// constants
+import { messages } from './constants';
+
+
 // Global Libraries.
 window._ = _;
 window.accounting = accounting;
@@ -48,6 +53,7 @@ Vue.use(DomPortal);
 Vue.use(VueFlashMessage);
 Vue.use(VueHighCharts);
 Vue.use(Vue2TouchEvents);
+Vue.use(VueI18n);
 require('vue-flash-message/dist/vue-flash-message.min.css');
 
 // Register global mixins.
@@ -79,6 +85,18 @@ network.init();
 settings.sync();
 wallets.sync();
 
+// get user's locale settings
+const language = localStorage.getItem('language') ||
+  (window.navigator.userLanguage ||
+    window.navigator.language).split('-')[0];
+
+// Create VueI18n instance with options
+const i18n = new VueI18n({
+  locale: language,
+  fallbackLocale: 'en',
+  messages,
+});
+
 /* eslint-disable no-new */
 new Vue({
   components: { App },
@@ -86,5 +104,6 @@ new Vue({
   name: 'App',
   router,
   store,
+  i18n,
   template: '<App/>',
 });

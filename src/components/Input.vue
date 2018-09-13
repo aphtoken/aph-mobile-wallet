@@ -20,7 +20,7 @@ export default {
     },
 
     iconTitle() {
-      return this.isVisible ? 'Hide Password' : 'Show Password';
+      return this.isVisible ? this.$t('hidePassword') : this.$t('showPassword');
     },
   },
 

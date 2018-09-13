@@ -5,11 +5,11 @@
         <aph-icon name="logo-mark"></aph-icon>
         <aph-icon name="word-mark"></aph-icon>
         <div class="row version">
-          <div class="label">Version</div>
+          <div class="label">{{$t('Version')}}</div>
           <div class="value">{{ version }}</div>
         </div>
         <div class="row block">
-          <div class="label">{{ currentNetwork.net }} block</div>
+          <div class="label">{{ currentNetwork.net }} {{$t('block')}}</div>
           <div class="value">{{ currentNetwork && currentNetwork.bestBlock ? currentNetwork.bestBlock.index : 0 }}</div>
           <div class="value">
             <aph-timestamp-from-now :timestamp="lastReceivedBlock"></aph-timestamp-from-now>
@@ -18,7 +18,7 @@
         <div class="url">aphelion.org</div>
       </div>
       <div class="footer">
-        <button class="done-btn" @click="goBack">Done</button>
+        <button class="done-btn" @click="goBack">{{$t('Done')}}</button>
       </div>
     </div>
   </section>

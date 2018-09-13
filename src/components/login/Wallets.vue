@@ -12,7 +12,7 @@
       </div>
     </div>
     <div class="body">
-      <div class="help-text">Switch to another wallet</div>
+      <div class="help-text">{{$t('switchToAnother')}}</div>
       <div class="wallets">
         <div v-for="wallet in $store.state.wallets" :key="wallet.label" :class="['wallet', {active: isActive(wallet)}]" @click="switchTo(wallet)">
           <div class="label">{{ wallet.label }}</div>

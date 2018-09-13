@@ -7,19 +7,19 @@
       <div class="menu" @click="menuOpen = false">
         <router-link to="/authenticated/dashboard">
           <aph-icon name="dashboard"></aph-icon>
-          <p>Dashboard</p>
+          <p>{{$t('Dashboard')}}</p>
         </router-link>
         <router-link to="/authenticated/assets">
           <aph-icon name="wallet"></aph-icon>
-          <p>Assets</p>
+          <p>{{$t('Assets')}}</p>
         </router-link>
         <router-link to="/authenticated/history">
           <aph-icon name="history"></aph-icon>
-          <p>History</p>
+          <p>{{$t('History')}}</p>
         </router-link>
         <router-link to="/authenticated/settings">
           <aph-icon name="settings"></aph-icon>
-          <p>Settings</p>
+          <p>{{$t('Settings')}}</p>
         </router-link>
       </div>
     </aside>

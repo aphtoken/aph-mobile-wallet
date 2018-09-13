@@ -99,6 +99,11 @@ export default new Router({
           name: 'settings.contacts',
         },
         {
+          path: 'settings/languages',
+          component: require('../components/settings/Languages').default,
+          name: 'settings.languages',
+        },
+        {
           path: 'settings/currencies',
           component: require('../components/settings/Currencies').default,
           name: 'settings.currencies',

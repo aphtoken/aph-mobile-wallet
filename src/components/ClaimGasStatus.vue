@@ -3,12 +3,12 @@
     <!-- <div class="body" v-if="$store.state.gasClaim"> -->
     <div class="body">
       <aph-icon name="claim-gas"></aph-icon>
-      <div class="title">Claim GAS</div>
-      <p>Claiming GAS which has accumulated from your NEO holdings takes several steps. We've automated the process for you but it may take up to 5 minutes.</p>
-      <p>Please wait for the GAS claim to complete.</p>
-      <p>Closing your wallet during this process may result in the GAS claim failing and require you to run it again.</p>
+      <div class="title">{{$t('claimGas')}}</div>
+      <p>{{$t('claimingGas')}}</p>
+      <p>{{$t('pleaseWaitForGas')}}</p>
+      <p>{{$t('closingYourWallet')}}</p>
       <div class="checklist">
-        <div class="checklist-header">Steps:</div>
+        <div class="checklist-header">{{$t('Steps')}}</div>
         <ul>
           <li :class="stepClass(1)"><span>{{ stepIndicator(1) }}</span>{{ step1Label }}</li>
           <li :class="stepClass(2)"><span>{{ stepIndicator(2) }}</span>{{ step2Label }}</li>
@@ -26,45 +26,45 @@ export default {
   computed: {
     step1Label() {
       if (this.$store.state.gasClaim && this.$store.state.gasClaim.step > 1) {
-        return `Transferred ${this.$store.state.gasClaim.neoTransferAmount} NEO to yourself.`;
+        return this.$t('transferredNEOToYourself', { amount: this.$store.state.gasClaim.neoTransferAmount });
       } else if (this.$store.state.gasClaim && this.$store.state.gasClaim.step === 1) {
-        return `Transferring ${this.$store.state.gasClaim.neoTransferAmount} NEO to yourself.`;
+        return this.$t('transferringNEOToYourself', { amount: this.$store.state.gasClaim.neoTransferAmount });
       }
-      return 'Transfer all NEO to yourself.';
+      return this.$t('transferAllNEO');
     },
 
     step2Label() {
       if (this.$store.state.gasClaim && this.$store.state.gasClaim.step > 2) {
-        return 'Received NEO transfer confirmation.';
+        return this.$t('receivedNEOTransferConfirmation');
       } else if (this.$store.state.gasClaim && this.$store.state.gasClaim.step === 2) {
-        return 'Waiting for NEO transfer confirmation.';
+        return this.$t('waitingForNEOTransferConfirmation');
       }
-      return 'Wait for NEO transfer confirmation.';
+      return this.$t('waitForNEOTransferConfirmation');
     },
 
     step3Label() {
       if (this.$store.state.gasClaim && this.$store.state.gasClaim.step > 3) {
-        return `Sent claim for ~${this.$store.state.gasClaim.gasClaimAmount} GAS.`;
+        return this.$t('sentClaimForGas', { amount: this.$store.state.gasClaim.gasClaimAmount });
       } else if (this.$store.state.gasClaim && this.$store.state.gasClaim.step === 3) {
-        return `Sending claim for ~${this.$store.state.gasClaim.gasClaimAmount} GAS.`;
+        return this.$t('sendingClaimForGas', { amount: this.$store.state.gasClaim.gasClaimAmount });
       }
-      return 'Send GAS claim.';
+      return this.$t('sendGasClaim');
     },
 
     step4Label() {
       if (this.$store.state.gasClaim && this.$store.state.gasClaim.step > 4) {
-        return 'GAS claim confirmed.';
+        return this.$t('gasClaimConfirmed');
       } else if (this.$store.state.gasClaim && this.$store.state.gasClaim.step === 4) {
-        return 'Waiting for GAS claim confirmation.';
+        return this.$t('waitingForGasClaim');
       }
-      return 'Wait for GAS claim confirmation.';
+      return this.$t('waitForGasClaim');
     },
 
     step5Label() {
       if (this.$store.state.gasClaim && this.$store.state.gasClaim.step === 5) {
-        return 'Success!';
+        return this.$t('Success');
       }
-      return 'Wait for GAS claim transaction details.';
+      return this.$t('waitForGasClaimDetails');
     },
   },
 

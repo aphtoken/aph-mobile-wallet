@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { rpc } from '@cityofzion/neon-js';
+import { rpc, settings } from '@cityofzion/neon-js';
 
 import { store } from '../store';
 import storage from './storage';
@@ -81,6 +81,7 @@ export default {
       clearInterval(loadNetworkStatusIntervalId);
     }
 
+    settings.timeout.rpc = 12000;
     this.loadStatus();
     loadNetworkStatusIntervalId = setInterval(() => {
       this.loadStatus();

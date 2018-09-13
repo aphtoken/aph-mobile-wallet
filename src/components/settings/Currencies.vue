@@ -1,12 +1,12 @@
 <template>
   <section id="currencies">
     <div class="header">
-      <div class="title">Currency</div>
+      <div class="title">{{$t('Currency')}}</div>
       <div class="search">
         <div class="inner">
           <aph-icon name="search"></aph-icon>
           <div class="input">
-            <input type="text" placeholder="Search" v-model="searchBy">
+            <input type="text" :placeholder="$t('Search')" v-model="searchBy">
           </div>
         </div>
       </div>
