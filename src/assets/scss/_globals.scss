@@ -9,3 +9,7 @@ $font-size-low-res: 13px;
 @import 'fonts';
 @import 'tiles';
 @import 'type';
+
+%selected-text {
+  color: #000000;
+}

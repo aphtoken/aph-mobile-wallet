@@ -35,9 +35,15 @@
 </template>
 
 <script>
+// Import fake data
+import { ORDER_BOOK } from '../../sample_api/dex_sample.js';
+
 export default {
   mounted() {
     this.loadMarkets();
+
+    // the below is to introduce fake data
+    this.loadOrderBookSampleData();
   },
 
   computed: {
@@ -51,6 +57,11 @@ export default {
   },
 
   methods: {
+  loadOrderBookSampleData() {
+    console.log('order book injected');
+    this.$store.dispatch('orderBookSnapshotReceived', ORDER_BOOK.DATA)
+  },
+
     loadMarkets() {
       this.$store.dispatch('fetchMarkets', {
         done: () => {

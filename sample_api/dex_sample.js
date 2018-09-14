@@ -1,7 +1,8 @@
 export {
   HISTORY,
   MARKETS,
-  TICKER_LIST
+  TICKER_LIST,
+  ORDER_BOOK
 };
 
 const HISTORY = {
@@ -308,4 +309,55 @@ const TICKER_LIST = {
     }
   ],
   COLUMNS: ['asset', 'price', 'volume', '24H change'],
+}
+
+const ORDER_BOOK = {
+  DATA: {
+    "type": "bookSnapshot",
+    "pair": "GAS-NEO",
+    "bids": [
+      [
+        "3.68",
+        "1",
+        "0"
+      ],
+      [
+        "3.67",
+        "1.100005",
+        "0.500000"
+      ],
+      [
+        "1.2",
+        "0.833333",
+        "0"
+      ],
+      [
+        "1",
+        "97.14915881",
+        "0.50130000"
+      ],
+      [
+        "0.00428",
+        "1",
+        "0"
+      ]
+    ],
+    "asks": [
+      [
+        "3.69",
+        "1",
+        "0"
+      ],
+      [
+        "3.7",
+        "8.5",
+        "0.0"
+      ],
+      [
+        "439",
+        "2.2",
+        "0.0"
+      ]
+    ]
+  }
 }

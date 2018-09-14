@@ -13,6 +13,7 @@ export {
   failRequest,
   handleLogout,
   handleNetworkChange,
+  orderBookSnapshotReceived,
   putAllNep5Balances,
   putTransactionDetail,
   resetRequests,
@@ -29,6 +30,8 @@ export {
   setLastSuccessfulRequest,
   setLatestVersion,
   setMarkets,
+  setOrderPrice,
+  setOrderQuantity,
   setPortfolio,
   setRecentTransactions,
   setSearchTransactionFromDate,
@@ -46,6 +49,13 @@ export {
 
 function clearActiveTransaction(state) {
   state.showPriceTile = true;
+}
+
+function clearLocalNetworkState(state) {
+  state.holdings = [];
+  state.statsToken = null;
+  state.portfolio = {};
+  state.recentTransactions = [];
 }
 
 function clearRecentTransactions(state) {
@@ -83,6 +93,13 @@ function handleNetworkChange(state) {
   state.nep5Balances = {};
   state.sendInProgress = false;
   neo.fetchNEP5Tokens(() => {});
+}
+
+function orderBookSnapshotReceived(state, res) {
+  const orderBook = dex.formOrderBook(res.asks, res.bids);
+  orderBook.pair = res.pair;
+
+  Vue.set(state, 'orderBook', orderBook);
 }
 
 function putAllNep5Balances(state, nep5balances) {
@@ -184,6 +201,14 @@ function setMarkets(state, markets) {
   state.markets = markets;
 }
 
+function setOrderPrice(state, price) {
+  state.orderPrice = price;
+}
+
+function setOrderQuantity(state, quantity) {
+  state.orderQuantity = quantity;
+}
+
 function setPortfolio(state, portfolio) {
   if (portfolio) {
     state.portfolio = portfolio;
@@ -205,13 +230,6 @@ function setRecentTransactions(state, transactions) {
       alerts.success(`New Transaction Found. TX: ${t.hash}`);
     }
   });
-}
-
-function clearLocalNetworkState(state) {
-  state.holdings = [];
-  state.statsToken = null;
-  state.portfolio = {};
-  state.recentTransactions = [];
 }
 
 function setLatestVersion(state, version) {
