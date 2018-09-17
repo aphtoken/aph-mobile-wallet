@@ -56,7 +56,7 @@
       display: flex;
       flex-direction: column;
       flex: none;
-      padding: $space 0 0;
+      padding: $space 0;
 
       .title {
         color: white;
@@ -72,13 +72,12 @@
       flex-direction: column;
       flex: 1;
       overflow: hidden;
-      padding: toRem(26px) $space $space $space;
+      padding: $space;
 
       .languages {
         background: white;
         border-radius: $border-radius;
         flex: 1;
-        margin-top: $space;
         overflow: auto;
         padding: $space;
 

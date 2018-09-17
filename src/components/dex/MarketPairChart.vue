@@ -37,7 +37,7 @@
             $11.41
           </div>
           <div class="label">24H CHANGE ({{ $store.state.currentMarket ? $store.state.currentMarket.quoteCurrency : '' }})</div>
-          <div :class="['change', 'increase', {decrease: $store.state.tradeHistory ? $store.state.tradeHistory.change24Hour < 0 : false, increase: $store.state.tradeHistory ? $store.state.tradeHistory.change24Hour > 0 : false}]">
+          <div :class="['change', {decrease: $store.state.tradeHistory ? $store.state.tradeHistory.change24Hour < 0 : false, increase: $store.state.tradeHistory ? $store.state.tradeHistory.change24Hour > 0 : false}]">
             {{ $formatNumber($store.state.tradeHistory ? $store.state.tradeHistory.change24Hour : 0) }}
             ({{ $formatNumber(percentChangeAbsolute) }}%)
           </div>

@@ -4,18 +4,23 @@
       <market-pair-chart></market-pair-chart>
       <market-selector></market-selector>
       <aph-search-bar v-model="searchBy"></aph-search-bar>
-      <div>
-        Table Component <br>
-        Ticker <br>
-        Another Ticker <br>
-        Another One
-      </div>
+      <aph-simple-table v-bind="{columns, data, formatEntry, injectStyling: getRelativeChange}">
+        <div class="cell-price" slot="price" slot-scope="slotProps">
+          <div>
+            {{ slotProps.value }}
+          </div>
+          <div class="price-conversion">
+            $137.99
+          </div>
+        </div>
+      </aph-simple-table>
     </div>
   </section>
 </template>
 
 <script>
 
+import { TICKER_LIST } from '../../../sample_api/dex_sample.js';
 import MarketPairChart from './MarketPairChart';
 import MarketSelector from './MarketSelector';
 
@@ -36,6 +41,8 @@ export default {
   data() {
     return {
       searchBy: '',
+      data: TICKER_LIST.DATA,
+      columns: TICKER_LIST.COLUMNS,
     };
   },
 
@@ -44,6 +51,18 @@ export default {
       this.$store.dispatch('fetchTradeHistory', {
         marketName: this.$store.state.currentMarket.marketName,
       });
+    },
+    formatEntry(value, entry, key) {
+      if (key === '24H change') {
+        return `${this.$services.formatting.formatNumber(value)}%`;
+      }
+      return value;
+    },
+    getRelativeChange(value, entry, key) {
+      if (key === '24H change') {
+        return value > 0 ? 'increase' : 'decrease';
+      }
+      return null;
     },
   },
 
@@ -76,6 +95,38 @@ export default {
 
         input {
           color: $grey;
+        }
+      }
+    }
+
+    .aph-simple-table {
+      background: $dark-purple;
+      margin: $space;
+
+      .cell-price {
+        display: flex;
+        flex-direction: column;
+
+        .price-conversion {
+          color: $darker-grey;
+          font-size: toRem(10px);
+          padding-top: toRem(4px);
+        }
+      }
+
+      .change {
+        font-size: toRem(12px);
+
+        &.increase {
+          color: $green;
+
+          &:before {
+            content: "+";
+          }
+        }
+
+        &.decrease {
+          color: $red;
         }
       }
     }
