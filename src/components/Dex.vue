@@ -57,10 +57,9 @@ export default {
   },
 
   methods: {
-  loadOrderBookSampleData() {
-    console.log('order book injected');
-    this.$store.dispatch('orderBookSnapshotReceived', ORDER_BOOK.DATA)
-  },
+    loadOrderBookSampleData() {
+      this.$store.commit('orderBookSnapshotReceived', ORDER_BOOK.DATA);
+    },
 
     loadMarkets() {
       this.$store.dispatch('fetchMarkets', {

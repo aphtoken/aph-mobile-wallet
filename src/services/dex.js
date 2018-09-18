@@ -1,5 +1,5 @@
-import { MARKETS, HISTORY } from '../../sample_api/dex_sample.js';
 import { BigNumber } from 'bignumber.js';
+import { MARKETS, HISTORY } from '../../sample_api/dex_sample.js';
 import { toBigNumber } from './formatting.js';
 
 export default {

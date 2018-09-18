@@ -556,6 +556,29 @@ export default {
     });
   },
 
+  getHolding(assetId) {
+    const holding = _.find(store.state.holdings, (o) => {
+      return o.assetId === assetId;
+    });
+
+    if (holding) {
+      if (holding.balance !== null) {
+        holding.balance = toBigNumber(holding.balance);
+      }
+      if (holding.contractBalance !== null) {
+        holding.contractBalance = toBigNumber(holding.contractBalance);
+      }
+      if (!holding.totalBalance) {
+        holding.totalBalance = calculateHoldingTotalBalance(holding);
+      }
+      if (holding.totalBalance !== null) {
+        holding.totalBalance = toBigNumber(holding.totalBalance);
+      }
+    }
+
+    return holding;
+  },
+
   fetchNEP5Tokens(done) {
     const currentNetwork = network.getSelectedNetwork();
 

@@ -8,7 +8,7 @@ import settings from './settings';
 import { formats } from '../constants';
 
 const nullOrUndefined = value => _.isNull(value) || _.isUndefined(value);
-const toBigNumber = value => new BigNumber(String(value));
+export const toBigNumber = value => new BigNumber(String(value));
 
 const formatNumberBase = (value, wholeNumberFormat) => {
   let bigNumber = toBigNumber(value);

@@ -3,7 +3,7 @@ import Vue from 'vue';
 import moment from 'moment';
 
 import { requests } from '../constants';
-import { alerts, neo } from '../services';
+import { alerts, dex, neo } from '../services';
 
 export {
   clearActiveTransaction,
@@ -99,7 +99,7 @@ function orderBookSnapshotReceived(state, res) {
   const orderBook = dex.formOrderBook(res.asks, res.bids);
   orderBook.pair = res.pair;
 
-  Vue.set(state, 'orderBook', orderBook);
+  state.orderBook = orderBook;
 }
 
 function putAllNep5Balances(state, nep5balances) {
