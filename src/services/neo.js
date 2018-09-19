@@ -425,8 +425,6 @@ export default {
                 decimals: fetchedBalance.assetId === NEO_ASSET_ID ? 0 : 8,
                 isUserAsset: true,
               };
-              console.log(`got balance for ${systemAssetHolding.symbol} ${systemAssetHolding.assetId} `
-                + `addr: ${address} balance: ${systemAssetHolding.balance}`);
               _.set(holdingsToQueryBalance, systemAssetHolding.assetId, systemAssetHolding);
             });
 
@@ -498,13 +496,13 @@ export default {
                           holding.symbol = existingHolding.symbol;
                           holding.name = existingHolding.name;
                           holding.decimals = existingHolding.decimals;
-                          console.log(`Using previous balance for token ${holding.symbol} ${holding.assetId}`
-                            + `balance: ${holding.balance}`);
+                          // console.log(`Using previous balance for token ${holding.symbol} ${holding.assetId}`
+                          //   + `balance: ${holding.balance}`);
                           holdings.push(holding);
                         }
                       }
 
-                      console.log(`Couldn't find token on network ${holding.symbol} ${holding.assetId}`)
+                      // console.log(`Couldn't find token on network ${holding.symbol} ${holding.assetId}`)
                       return; // token not found or other failure
                     }
 
@@ -513,7 +511,7 @@ export default {
                     holding.name = val.name;
                     holding.decimals = val.decimals;
 
-                    console.log(`fetched balance for ${holding.symbol} ${holding.assetId} balance: ${holding.balance}`);
+                    // console.log(`fetched ${holding.symbol} ${holding.assetId} balance: ${holding.balance}`);
                     store.commit('removeAssetHoldingsNeedRefresh', [holding.assetId]);
 
                     if (val.balance > 0 || holding.isUserAsset === true) {
@@ -528,7 +526,7 @@ export default {
                     }
                   }));
               } else {
-                console.log(`fetched system asset ${holding.symbol} ${holding.assetId} balance: ${holding.balance}`);
+                // console.log(`fetched system asset ${holding.symbol} ${holding.assetId} balance: ${holding.balance}`);
                 holdings.push(holding);
               }
 
@@ -545,7 +543,7 @@ export default {
                   .catch((e) => {
                     const msg = `Couldn't get available to claim for ${holding.symbol}: ${e.message}`;
                     alerts.networkException(msg);
-                    console.log(msg);
+                    // console.log(msg);
                   }));
               }
             });
@@ -585,7 +583,6 @@ export default {
                 });
                 return Async.series(valuationsPromises, (e) => {
                   if (e) {
-                    console.log('fetchHoldings done with exception');
                     return reject(e);
                   }
                   const res = { };
@@ -594,7 +591,6 @@ export default {
                   res.change24hrValue = _.sumBy(holdings, 'change24hrValue');
                   res.change24hrPercent = Math.round(10000 * (res.change24hrValue
                     / (res.totalBalance - res.change24hrValue))) / 100.0;
-                  console.log('fetchHoldings done');
                   return resolve(res);
                 });
               })

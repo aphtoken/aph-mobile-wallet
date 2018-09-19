@@ -112,8 +112,8 @@ export default {
     }
 
     const asset = _.get(assets, assetId);
-    console.log(`Adding user asset ${asset.symbol}`)
-    _.set(userAssets, assetId, _.get(assets, assetId));
+    // console.log(`Adding user asset ${asset.symbol}`)
+    _.set(userAssets, assetId, asset);
     storage.set(ASSETS_ADDED_STORAGE_KEY(currentNetwork.net, currentWallet), userAssets);
   },
 
@@ -126,7 +126,7 @@ export default {
       return;
     }
 
-    console.log(`Removing user asset: ${assetId}`)
+    // console.log(`Removing user asset: ${assetId}`)
     userAssets = _.omit(userAssets, assetId);
     storage.set(ASSETS_ADDED_STORAGE_KEY(currentNetwork.net, currentWallet), userAssets);
   },
