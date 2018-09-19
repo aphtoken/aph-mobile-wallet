@@ -2,8 +2,8 @@
   <section id="dex--trade">
     <div class="body">
       <div class="side">
-        <div @click="setSide('Buy')" :class="['buy-btn', {selected: side === 'Buy'}]">Buy {{ quoteHolding.symbol }}</div>
-        <div @click="setSide('Sell')" :class="['sell-btn', {selected: side === 'Sell'}]">Sell {{ quoteHolding.symbol }}</div>
+        <div @click="setSide('Buy')" :class="['buy-btn', {selected: side === 'Buy'}]">Buy</div>
+        <div @click="setSide('Sell')" :class="['sell-btn', {selected: side === 'Sell'}]">Sell</div>
       </div>
       <div class="order-type">
         <aph-select :light="true" :options="orderTypes" v-model="orderType"></aph-select>
@@ -332,14 +332,14 @@ export default {
 
 <style lang="scss">
 #dex--trade {
+  background: $dark-purple*1.25;
   display: flex;
   flex-direction: column;
-  flex: 1;
   height: 100%;
   overflow: hidden;
 
    > .body {
-    background: $dark-purple*1.25;
+    background: $dark-purple;
     display: flex;
     flex-direction: column;
     flex: 1;
@@ -350,7 +350,6 @@ export default {
       display: flex;
 
       .buy-btn {
-        margin-right: $space-sm;
         border-color: $green;
 
         &:hover, &.selected {
@@ -359,7 +358,6 @@ export default {
       }
 
       .sell-btn {
-        margin-left: $space-sm;
         border-color: $red;
 
         &:hover, &.selected {
@@ -371,6 +369,8 @@ export default {
         @extend %btn-outline;
         @extend %selected-text;
 
+        color: white;
+        margin: $space;
         flex: 1;
         font-family: GilroySemibold;
 
@@ -378,6 +378,19 @@ export default {
           background: transparent !important;
           border-color: $grey;
         }
+      }
+    }
+
+    .order-type {
+      margin: 0 $space $space;
+
+      .aph-select--label {
+        background: $dark-purple*1.25;
+        color: white;
+      }
+
+      .aph-icon .fill {
+        fill: white;
       }
     }
   }
