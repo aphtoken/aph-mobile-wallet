@@ -131,7 +131,7 @@ async function fetchBlockHeaderByHash({ state, commit }, { blockHash, done, fail
   commit('endRequest', { identifier: 'fetchBlockHeaderByHash' });
 }
 
-async function fetchHoldings({ commit }, { done, isRequestSilent }) {
+async function fetchHoldings({ commit }, { done, isRequestSilent, onlyFetchUserAssets }) {
   const currentWallet = wallets.getCurrentWallet();
   let holdings;
 
@@ -139,7 +139,7 @@ async function fetchHoldings({ commit }, { done, isRequestSilent }) {
     { identifier: 'fetchHoldings' });
 
   try {
-    holdings = await neo.fetchHoldings(currentWallet.address);
+    holdings = await neo.fetchHoldings(currentWallet.address, false, onlyFetchUserAssets);
 
     commit('setHoldings', holdings.holdings);
     commit('endRequest', { identifier: 'fetchHoldings' });

@@ -99,8 +99,10 @@ export default {
     this.$services.tokens.migrateToAssets(this.$services.network.getSelectedNetwork());
 
     this.$services.neo.fetchNEP5Tokens(() => {
-      this.loadHoldings();
+      // Do a fetch of only user assets initially to speed up load.
+      this.$store.dispatch('fetchHoldings', { done: null, onlyFetchUserAssets: true });
       this.loadRecentTransactions();
+      this.loadHoldings();
     });
 
     loadHoldingsIntervalId = setInterval(() => {
