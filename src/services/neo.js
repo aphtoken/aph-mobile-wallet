@@ -526,8 +526,8 @@ export default {
 
                     if (val.balance > 0 || holding.isUserAsset === true) {
                       if (holding.isUserAsset !== true) {
-                        // Saw a balance > 0 on this token but we haven't explicitly added to our tokens we hold,
-                        // Add to user's assets so it will stay there until explicitly removed
+                        // Saw a balance > 0 on this token but we haven't explicitly added to user assets.
+                        // Add to user's assets so it will stay there until explicitly removed.
                         holding.isUserAsset = true;
                         assets.addUserAsset(holding.assetId);
                         // console.log(`adding user asset ${holding.symbol} ${holding.assetId}
