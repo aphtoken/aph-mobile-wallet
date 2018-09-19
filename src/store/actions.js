@@ -1,7 +1,7 @@
 /* eslint-disable no-use-before-define */
 import moment from 'moment';
 
-import { alerts, dex, neo, network, tokens, wallets, ledger } from '../services';
+import { alerts, assets, dex, neo, network, wallets, ledger } from '../services';
 import { timeouts } from '../constants';
 import router from '../router';
 
@@ -14,7 +14,7 @@ export {
   fetchLatestVersion,
   fetchMarkets,
   fetchRecentTransactions,
-  fetchTradeHistory,
+  fetchBlockHeaderByHash,
   findTransactions,
   importWallet,
   openEncryptedKey,
@@ -25,7 +25,8 @@ export {
 };
 
 function addToken({ commit, dispatch }, { done, hashOrSymbol }) {
-  const allTokens = tokens.getAllAsArray();
+  const networkAssets = assets.getNetworkAssets();
+  const userAssets = assets.getUserAssets();
   const currentNetwork = network.getSelectedNetwork();
   let token;
 
@@ -33,14 +34,12 @@ function addToken({ commit, dispatch }, { done, hashOrSymbol }) {
 
   hashOrSymbol = hashOrSymbol.replace('0x', '');
 
-  token = _.find(allTokens, (o) => {
-    return o.symbol === hashOrSymbol && o.network === currentNetwork.net;
+  token = _.find(_.values(networkAssets), (o) => {
+    return o.symbol === hashOrSymbol;
   });
 
   if (!token) {
-    token = _.find(allTokens, (o) => {
-      return o.assetId === hashOrSymbol && o.network === currentNetwork.net;
-    });
+    token = _.get(networkAssets, hashOrSymbol);
   }
 
   if (!token) {
@@ -49,22 +48,15 @@ function addToken({ commit, dispatch }, { done, hashOrSymbol }) {
     /* eslint-enable max-len */
   }
 
-  if (token.isCustom) {
+  if (_.has(userAssets, token.assetId)) {
     /* eslint-disable max-len */
     return commit('failRequest', { identifier: 'addToken', message: `'${hashOrSymbol}' is already in your token list ${currentNetwork.net}` });
     /* eslint-enable max-len */
   }
 
-  tokens.add({
-    symbol: token.symbol,
-    assetId: token.assetId.replace('0x', ''),
-    isCustom: true,
-    network: network.getSelectedNetwork().net,
-  });
+  assets.addUserAsset(token.assetId);
 
-  dispatch('fetchHoldings');
-
-  done();
+  dispatch('fetchHoldings', { done });
 
   return commit('endRequest', { identifier: 'addToken' });
 }
@@ -101,11 +93,50 @@ function createWallet({ commit }, { name, passphrase, passphraseConfirm }) {
   }, timeouts.NEO_API_CALL);
 }
 
-async function fetchHoldings({ commit }) {
+async function fetchBlockHeaderByHash({ state, commit }, { blockHash, done, failed }) {
+  commit('startRequest', { identifier: 'fetchBlockHeaderByHash' });
+
+  // Check if the block is in memory
+  let blockHeader = _.get(state.blockDetails, blockHash);
+
+  if (!blockHeader) {
+    try {
+      blockHeader = await new Promise((resolve, reject) => {
+        const rpcClient = network.getRpcClient();
+        rpcClient.query({
+          method: 'getblockheader',
+          params: [blockHash, true],
+        })
+          .then((res) => {
+            resolve(res.result);
+          })
+          .catch(e => reject(e));
+      });
+    } catch (e) {
+      console.log(e);
+      if (failed) {
+        failed(e);
+        const message = e.toString();
+        commit('failRequest', { identifier: 'fetchBlockHeaderByHash', message });
+      }
+      return;
+    }
+    // Make call to get the block
+    commit('putBlockDetails', blockHeader);
+  }
+
+  if (done) {
+    done(blockHeader);
+  }
+  commit('endRequest', { identifier: 'fetchBlockHeaderByHash' });
+}
+
+async function fetchHoldings({ commit }, { done, isRequestSilent }) {
   const currentWallet = wallets.getCurrentWallet();
   let holdings;
 
-  commit('startRequest', { identifier: 'fetchHoldings' });
+  commit(isRequestSilent ? 'startSilentRequest' : 'startRequest',
+    { identifier: 'fetchHoldings' });
 
   try {
     holdings = await neo.fetchHoldings(currentWallet.address);
@@ -117,6 +148,10 @@ async function fetchHoldings({ commit }) {
       changePercent: holdings.change24hrPercent,
       changeValue: holdings.change24hrValue.toFixed(2),
     });
+    if (done) {
+      done();
+    }
+    commit('endRequest', { identifier: 'fetchHoldings' });
   } catch (message) {
     alerts.networkException(message);
     commit('failRequest', { identifier: 'fetchHoldings', message });
@@ -156,26 +191,6 @@ async function fetchRecentTransactions({ commit }) {
     commit('failRequest', { identifier: 'fetchRecentTransactions', message });
   }
 }
-
-async function fetchTradeHistory({ state, commit }, { marketName }) {
-  let history;
-
-  try {
-    history = await dex.fetchTradeHistory(marketName);
-    if (state.tradeHistory && state.tradeHistory.apiBuckets && state.tradeHistory.marketName === marketName) {
-      history.apiBuckets = state.tradeHistory.apiBuckets;
-    } else {
-      // Add line when api is live
-      // history.apiBuckets = await dex.fetchTradesBucketed(marketName);
-    }
-    commit('setTradeHistory', history);
-    commit('endRequest', { identifier: 'fetchTradeHistory' });
-  } catch (message) {
-    alerts.networkException(message);
-    commit('failRequest', { identifier: 'fetchTradeHistory', message });
-  }
-}
-
 
 function findTransactions({ state, commit }) {
   const currentWallet = wallets.getCurrentWallet();
