@@ -100,7 +100,12 @@ export default {
 
     this.$services.neo.fetchNEP5Tokens(() => {
       // Do a fetch of only user assets initially to speed up load.
-      this.$store.dispatch('fetchHoldings', { done: () => { this.loadHoldings(); }, onlyFetchUserAssets: true });
+      this.$store.dispatch('fetchHoldings', {
+        done: () => {
+          console.log('fetching all holdings');
+          this.$store.dispatch('fetchHoldings', { });
+        },
+        onlyFetchUserAssets: true });
       this.loadRecentTransactions();
     });
 

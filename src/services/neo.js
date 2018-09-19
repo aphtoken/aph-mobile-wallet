@@ -22,7 +22,7 @@ const GAS_ASSET_ID = '602c79718b16e442de58778e148d0b1084e3b2dffd5de6b7b16cee7969
 const NEO_ASSET_ID = 'c56f33fc6ecfcd0c225c4ab356fee59390af8560be0e930faebe74a6daff7c9b';
 
 let lastClaimSent;
-let lastVerifiedTokenBalances;
+let lastVerifiedTokenBalances = 0;
 let tokensToRetryBalances = {};
 
 export default {
@@ -452,11 +452,17 @@ export default {
               }
             });
 
+            const willRefreshAllDueToPollingInterval
+              = moment().utc().diff(moment.unix(lastVerifiedTokenBalances), 'milliseconds')
+                > intervals.TOKENS_BALANCES_POLL_ALL;
+            // console.log(`Fetching due to token balances poll
+            //   forceRefreshAll: ${forceRefreshAll} onlyFetchUserAssets: ${onlyFetchUserAssets}
+            //   willRefreshAllDueToPollingInterval: ${willRefreshAllDueToPollingInterval}`);
             if (forceRefreshAll || (!onlyFetchUserAssets && (!lastVerifiedTokenBalances
-              || moment().utc().diff(moment.unix(lastVerifiedTokenBalances), 'milliseconds'))
-                > intervals.TOKENS_BALANCES_POLL_ALL)) {
+              || willRefreshAllDueToPollingInterval))) {
               _.values(networkAssets).forEach((nep5Asset) => {
                 _.set(holdingsToQueryBalance, nep5Asset.assetId, assetToHolding(nep5Asset, false));
+                // console.log(`Fetching due to token balances poll ${nep5Asset.symbol} ${nep5Asset.assetId}`);
               });
               lastVerifiedTokenBalances = moment.utc();
             }
@@ -465,6 +471,7 @@ export default {
               const asset = assetToHolding(nep5Asset, true);
               if (_.has(holdingsToQueryBalance, asset.assetId) === false) {
                 _.set(holdingsToQueryBalance, nep5Asset.assetId, asset);
+                // console.log(`Fetching due to user asset ${asset.symbol} ${asset.assetId}`);
               }
             });
 
@@ -472,6 +479,7 @@ export default {
               _.values(tokensToRetryBalances).forEach((holding) => {
                 if (_.has(holdingsToQueryBalance, holding.assetId) === false) {
                   _.set(holdingsToQueryBalance, holding.assetId, holding);
+                  // console.log(`Fetching due retry flag set ${holding.symbol} ${holding.assetId}`);
                 }
                 tokensToRetryBalances = _.omit(tokensToRetryBalances, holding.assetId);
               });
@@ -502,7 +510,7 @@ export default {
                         }
                       }
 
-                      // console.log(`Couldn't find token on network ${holding.symbol} ${holding.assetId}`)
+                      // console.log(`Couldn't find token on network ${holding.symbol} ${holding.assetId}`);
                       return; // token not found or other failure
                     }
 
@@ -520,6 +528,8 @@ export default {
                         // Add to user's assets so it will stay there until explicitly removed
                         holding.isUserAsset = true;
                         assets.addUserAsset(holding.assetId);
+                        // console.log(`adding user asset ${holding.symbol} ${holding.assetId}
+                        //   + balance: ${holding.balance}`);
                       }
 
                       holdings.push(holding);
