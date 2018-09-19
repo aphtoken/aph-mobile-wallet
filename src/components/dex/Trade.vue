@@ -9,10 +9,16 @@
         <aph-select :light="true" :options="orderTypes" v-model="orderType"></aph-select>
       </div>
       <div class="price" v-if="orderType === 'Limit'">
-        <aph-input :placeholder="priceLabel" v-model="$store.state.orderPrice"></aph-input>
+        <aph-input v-model="$store.state.orderPrice"></aph-input>
+        <div class="description">
+          LIMIT PRICE ({{ priceLabel }})
+        </div>
       </div>
       <div class="quantity">
-        <aph-input :placeholder="amountLabel" v-model="$store.state.orderQuantity"></aph-input>
+        <aph-input v-model="$store.state.orderQuantity"></aph-input>
+        <div class="description">
+          AMOUNT ({{ priceLabel }})
+        </div>
       </div>
       <div class="percentages">
         <div @click="setPercent(.25)" :class="['percent-btn', {selected: selectedPercent === .25}]">25%</div>
@@ -35,10 +41,12 @@
         <div class="label">ESTIMATE ({{ $services.settings.getCurrency() }})</div>
         <div class="value">$999999.99</div>
       </div>
-      <button @click="confirmOrder" :disabled="shouldDisableOrderButton"
-            :class="['order-btn', { 'buy-btn': side === 'Buy', 'sell-btn': side === 'Sell'}]">
-        {{ orderButtonLabel }}
-      </button>
+      <div class="place-order">
+        <button @click="confirmOrder" :disabled="shouldDisableOrderButton"
+              :class="['order-btn', { 'buy-btn': side === 'Buy', 'sell-btn': side === 'Sell'}]">
+          {{ orderButtonLabel }}
+        </button>
+      </div>
     </div>
     <div class="footer">
       <div @click="actionableHolding = quoteHolding" :class="['balance', {active: quoteHolding.symbol === actionableHolding.symbol}]" :title="quoteBalanceToolTip">
@@ -59,7 +67,6 @@
 
 <script>
 import { BigNumber } from 'bignumber.js';
-// import { TICKER_LIST } from '../../../sample_api/dex_sample.js';
 import MarketPairChart from './MarketPairChart';
 import MarketSelector from './MarketSelector';
 
@@ -71,24 +78,94 @@ const ORDER_TYPES_LIST = [
 ];
 
 export default {
-  created() {
-    this.loadHoldings();
-
-    this.actionableHolding = this.quoteHolding;
-  },
-
   components: {
     MarketPairChart,
     MarketSelector,
   },
 
   computed: {
+    amountLabel() {
+      if (!this.currentMarket) {
+        return '';
+      }
+
+      return 'ATI'; // this.$t('amountQuote', { quote: this.currentMarket.quoteCurrency });
+    },
+
+    aphBalanceToolTip() {
+      return 'walletBalanceContractBalance'; // TODO: Fix this
+    },
+
+    aphHolding() {
+      if (this.currentMarket && this.$store.state.holdings) {
+        const holding = _.find(this.$store.state.holdings, (o) => {
+          return o.assetId === this.$services.assets.APH;
+        });
+
+        if (holding) {
+          return holding;
+        }
+      }
+
+      return {
+        symbol: 'APH',
+        balance: 0,
+        totalBalance: 0,
+        contractBalance: 0,
+        openOrdersBalance: 0,
+      };
+    },
+
+    baseBalanceToolTip() {
+      return 'walletBalanceContractBalance'; // TODO: Fix this
+    },
+
+    baseHolding() {
+      if (this.currentMarket && this.$store.state.holdings) {
+        const holding = _.find(this.$store.state.holdings, (o) => {
+          return o.assetId === this.currentMarket.baseAssetId;
+        });
+
+        if (holding) {
+          return holding;
+        }
+      }
+
+      return {
+        symbol: this.currentMarket ? this.currentMarket.baseCurrency : '',
+        balance: 0,
+        totalBalance: 0,
+        contractBalance: 0,
+      };
+    },
+
+    canPlaceMarketOrder() {
+      const currentWallet = this.$services.wallets.getCurrentWallet();
+      return currentWallet && currentWallet.isLedger !== true;
+    },
+
     currentMarket() {
       return this.$store.state.currentMarket;
     },
 
-    isTradingDisabled() {
-      return this.isOutOfDate || this.isMarketClosed;
+    estimate() {
+      const holding = this.currentMarket ?
+        this.$services.neo.getHolding(this.currentMarket.baseAssetId).unitValue :
+        0;
+
+      console.log('holding', holding);
+
+      try {
+        return new BigNumber(this.total).multipliedBy(
+          new BigNumber(holding));
+      } catch (e) {
+        console.log(e);
+        return 0;
+      }
+    },
+
+    isMarketClosed() {
+      return this.$store.state.currentMarket && this.$store.state.currentMarket.isOpen === false;
     },
 
     isOutOfDate() {
@@ -97,8 +174,48 @@ export default {
           !== this.$services.assets.DEX_SCRIPT_HASH;
     },
 
-    isMarketClosed() {
-      return this.$store.state.currentMarket && this.$store.state.currentMarket.isOpen === false;
+    isTradingDisabled() {
+      return this.isOutOfDate || this.isMarketClosed;
+    },
+
+    orderButtonLabel() {
+      return 'button label';
+      // return this.$isPending('placeOrder') === false ?
+      //   this.$t('placeSideOrder', { side: this.side }) :
+      //   this.$t('placingOrder');
+    },
+
+    orderTypes() {
+      if (this.canPlaceMarketOrder) {
+        return _.concat(ORDER_TYPES_LIST, [
+          {
+            label: 'Market',
+            value: 'Market',
+          },
+        ]);
+      }
+      return ORDER_TYPES_LIST;
+    },
+
+    price() {
+      let price = this.$store.state.orderPrice;
+      if (!price) {
+        // market order
+        price = this.marketPriceForQuantity(this.side, this.$store.state.orderQuantity);
+      }
+      return price;
+    },
+
+    priceLabel() {
+      if (!this.currentMarket) {
+        return '';
+      }
+
+      return 'GAS'; // this.$t('priceBase', { base: this.currentMarket.baseCurrency });
+    },
+
+    quoteBalanceToolTip() {
+      return 'walletBalanceContractBalance'; // TODO: Fix this
     },
 
     quoteHolding() {
@@ -119,74 +236,17 @@ export default {
         contractBalance: 0,
       };
     },
-    baseHolding() {
-      if (this.currentMarket && this.$store.state.holdings) {
-        const holding = _.find(this.$store.state.holdings, (o) => {
-          return o.assetId === this.currentMarket.baseAssetId;
-        });
 
-        if (holding) {
-          return holding;
-        }
+    shouldDisableOrderButton() {
+      if (this.isTradingDisabled) {
+        return true;
       }
-
-      return {
-        symbol: this.currentMarket ? this.currentMarket.baseCurrency : '',
-        balance: 0,
-        totalBalance: 0,
-        contractBalance: 0,
-      };
-    },
-    aphHolding() {
-      if (this.currentMarket && this.$store.state.holdings) {
-        const holding = _.find(this.$store.state.holdings, (o) => {
-          return o.assetId === this.$services.assets.APH;
-        });
-
-        if (holding) {
-          return holding;
-        }
+      if (this.orderType === 'Market') {
+        return !this.$store.state.orderQuantity || this.$isPending('placeOrder');
       }
+      return !this.$store.state.orderQuantity || !this.$store.state.orderPrice || this.$isPending('placeOrder');
+    },
 
-      return {
-        symbol: 'APH',
-        balance: 0,
-        totalBalance: 0,
-        contractBalance: 0,
-        openOrdersBalance: 0,
-      };
-    },
-    quoteBalanceToolTip() {
-      return 'walletBalanceContractBalance'; // TODO: Fix this
-    },
-    baseBalanceToolTip() {
-      return 'walletBalanceContractBalance'; // TODO: Fix this
-    },
-    aphBalanceToolTip() {
-      return 'walletBalanceContractBalance'; // TODO: Fix this
-    },
-    priceLabel() {
-      if (!this.currentMarket) {
-        return '';
-      }
-
-      return 'GAS'; // this.$t('priceBase', { base: this.currentMarket.baseCurrency });
-    },
-    amountLabel() {
-      if (!this.currentMarket) {
-        return '';
-      }
-
-      return 'ATI'; // this.$t('amountQuote', { quote: this.currentMarket.quoteCurrency });
-    },
-    price() {
-      let price = this.$store.state.orderPrice;
-      if (!price) {
-        // market order
-        price = this.marketPriceForQuantity(this.side, this.$store.state.orderQuantity);
-      }
-      return price;
-    },
     total() {
       try {
         if (!this.$store.state.orderQuantity) {
@@ -199,57 +259,27 @@ export default {
         return 0;
       }
     },
-    estimate() {
-      const holding = this.currentMarket ?
-        this.$services.neo.getHolding(this.currentMarket.baseAssetId).unitValue :
-        0;
+  },
 
-      console.log('holding', holding);
+  created() {
+    this.loadHoldings();
 
-      try {
-        return new BigNumber(this.total).multipliedBy(
-          new BigNumber(holding));
-      } catch (e) {
-        console.log(e);
-        return 0;
-      }
-    },
-    orderButtonLabel() {
-      return 'button label';
-      // return this.$isPending('placeOrder') === false ?
-      //   this.$t('placeSideOrder', { side: this.side }) :
-      //   this.$t('placingOrder');
-    },
-    shouldDisableOrderButton() {
-      if (this.isTradingDisabled) {
-        return true;
-      }
-      if (this.orderType === 'Market') {
-        return !this.$store.state.orderQuantity || this.$isPending('placeOrder');
-      }
-      return !this.$store.state.orderQuantity || !this.$store.state.orderPrice || this.$isPending('placeOrder');
-    },
-    orderTypes() {
-      if (this.canPlaceMarketOrder) {
-        return _.concat(ORDER_TYPES_LIST, [
-          {
-            label: 'Market',
-            value: 'Market',
-          },
-        ]);
-      }
-      return ORDER_TYPES_LIST;
-    },
-    canPlaceMarketOrder() {
-      const currentWallet = this.$services.wallets.getCurrentWallet();
-      return currentWallet && currentWallet.isLedger !== true;
-    },
+    this.actionableHolding = this.quoteHolding;
+  },
+
+  data() {
+    return {
+      actionableHolding: '',
+      orderType: 'Limit',
+      postOnly: false,
+      selectedPercent: null,
+      side: 'Buy',
+    };
   },
 
   methods: {
-    setSide(side) {
-      this.side = side;
-      this.$store.commit('setOrderQuantity', '');
+    confirmOrder() {
+      // TODO: Fill this in with API request
     },
 
     loadHoldings() {
@@ -258,34 +288,6 @@ export default {
 
     loadHoldingsSilently() {
       this.$store.dispatch('fetchHoldings', { done: null, isRequestSilent: true });
-    },
-
-    setPercent(value) {
-      if (this.orderType === 'Limit' && !this.$store.state.orderPrice && this.side === 'Buy') {
-        this.$services.alerts.error(this.$t('pleaseEnterAPrice'));
-        return;
-      }
-
-      this.$store.commit('setOrderQuantity', this.percent(value));
-      this.selectedPercent = value;
-    },
-
-    percent(value) {
-      if (this.side === 'Buy') {
-        return this.percentForBuy(value);
-      }
-
-      return this.percentForSell(value);
-    },
-
-    percentForBuy() {
-      // TODO: fix this
-      console.log('return');
-    },
-
-    percentForSell() {
-      // TODO: fix this
-      console.log('return');
     },
 
     marketPriceForQuantity(side, quantity) {
@@ -309,19 +311,37 @@ export default {
       return (totalMultiple / quantity).toString();
     },
 
-    confirmOrder() {
-      //TODO: Fill this in with API request
-    },
-  },
+    percent(value) {
+      if (this.side === 'Buy') {
+        return this.percentForBuy(value);
+      }
 
-  data() {
-    return {
-      actionableHolding: '',
-      side: 'Buy',
-      orderType: 'Limit',
-      postOnly: false,
-      selectedPercent: null,
-    };
+      return this.percentForSell(value);
+    },
+
+    percentForBuy() {
+      // TODO: fix this
+      console.log('return');
+    },
+
+    percentForSell() {
+      // TODO: fix this
+      console.log('return');
+    },
+
+    setPercent(value) {
+      if (this.orderType === 'Limit' && !this.$store.state.orderPrice && this.side === 'Buy') {
+        this.$services.alerts.error('pleaseEnterAPrice');
+        return;
+      }
+      this.$store.commit('setOrderQuantity', this.percent(value));
+      this.selectedPercent = value;
+    },
+
+    setSide(side) {
+      this.side = side;
+      this.$store.commit('setOrderQuantity', '');
+    },
   },
 
   watch: {
@@ -338,16 +358,17 @@ export default {
   height: 100%;
   overflow: hidden;
 
-   > .body {
+  > .body {
     background: $dark-purple;
     display: flex;
     flex-direction: column;
     flex: 1;
-    overflow: hidden;
     margin: $space;
+    overflow: hidden;
 
     .side {
       display: flex;
+      margin: 0 $space;
 
       .buy-btn {
         border-color: $green;
@@ -359,6 +380,7 @@ export default {
 
       .sell-btn {
         border-color: $red;
+        margin-left: $space;
 
         &:hover, &.selected {
           background-color: $red;
@@ -370,9 +392,9 @@ export default {
         @extend %selected-text;
 
         color: white;
-        margin: $space;
         flex: 1;
         font-family: GilroySemibold;
+        margin-top: $space;
 
         &:disabled {
           background: transparent !important;
@@ -382,7 +404,7 @@ export default {
     }
 
     .order-type {
-      margin: 0 $space $space;
+      margin: $space;
 
       .aph-select--label {
         background: $dark-purple*1.25;
@@ -390,8 +412,111 @@ export default {
       }
 
       .aph-icon .fill {
-        fill: white;
+        fill: $purple;
       }
+    }
+
+    .price, .quantity {
+      margin: 0 $space;
+
+      .aph-input {
+        border-color: $darker-grey;
+        height: 100%;
+
+        &:focus-within {
+          border-color: $purple;
+        }
+      }
+      .description {
+        color: $darker-grey;
+        font-size: toRem(10px);
+        margin-top: $space-sm;
+      }
+    }
+
+    .percentages {
+      background-color: $dark-purple*1.25;
+      color: $darker-grey;
+      display: flex;
+      flex-direction: row;
+      justify-content: space-around;
+      margin: $space;
+      padding: $space 0;
+
+      > div {
+        flex: 1;
+        text-align: center;
+
+        &.selected {
+          color: $purple;
+        }
+      }
+    }
+
+    .options {
+      color: $darker-grey;
+      font-size: toRem(12px);
+      margin: $space;
+
+      .option {
+        display: flex;
+        flex-direction: row;
+
+        label {
+          margin: auto $space-sm auto 0;
+        }
+
+        .aph-icon {
+          svg {
+            height: toRem(20px);
+          }
+
+          .fill {
+            fill: $purple !important;
+          }
+        }
+      }
+    }
+
+    .total, .estimate {
+      display: flex;
+      flex-direction: row;
+      font-size: toRem(12px);
+      justify-content: space-between;
+      margin: 0 $space $space;
+
+      .label {
+        color: $darker-grey;
+      }
+    }
+
+    .place-order {
+      margin: 0 $space;
+
+      .order-btn {
+        @extend %btn-outline;
+
+        &.buy-btn {
+          border-color: $green;
+        }
+
+        &.sell-btn {
+          border-color: $red;
+        }
+      }
+    }
+  }
+
+  .footer {
+    display: flex;
+    flex-direction: row;
+    flex: none;
+    justify-content: space-around;
+    margin: $space;
+
+    > div {
+      display: flex;
+      flex-direction: column;
     }
   }
 }

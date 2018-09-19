@@ -22,6 +22,12 @@ const NEO_ASSET_ID = '0xc56f33fc6ecfcd0c225c4ab356fee59390af8560be0e930faebe74a6
 
 let lastClaimSent;
 
+const calculateHoldingTotalBalance = (holding) => {
+  return toBigNumber(_.get(holding, 'balance', toBigNumber(0)))
+    .plus(_.get(holding, 'contractBalance', toBigNumber(0)))
+    .plus(_.get(holding, 'openOrdersBalance', toBigNumber(0)));
+};
+
 export default {
   createWallet(name, passphrase, passphraseConfirm) {
     return new Promise((resolve, reject) => {
