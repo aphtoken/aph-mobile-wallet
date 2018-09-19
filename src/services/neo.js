@@ -452,21 +452,6 @@ export default {
               }
             });
 
-            const willRefreshAllDueToPollingInterval
-              = moment().utc().diff(moment.unix(lastVerifiedTokenBalances), 'milliseconds')
-                > intervals.TOKENS_BALANCES_POLL_ALL;
-            // console.log(`Fetching due to token balances poll
-            //   forceRefreshAll: ${forceRefreshAll} onlyFetchUserAssets: ${onlyFetchUserAssets}
-            //   willRefreshAllDueToPollingInterval: ${willRefreshAllDueToPollingInterval}`);
-            if (forceRefreshAll || (!onlyFetchUserAssets && (!lastVerifiedTokenBalances
-              || willRefreshAllDueToPollingInterval))) {
-              _.values(networkAssets).forEach((nep5Asset) => {
-                _.set(holdingsToQueryBalance, nep5Asset.assetId, assetToHolding(nep5Asset, false));
-                // console.log(`Fetching due to token balances poll ${nep5Asset.symbol} ${nep5Asset.assetId}`);
-              });
-              lastVerifiedTokenBalances = moment.utc();
-            }
-
             _.values(userAssets).forEach((nep5Asset) => {
               const asset = assetToHolding(nep5Asset, true);
               if (_.has(holdingsToQueryBalance, asset.assetId) === false) {
@@ -474,6 +459,23 @@ export default {
                 // console.log(`Fetching due to user asset ${asset.symbol} ${asset.assetId}`);
               }
             });
+
+            const willRefreshAllDueToPollingInterval
+              = moment().utc().diff(moment.unix(lastVerifiedTokenBalances), 'milliseconds')
+                > intervals.TOKENS_BALANCES_POLL_ALL;
+            // console.log(`forceRefreshAll: ${forceRefreshAll} onlyFetchUserAssets: ${onlyFetchUserAssets}
+            //   willRefreshAllDueToPollingInterval: ${willRefreshAllDueToPollingInterval}`);
+            if (forceRefreshAll || (!onlyFetchUserAssets && (!lastVerifiedTokenBalances
+              || willRefreshAllDueToPollingInterval))) {
+              _.values(networkAssets).forEach((nep5Asset) => {
+                if (_.has(holdingsToQueryBalance, nep5Asset.assetId) === false) {
+                  // This would turn off isUserAsset erroneously without user assets being added first.
+                  _.set(holdingsToQueryBalance, nep5Asset.assetId, assetToHolding(nep5Asset, false));
+                }
+                // console.log(`Fetching due to token balances poll ${nep5Asset.symbol} ${nep5Asset.assetId}`);
+              });
+              lastVerifiedTokenBalances = moment.utc();
+            }
 
             if (!restrictToSymbol) {
               _.values(tokensToRetryBalances).forEach((holding) => {
@@ -532,6 +534,7 @@ export default {
                         //   + balance: ${holding.balance}`);
                       }
 
+                      // console.log(`adding holding ${holding.symbol} ${holding.assetId} balance: ${holding.balance}`);
                       holdings.push(holding);
                     }
                   }));
@@ -582,7 +585,6 @@ export default {
                           holdingBalance.change24hrPercent = null;
                           holdingBalance.change24hrValue = null;
                         }
-
                         done();
                       })
                       .catch((e) => {
@@ -601,6 +603,7 @@ export default {
                   res.change24hrValue = _.sumBy(holdings, 'change24hrValue');
                   res.change24hrPercent = Math.round(10000 * (res.change24hrValue
                     / (res.totalBalance - res.change24hrValue))) / 100.0;
+
                   return resolve(res);
                 });
               })
@@ -689,7 +692,6 @@ export default {
             assets.removeUserAsset(assetId);
             retry = false;
           } else if (ex.message.indexOf('Invalid results length!') > -1) {
-            // console.log(`Removing token due to exception: ${nep5.assetId} ${e}`);
             retry = false;
           }
 
