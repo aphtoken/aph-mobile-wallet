@@ -96,6 +96,8 @@ export default {
   },
 
   mounted() {
+    this.$services.tokens.migrateToAssets(this.$services.network.getSelectedNetwork());
+
     this.$services.neo.fetchNEP5Tokens(() => {
       this.loadHoldings();
       this.loadRecentTransactions();

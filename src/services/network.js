@@ -4,6 +4,8 @@ import { rpc, settings, api } from '@cityofzion/neon-js';
 import { store } from '../store';
 import storage from './storage';
 import { intervals } from '../constants';
+import tokens from './tokens';
+import assets from './assets';
 
 const NETWORK_STORAGE_KEY = 'aph.network';
 const NETWORKS = [
@@ -93,6 +95,8 @@ export default {
 
   setSelectedNetwork(network) {
     this.normalizeAndStore(network).sync();
+
+    tokens.migrateToAssets(network);
 
     if (loadNetworkStatusIntervalId) {
       clearInterval(loadNetworkStatusIntervalId);
