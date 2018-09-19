@@ -47,6 +47,7 @@ const ROUTES_USING_BACK_BUTTON = [
   'dashboard.token-stats',
   'settings.contacts',
   'settings.currencies',
+  'settings.languages',
   'settings.networks',
   'settings.wallets',
 ];
