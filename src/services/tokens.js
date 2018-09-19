@@ -49,11 +49,16 @@ export default {
     tokens.forEach((token) => {
       this.removeInternal(existingTokens, token);
     });
-    storage.set(TOKENS_STORAGE_KEY, existingTokens);
+
+    if (Object.keys(existingTokens).length === 0) {
+      storage.delete(TOKENS_STORAGE_KEY);
+    } else {
+      storage.set(TOKENS_STORAGE_KEY, existingTokens);
+    }
   },
 
   removeInternal(existingTokens, token) {
-    _.remove(existingTokens, `${token.assetId}_${token.network}`);
+    _.unset(existingTokens, `${token.assetId}_${token.network}`);
   },
 
   migrateToAssets(network) {

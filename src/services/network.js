@@ -5,7 +5,6 @@ import { store } from '../store';
 import storage from './storage';
 import { intervals } from '../constants';
 import tokens from './tokens';
-import assets from './assets';
 
 const NETWORK_STORAGE_KEY = 'aph.network';
 const NETWORKS = [
