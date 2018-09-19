@@ -393,7 +393,7 @@ export default {
     });
   },
 
-  fetchHoldings(address, restrictToSymbol, onlyFetchUserAssets) {
+  fetchHoldings(address, restrictToSymbol, onlyFetchUserAssets, forceRefreshAll) {
     const currentNetwork = network.getSelectedNetwork();
     const currentWallet = wallets.getCurrentWallet();
     const rpcClient = network.getRpcClient();
@@ -452,9 +452,9 @@ export default {
               }
             });
 
-            if (!onlyFetchUserAssets && (!lastVerifiedTokenBalances
+            if (forceRefreshAll || (!onlyFetchUserAssets && (!lastVerifiedTokenBalances
               || moment().utc().diff(moment.unix(lastVerifiedTokenBalances), 'milliseconds'))
-                > intervals.TOKENS_BALANCES_POLL_ALL) {
+                > intervals.TOKENS_BALANCES_POLL_ALL)) {
               _.values(networkAssets).forEach((nep5Asset) => {
                 _.set(holdingsToQueryBalance, nep5Asset.assetId, assetToHolding(nep5Asset, false));
               });

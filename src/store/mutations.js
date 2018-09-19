@@ -85,7 +85,11 @@ function handleNetworkChange(state) {
   state.nep5Balances = {};
   state.sendInProgress = false;
   neo.fetchNEP5Tokens(() => {
-    this.dispatch('fetchHoldings', { done: null });
+    // Fetch holdings for user assets first for best UX
+    this.dispatch('fetchHoldings', {
+      // Then fetch all assets
+      done: () => { this.dispatch('fetchHoldings', { done: null, forceRefreshAll: true }); },
+      onlyFetchUserAssets: true });
     this.dispatch('fetchRecentTransactions');
   });
 }
