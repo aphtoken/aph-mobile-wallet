@@ -102,7 +102,6 @@ export default {
       // Do a fetch of only user assets initially to speed up load.
       this.$store.dispatch('fetchHoldings', {
         done: () => {
-          console.log('fetching all holdings');
           this.$store.dispatch('fetchHoldings', { });
         },
         onlyFetchUserAssets: true });
