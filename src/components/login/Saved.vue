@@ -64,9 +64,6 @@ export default {
         walletToOpen: this.wallet,
         passphrase: this.passphrase,
         done: () => {
-          this.$store.dispatch('fetchHoldings', {
-            done: () => { this.$store.dispatch('fetchHoldings', { done: null, forceRefreshAll: true }); },
-            onlyFetchUserAssets: true });
           this.$router.push('/authenticated/dashboard');
         },
       });
