@@ -1,8 +1,8 @@
 export {
   HISTORY,
   MARKETS,
+  ORDER_BOOK,
   TICKER_LIST,
-  ORDER_BOOK
 };
 
 const HISTORY = {
