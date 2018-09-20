@@ -34,9 +34,7 @@ function addToken({ commit, dispatch }, { done, hashOrSymbol }) {
 
   hashOrSymbol = hashOrSymbol.replace('0x', '');
 
-  token = _.find(_.values(networkAssets), (o) => {
-    return o.symbol === hashOrSymbol;
-  });
+  token = _.find(_.values(networkAssets), { symbol: hashOrSymbol });
 
   if (!token) {
     token = _.get(networkAssets, hashOrSymbol);
@@ -131,7 +129,7 @@ async function fetchBlockHeaderByHash({ state, commit }, { blockHash, done, fail
   commit('endRequest', { identifier: 'fetchBlockHeaderByHash' });
 }
 
-async function fetchHoldings({ commit }, { done, isRequestSilent, onlyFetchUserAssets, forceRefreshAll }) {
+async function fetchHoldings({ commit }, { done, isRequestSilent, onlyFetchUserAssets, forceRefreshAll } = {}) {
   const currentWallet = wallets.getCurrentWallet();
   let holdings;
 

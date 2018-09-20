@@ -40,12 +40,10 @@ export default {
   computed: {
     holdingsWithCanRemove() {
       return this.$store.state.holdings.map((holding) => {
-        const canRemove = holding.isNep5 === true && holding.isUserAsset === true
+        const canRemove = holding.isNep5 && holding.isUserAsset
           && holding.symbol !== 'APH' && new BigNumber(holding.balance).isZero();
 
-        return _.merge(_.cloneDeep(holding), {
-          canRemove,
-        });
+        return _.merge(_.cloneDeep(holding), { canRemove });
       });
     },
 
@@ -113,7 +111,7 @@ export default {
       // this.$services.tokens.remove(holding.asset, this.$store.state.currentNetwork.net);
       this.$services.assets.removeUserAsset(holding.assetId);
       this.$services.alerts.success(`Removed ${holding.symbol}`);
-      this.$store.dispatch('fetchHoldings', { done: null, onlyFetchUserAssets: true });
+      this.$store.dispatch('fetchHoldings', { onlyFetchUserAssets: true });
     },
   },
 
@@ -121,7 +119,7 @@ export default {
     showAddToken() {
       this.hashOrSymbol = '';
       this.$store.commit('endRequest', { identifier: 'addToken' });
-      this.$store.dispatch('fetchHoldings', { done: null, onlyFetchUserAssets: true });
+      this.$store.dispatch('fetchHoldings', { onlyFetchUserAssets: true });
     },
   },
 };

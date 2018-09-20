@@ -83,7 +83,7 @@ export default {
     },
 
     loadHoldings() {
-      this.$store.dispatch('fetchHoldings', { done: null });
+      this.$store.dispatch('fetchHoldings');
     },
 
     loadRecentTransactions() {
@@ -102,7 +102,7 @@ export default {
       // Do a fetch of only user assets initially to speed up load.
       this.$store.dispatch('fetchHoldings', {
         done: () => {
-          this.$store.dispatch('fetchHoldings', { });
+          this.$store.dispatch('fetchHoldings');
         },
         onlyFetchUserAssets: true });
       this.loadRecentTransactions();

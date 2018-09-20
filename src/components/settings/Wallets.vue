@@ -205,7 +205,7 @@ export default {
         done: () => {
           this.showOpenWallet = false;
           this.$store.dispatch('fetchHoldings', {
-            done: () => { this.$store.dispatch('fetchHoldings', { done: null, forceRefreshAll: true }); },
+            done: () => { this.$store.dispatch('fetchHoldings', { forceRefreshAll: true }); },
             onlyFetchUserAssets: true });
         },
       });
