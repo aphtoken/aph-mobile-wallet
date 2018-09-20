@@ -68,16 +68,16 @@ export default {
     }
 
     let runningAsks = new BigNumber(0);
-    book.asks.forEach((l) => {
-      runningAsks = runningAsks.plus(l.quantity);
-      l.quantityTotalRatio = runningAsks.dividedBy(totalAsk);
-      l.quantityRatio = l.quantity.dividedBy(totalAsk);
+    book.asks.forEach((ask) => {
+      runningAsks = runningAsks.plus(ask.quantity);
+      ask.quantityTotalRatio = runningAsks.dividedBy(totalAsk);
+      ask.quantityRatio = ask.quantity.dividedBy(totalAsk);
     });
     let runningBids = new BigNumber(0);
-    book.bids.forEach((l) => {
-      runningBids = runningBids.plus(l.quantity);
-      l.quantityTotalRatio = runningBids.dividedBy(totalBid);
-      l.quantityRatio = l.quantity.dividedBy(totalBid);
+    book.bids.forEach((bid) => {
+      runningBids = runningBids.plus(bid.quantity);
+      bid.quantityTotalRatio = runningBids.dividedBy(totalBid);
+      bid.quantityRatio = bid.quantity.dividedBy(totalBid);
     });
 
     return book;
