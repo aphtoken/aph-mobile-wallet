@@ -111,7 +111,7 @@
             <div class="copy">{{ $store.state.commitState.ableToClaimHeight - currentBlock }}<br />{{ $t('blocksUntilClaim') }} ({{ $store.state.commitState.ableToCompoundHeight }})</div>
           </div>
           <div class="inner" v-else-if="$store.state.commitState.ableToCompoundHeight > currentBlock">
-            <div class="copy">{{ $store.state.commitState.ableToClaimHeight - currentBlock }}<br />{{ $t('blocksUntilClaim') }} ({{ $store.state.commitState.ableToCompoundHeight }})</div>
+            <div class="copy">{{ $store.state.commitState.ableToCompoundHeight - currentBlock }}<br />{{ $t('blocksUntilClaim') }} ({{ $store.state.commitState.ableToCompoundHeight }})</div>
           </div>
           <div class="inner" v-else>
             <div class="line"></div>
