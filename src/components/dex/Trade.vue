@@ -98,9 +98,7 @@ export default {
 
     aphHolding() {
       if (this.currentMarket && this.$store.state.holdings) {
-        const holding = _.find(this.$store.state.holdings, (o) => {
-          return o.assetId === this.$services.assets.APH;
-        });
+        const holding = _.find(this.$store.state.holdings, { assetId: this.$services.assets.APH });
 
         if (holding) {
           return holding;
@@ -122,9 +120,7 @@ export default {
 
     baseHolding() {
       if (this.currentMarket && this.$store.state.holdings) {
-        const holding = _.find(this.$store.state.holdings, (o) => {
-          return o.assetId === this.currentMarket.baseAssetId;
-        });
+        const holding = _.find(this.$store.state.holdings, { assetId: this.currentMarket.baseAssetId });
 
         if (holding) {
           return holding;
@@ -141,7 +137,7 @@ export default {
 
     canPlaceMarketOrder() {
       const currentWallet = this.$services.wallets.getCurrentWallet();
-      return currentWallet && currentWallet.isLedger !== true;
+      return currentWallet && !currentWallet.isLedger;
     },
 
     currentMarket() {
@@ -153,8 +149,6 @@ export default {
         this.$services.neo.getHolding(this.currentMarket.baseAssetId).unitValue :
         0;
 
-      console.log('holding', holding);
-
       try {
         return new BigNumber(this.total).multipliedBy(
           new BigNumber(holding));
@@ -165,7 +159,7 @@ export default {
     },
 
     isMarketClosed() {
-      return this.$store.state.currentMarket && this.$store.state.currentMarket.isOpen === false;
+      return this.$store.state.currentMarket && !this.$store.state.currentMarket.isOpen;
     },
 
     isOutOfDate() {
@@ -207,11 +201,8 @@ export default {
     },
 
     priceLabel() {
-      if (!this.currentMarket) {
-        return '';
-      }
-
-      return 'GAS'; // this.$t('priceBase', { base: this.currentMarket.baseCurrency });
+      // TODO: This will most likely change when we get live data.
+      return this.currentMarket ? 'GAS' : '';
     },
 
     quoteBalanceToolTip() {
@@ -220,9 +211,7 @@ export default {
 
     quoteHolding() {
       if (this.currentMarket && this.$store.state.holdings) {
-        const holding = _.find(this.$store.state.holdings, (o) => {
-          return o.assetId === this.currentMarket.quoteAssetId;
-        });
+        const holding = _.find(this.$store.state.holdings, { assetId: this.currentMarket.quoteAssetId });
 
         if (holding) {
           return holding;
@@ -248,11 +237,11 @@ export default {
     },
 
     total() {
-      try {
-        if (!this.$store.state.orderQuantity) {
-          return 0;
-        }
+      if (!this.$store.state.orderQuantity) {
+        return 0;
+      }
 
+      try {
         return new BigNumber(this.price).multipliedBy(new BigNumber(this.$store.state.orderQuantity));
       } catch (e) {
         console.log(e);
@@ -283,11 +272,11 @@ export default {
     },
 
     loadHoldings() {
-      this.$store.dispatch('fetchHoldings', { done: null });
+      this.$store.dispatch('fetchHoldings');
     },
 
     loadHoldingsSilently() {
-      this.$store.dispatch('fetchHoldings', { done: null, isRequestSilent: true });
+      this.$store.dispatch('fetchHoldings', { isRequestSilent: true });
     },
 
     marketPriceForQuantity(side, quantity) {
@@ -312,11 +301,7 @@ export default {
     },
 
     percent(value) {
-      if (this.side === 'Buy') {
-        return this.percentForBuy(value);
-      }
-
-      return this.percentForSell(value);
+      return this.side === 'Buy' ? this.percentForBuy(value) : this.percentForSell(value);
     },
 
     percentForBuy() {

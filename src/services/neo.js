@@ -563,8 +563,8 @@ export default {
   },
 
   getHolding(assetId) {
-    const holding = _.find(store.state.holdings, (o) => {
-      return o.assetId === assetId;
+    const holding = _.find(store.state.holdings, (asset) => {
+      return asset.assetId === assetId;
     });
 
     if (holding) {

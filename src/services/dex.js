@@ -33,15 +33,15 @@ export default {
       bids: [],
     };
 
-    asks.forEach((l) => {
-      l.price = toBigNumber(l[0]);
-      l.quantity = toBigNumber(l[1]);
-      book.asks.push(l);
+    asks.forEach((ask) => {
+      ask.price = toBigNumber(ask[0]);
+      ask.quantity = toBigNumber(ask[1]);
+      book.asks.push(ask);
     });
-    bids.forEach((l) => {
-      l.price = toBigNumber(l[0]);
-      l.quantity = toBigNumber(l[1]);
-      book.bids.push(l);
+    bids.forEach((bid) => {
+      bid.price = toBigNumber(bid[0]);
+      bid.quantity = toBigNumber(bid[1]);
+      book.bids.push(bid);
     });
 
     this.setOrderBookMeta(book);
@@ -54,12 +54,12 @@ export default {
     book.asks = _.sortBy(book.asks, [level => level.price.toNumber()]);
     book.bids = _.sortBy(book.bids, [level => level.price.toNumber()]).reverse();
 
-    book.asks.forEach((l) => {
-      totalAsk = totalAsk.plus(l.quantity);
+    book.asks.forEach((ask) => {
+      totalAsk = totalAsk.plus(ask.quantity);
     });
     let totalBid = new BigNumber(0);
-    book.bids.forEach((l) => {
-      totalBid = totalBid.plus(l.quantity);
+    book.bids.forEach((bid) => {
+      totalBid = totalBid.plus(bid.quantity);
     });
 
     if (book.asks.length > 0 && book.bids.length > 0) {
