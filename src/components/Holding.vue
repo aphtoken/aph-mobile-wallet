@@ -35,13 +35,13 @@ export default {
 
   methods: {
     getOnSwipeHandler() {
-      const fn = function handleSwipe(direction) {
+      const handler = function handleSwipe(direction) {
         if (this.onSwipe) {
           this.onSwipe(this.holding, direction);
         }
       }.bind(this);
 
-      return fn;
+      return handler;
     },
 
     handleOnClick() {

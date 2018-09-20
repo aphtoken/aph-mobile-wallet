@@ -33,13 +33,13 @@ function addToken({ commit, dispatch }, { done, hashOrSymbol }) {
 
   hashOrSymbol = hashOrSymbol.replace('0x', '');
 
-  token = _.find(allTokens, (o) => {
-    return o.symbol === hashOrSymbol && o.network === currentNetwork.net;
+  token = _.find(allTokens, ({ symbol, network }) => {
+    return symbol === hashOrSymbol && network === currentNetwork.net;
   });
 
   if (!token) {
-    token = _.find(allTokens, (o) => {
-      return o.assetId === hashOrSymbol && o.network === currentNetwork.net;
+    token = _.find(allTokens, ({ assetId, network }) => {
+      return assetId === hashOrSymbol && network === currentNetwork.net;
     });
   }
 

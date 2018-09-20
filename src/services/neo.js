@@ -392,36 +392,32 @@ export default {
             const holdings = [];
             const promises = [];
 
-            if (!_.find(res.result.balances, (o) => {
-              return o.asset === NEO_ASSET_ID;
-            })) {
+            if (!_.find(res.result.balances, { asset: NEO_ASSET_ID })) {
               res.result.balances.push({
                 asset: NEO_ASSET_ID,
                 value: 0,
               });
             }
 
-            if (!_.find(res.result.balances, (o) => {
-              return o.asset === GAS_ASSET_ID;
-            })) {
+            if (!_.find(res.result.balances, { asset: GAS_ASSET_ID })) {
               res.result.balances.push({
                 asset: GAS_ASSET_ID,
                 value: 0,
               });
             }
 
-            res.result.balances.forEach((b) => {
-              const h = {
-                asset: b.asset,
-                balance: b.value,
-                symbol: b.asset === NEO_ASSET_ID ? 'NEO' : 'GAS',
-                name: b.asset === NEO_ASSET_ID ? 'NEO' : 'GAS',
+            res.result.balances.forEach((balance) => {
+              const holding = {
+                asset: balance.asset,
+                balance: balance.value,
+                symbol: balance.asset === NEO_ASSET_ID ? 'NEO' : 'GAS',
+                name: balance.asset === NEO_ASSET_ID ? 'NEO' : 'GAS',
                 isNep5: false,
               };
-              if (restrictToSymbol && h.symbol !== restrictToSymbol) {
+              if (restrictToSymbol && holding.symbol !== restrictToSymbol) {
                 return;
               }
-              if (h.symbol === 'NEO') {
+              if (holding.symbol === 'NEO') {
                 promises.push(api.getMaxClaimAmountFrom({
                   net: currentNetwork.net,
                   url: currentNetwork.rpc,
@@ -429,14 +425,14 @@ export default {
                   privateKey: currentWallet.privateKey,
                 }, api.neoscan)
                   .then((res) => {
-                    h.availableToClaim = toBigNumber(res);
+                    holding.availableToClaim = toBigNumber(res);
                   })
                   .catch((e) => {
                     alerts.networkException(e);
                   }));
               }
 
-              holdings.push(h);
+              holdings.push(holding);
             });
 
             tokens.getAllAsArray().forEach((nep5) => {
@@ -503,22 +499,22 @@ export default {
 
                 store.commit('putAllNep5Balances', localNep5Balances);
 
-                holdings.forEach((h) => {
+                holdings.forEach((holding) => {
                   valuationsPromises.push((done) => {
-                    valuation.getValuation(h.symbol)
+                    valuation.getValuation(holding.symbol)
                       .then((val) => {
-                        h.totalSupply = val.total_supply;
-                        h.marketCap = val[`market_cap_${lowercaseCurrency}`];
-                        h.change24hrPercent = val.percent_change_24h;
-                        h.unitValue = val[`price_${lowercaseCurrency}`];
-                        h.unitValue24hrAgo = h.unitValue / (1 + (h.change24hrPercent / 100.0));
-                        h.change24hrValue = (h.unitValue * h.balance)
-                          - (h.unitValue24hrAgo * h.balance);
-                        h.totalValue = h.unitValue * h.balance;
-                        if (h.unitValue === null) {
-                          h.totalValue = null;
-                          h.change24hrPercent = null;
-                          h.change24hrValue = null;
+                        holding.totalSupply = val.total_supply;
+                        holding.marketCap = val[`market_cap_${lowercaseCurrency}`];
+                        holding.change24hrPercent = val.percent_change_24h;
+                        holding.unitValue = val[`price_${lowercaseCurrency}`];
+                        holding.unitValue24hrAgo = holding.unitValue / (1 + (holding.change24hrPercent / 100.0));
+                        holding.change24hrValue = (holding.unitValue * holding.balance)
+                          - (holding.unitValue24hrAgo * holding.balance);
+                        holding.totalValue = holding.unitValue * holding.balance;
+                        if (holding.unitValue === null) {
+                          holding.totalValue = null;
+                          holding.change24hrPercent = null;
+                          holding.change24hrValue = null;
                         }
 
                         done();
@@ -888,8 +884,8 @@ export default {
 
     lastClaimSent = new Date();
     return this.fetchHoldings(currentWallet.address, 'NEO')
-      .then((h) => {
-        const neoAmount = h.holdings[0].balance;
+      .then((holding) => {
+        const neoAmount = holding.holdings[0].balance;
         const callback = () => {
           gasClaim.step = 2;
         };
@@ -897,7 +893,7 @@ export default {
         gasClaim.step = 1;
 
 
-        if (h.holdings.length === 0 || h.holdings[0].balance <= 0) {
+        if (holding.holdings.length === 0 || holding.holdings[0].balance <= 0) {
           this.sendClaimGas(gasClaim);
         } else {
           // send neo to ourself to make all gas available for claim

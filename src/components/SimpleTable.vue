@@ -77,12 +77,12 @@ export default {
         });
       }
       if (sortKey) {
-        data = data.sort((a, b) => {
-          a = a[sortKey];
-          b = b[sortKey];
-          if (a === b) {
+        data = data.sort((aVal, bVal) => {
+          aVal = aVal[sortKey];
+          bVal = bVal[sortKey];
+          if (aVal === bVal) {
             return 0 * order;
-          } else if (a > b) {
+          } else if (aVal > bVal) {
             return 1 * order;
           }
           return -1 * order;
@@ -183,7 +183,7 @@ export default {
             border-top: 1px solid transparent;
           }
         }
-        
+
         .cell {
           border-top: 1px solid $darker-grey/2;
           display: flex;
