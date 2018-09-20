@@ -14,7 +14,6 @@ export {
   handleLogout,
   handleNetworkChange,
   orderBookSnapshotReceived,
-  putAllNep5Balances,
   putBlockDetails,
   putTransactionDetail,
   removeAssetHoldingsNeedRefresh,
@@ -95,20 +94,6 @@ function handleNetworkChange(state) {
   state.searchTransactions = [];
   state.nep5Balances = {};
   state.sendInProgress = false;
-  neo.fetchNEP5Tokens(() => {});
-}
-
-function orderBookSnapshotReceived(state, res) {
-  const orderBook = dex.formOrderBook(res.asks, res.bids);
-  orderBook.pair = res.pair;
-
-  state.orderBook = orderBook;
-}
-
-function putAllNep5Balances(state, nep5balances) {
-  const balances = state.nep5Balances;
-  nep5balances.forEach((nep5balance) => {
-    _.set(balances, nep5balance.asset, nep5balance);
   neo.fetchNEP5Tokens(() => {
     // Fetch holdings for user assets first for best UX
     this.dispatch('fetchHoldings', {
@@ -117,6 +102,13 @@ function putAllNep5Balances(state, nep5balances) {
       onlyFetchUserAssets: true });
     this.dispatch('fetchRecentTransactions');
   });
+}
+
+function orderBookSnapshotReceived(state, res) {
+  const orderBook = dex.formOrderBook(res.asks, res.bids);
+  orderBook.pair = res.pair;
+
+  state.orderBook = orderBook;
 }
 
 function putTransactionDetail(state, transactionDetail) {
