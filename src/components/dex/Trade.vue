@@ -42,24 +42,33 @@
         <div class="value">$999999.99</div>
       </div>
       <div class="place-order">
-        <button @click="confirmOrder" :disabled="shouldDisableOrderButton"
-              :class="['order-btn', { 'buy-btn': side === 'Buy', 'sell-btn': side === 'Sell'}]">
-          {{ orderButtonLabel }}
+        <button @click="confirmOrder" :disabled="shouldDisableOrderButton" :class="['order-btn', { 'buy-btn': side === 'Buy', 'sell-btn': side === 'Sell'}]">
+          Place {{ side }} order
+          <!-- {{ orderButtonLabel }} -->
         </button>
       </div>
     </div>
     <div class="footer">
       <div @click="actionableHolding = quoteHolding" :class="['balance', {active: quoteHolding.symbol === actionableHolding.symbol}]" :title="quoteBalanceToolTip">
-        <div class="label">Balance ({{ quoteHolding.symbol }})</div>
-        <div class="value">{{ $formatNumber(quoteHolding.totalBalance) }}</div>
+        <div class="label">{{ quoteHolding.symbol }} Balance</div>
+        <div class="contract">CONTRACT</div>
+        <div class="contract-value">{{ $formatNumber(quoteHolding.totalBalance) }}</div>
+        <div class="wallet">WALLET</div>
+        <div class="wallet-value">32,431</div>
       </div>
       <div @click="actionableHolding = baseHolding" :class="['balance', {active: baseHolding.symbol === actionableHolding.symbol}]" :title="baseBalanceToolTip">
-        <div class="label">Balance ({{ baseHolding.symbol }})</div>
-        <div class="value">{{ $formatNumber(baseHolding.totalBalance) }}</div>
+        <div class="label">{{ baseHolding.symbol }} Balance</div>
+        <div class="contract">CONTRACT</div>
+        <div class="contract-value">{{ $formatNumber(baseHolding.totalBalance) }}</div>
+        <div class="wallet">WALLET</div>
+        <div class="wallet-value">1.21</div>
       </div>
       <div @click="actionableHolding = aphHolding" :class="['balance', {active: aphHolding.symbol === actionableHolding.symbol}]" :title="aphBalanceToolTip" v-if="baseHolding.symbol !== 'APH' && quoteHolding.symbol !== 'APH'">
-        <div class="label">Balance (APH)</div>
-        <div class="value">{{ $formatNumber(aphHolding.totalBalance) }}</div>
+        <div class="label">APH Balance</div>
+        <div class="contract">CONTRACT</div>
+        <div class="contract-value">{{ $formatNumber(aphHolding.totalBalance) }}</div>
+        <div class="wallet">WALLET</div>
+        <div class="wallet-value">3.21</div>
       </div>
     </div>
   </section>
@@ -172,12 +181,11 @@ export default {
       return this.isOutOfDate || this.isMarketClosed;
     },
 
-    orderButtonLabel() {
-      return 'button label';
-      // return this.$isPending('placeOrder') === false ?
-      //   this.$t('placeSideOrder', { side: this.side }) :
-      //   this.$t('placingOrder');
-    },
+    // orderButtonLabel() {
+    //   return this.$isPending('placeOrder') === false ?
+    //     this.$t('placeSideOrder', { side: this.side }) :
+    //     this.$t('placingOrder');
+    // },
 
     orderTypes() {
       if (this.canPlaceMarketOrder) {
@@ -348,6 +356,7 @@ export default {
     display: flex;
     flex-direction: column;
     flex: 1;
+    justify-content: space-around;
     margin: $space;
     overflow: hidden;
 
@@ -389,7 +398,7 @@ export default {
     }
 
     .order-type {
-      margin: $space;
+      margin: $space $space 0;
 
       .aph-select--label {
         background: $dark-purple*1.25;
@@ -441,7 +450,7 @@ export default {
     .options {
       color: $darker-grey;
       font-size: toRem(12px);
-      margin: $space;
+      margin: 0 $space $space;
 
       .option {
         display: flex;
@@ -476,7 +485,7 @@ export default {
     }
 
     .place-order {
-      margin: 0 $space;
+      margin: 0 $space $space;
 
       .order-btn {
         @extend %btn-outline;
@@ -493,15 +502,32 @@ export default {
   }
 
   .footer {
-    display: flex;
-    flex-direction: row;
-    flex: none;
-    justify-content: space-around;
-    margin: $space;
+    margin: 0 $space;
+    overflow: scroll;
+    white-space: nowrap;
 
     > div {
-      display: flex;
-      flex-direction: column;
+      background-color: $dark-purple;
+      display: inline-block;
+      height: toRem(110px);
+      margin: 0 $space-sm;
+      padding: $space;
+      width: toRem(150px);
+
+      &:first-child, &:last-child {
+        margin: 0;
+      }
+
+      .contract, .wallet {
+        color: $darker-grey;
+        font-size: toRem(10px);
+        margin-top: $space-sm;
+      }
+
+      .contract-value, .wallet-value {
+        font-size: toRem(10px);
+        margin-top: $space-xs;
+      }
     }
   }
 }
