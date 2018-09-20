@@ -3,24 +3,27 @@ import {
   api,
   u,
 } from '@cityofzion/neon-js';
+import _ from 'lodash';
 import { BigNumber } from 'bignumber.js';
 import Async from 'async';
 
 import alerts from './alerts';
+import assets from './assets';
 import network from './network';
 import settings from './settings';
-import tokens from './tokens';
 import valuation from './valuation';
 import wallets from './wallets';
 import ledger from './ledger';
 import { store } from '../store';
 import { timeouts, intervals } from '../constants';
+import { toBigNumber } from './formatting.js';
 
-const toBigNumber = value => new BigNumber(String(value));
-const GAS_ASSET_ID = '0x602c79718b16e442de58778e148d0b1084e3b2dffd5de6b7b16cee7969282de7';
-const NEO_ASSET_ID = '0xc56f33fc6ecfcd0c225c4ab356fee59390af8560be0e930faebe74a6daff7c9b';
+const GAS_ASSET_ID = '602c79718b16e442de58778e148d0b1084e3b2dffd5de6b7b16cee7969282de7';
+const NEO_ASSET_ID = 'c56f33fc6ecfcd0c225c4ab356fee59390af8560be0e930faebe74a6daff7c9b';
 
 let lastClaimSent;
+let lastVerifiedTokenBalances = 0;
+let tokensToRetryBalances = {};
 
 export default {
   createWallet(name, passphrase, passphraseConfirm) {
@@ -249,12 +252,8 @@ export default {
                           to: fetchedTransaction.to,
                         });
 
-                        const inMemoryHolding = _.get(store.state.nep5Balances, fetchedTransaction.scriptHash);
-                        if (inMemoryHolding) {
-                          // set in memory holding balance to null so it will pick up the new balance
-                          // if it was skipping it before because we didn't hold any
-                          inMemoryHolding.balance = null;
-                        }
+                        // Set in memory holding needsRefresh flag to cause retrieving the new balance
+                        store.commit('setAssetHoldingsNeedRefresh', [fetchedTransaction.scriptHash]);
                       }
                     }));
                 });
@@ -280,7 +279,7 @@ export default {
             alerts.networkException(e);
           });
       } catch (e) {
-        return reject(e);
+        return reject(e.message);
       }
     });
   },
@@ -309,7 +308,7 @@ export default {
             alerts.exception(e);
           });
       } catch (e) {
-        return reject(e);
+        return reject(e.message);
       }
     });
   },
@@ -321,40 +320,55 @@ export default {
       try {
         const inMemory = _.get(store.state.transactionDetails, hash);
         if (inMemory) {
-          inMemory.currentBlockHeight = network.getSelectedNetwork().bestBlock.index;
-          inMemory.confirmations = inMemory.currentBlockHeight - inMemory.block;
+          if (network.getSelectedNetwork().bestBlock) {
+            inMemory.currentBlockHeight = network.getSelectedNetwork().bestBlock.index;
+            inMemory.confirmations = inMemory.currentBlockHeight - inMemory.block;
+          }
           return resolve(inMemory);
         }
 
         return rpcClient.getRawTransaction(hash, 1)
           .then((transaction) => {
-            transaction.currentBlockHeight = network.getSelectedNetwork().bestBlock.index;
+            const transactionPromises = [];
+
             if (transaction.confirmations > 0) {
               transaction.confirmed = true;
-              transaction.block = transaction.currentBlockHeight - transaction.confirmations;
+
+              // Look up the block from the blockhash
+              transactionPromises.push(new Promise((resolve, reject) => {
+                store.dispatch('fetchBlockHeaderByHash', {
+                  blockHash: transaction.blockhash,
+                  done: ((data) => {
+                    resolve(data);
+                  }),
+                  failed: ((ex) => { reject(ex); }),
+                });
+              }).then((blockHeader) => {
+                transaction.block = blockHeader.index;
+                transaction.currentBlockHeight = transaction.confirmations + blockHeader.index;
+              }).catch(e => reject(e)));
             } else {
               transaction.confirmed = false;
             }
 
             // set output symbols based on asset ids
             transaction.vout.forEach((output) => {
-              if (output.asset === NEO_ASSET_ID) {
+              if (output.asset === NEO_ASSET_ID || output.asset === `0x${NEO_ASSET_ID}`) {
                 output.symbol = 'NEO';
-              } else if (output.asset === GAS_ASSET_ID) {
+              } else if (output.asset === GAS_ASSET_ID || output.asset === `0x${GAS_ASSET_ID}`) {
                 output.symbol = 'GAS';
               }
             });
 
             // pull information for inputs from their previous outputs
-            const inputPromises = [];
             transaction.vin.forEach((input) => {
-              inputPromises.push(rpcClient
+              transactionPromises.push(rpcClient
                 .getRawTransaction(input.txid, 1)
                 .then((inputTransaction) => {
                   const inputSource = inputTransaction.vout[input.vout];
-                  if (inputSource.asset === NEO_ASSET_ID) {
+                  if (inputSource.asset === NEO_ASSET_ID || inputSource.asset === `0x${NEO_ASSET_ID}`) {
                     input.symbol = 'NEO';
-                  } else if (inputSource.asset === GAS_ASSET_ID) {
+                  } else if (inputSource.asset === GAS_ASSET_ID || inputSource.asset === `0x${GAS_ASSET_ID}`) {
                     input.symbol = 'GAS';
                   }
                   input.address = inputSource.address;
@@ -363,7 +377,7 @@ export default {
                 .catch(e => reject(e)));
             });
 
-            Promise.all(inputPromises)
+            Promise.all(transactionPromises)
               .then(() => {
                 store.commit('putTransactionDetail', transaction);
                 resolve(transaction);
@@ -371,57 +385,165 @@ export default {
               .catch(e => reject(e));
           })
           .catch((e) => {
-            reject(new Error(`NEO RPC Network Error: ${e.message}`));
+            reject(`NEO RPC Network Error: ${e}`);
           });
       } catch (e) {
-        return reject(e);
+        return reject(e.message);
       }
     });
   },
 
-  fetchHoldings(address, restrictToSymbol) {
+  fetchHoldings(address, restrictToSymbol, onlyFetchUserAssets, forceRefreshAll) {
     const currentNetwork = network.getSelectedNetwork();
     const currentWallet = wallets.getCurrentWallet();
     const rpcClient = network.getRpcClient();
 
     return new Promise((resolve, reject) => {
       try {
+        const networkAssets = assets.getNetworkAssets();
+        const userAssets = assets.getUserAssets();
+        const holdingsToQueryBalance = {};
+        const holdings = [];
+        const promises = [];
+
         return rpcClient.query({ method: 'getaccountstate', params: [address] })
           .then((res) => {
-            const localNep5Balances = [];
-            const holdings = [];
-            const promises = [];
+            res.result.balances.forEach((fetchedBalance) => {
+              fetchedBalance.assetId = fetchedBalance.asset.replace('0x', '');
+              fetchedBalance.symbol = fetchedBalance.assetId === NEO_ASSET_ID ? 'NEO' : 'GAS';
 
-            if (!_.find(res.result.balances, (o) => {
-              return o.asset === NEO_ASSET_ID;
-            })) {
-              res.result.balances.push({
-                asset: NEO_ASSET_ID,
-                value: 0,
-              });
-            }
-
-            if (!_.find(res.result.balances, (o) => {
-              return o.asset === GAS_ASSET_ID;
-            })) {
-              res.result.balances.push({
-                asset: GAS_ASSET_ID,
-                value: 0,
-              });
-            }
-
-            res.result.balances.forEach((b) => {
-              const h = {
-                asset: b.asset,
-                balance: b.value,
-                symbol: b.asset === NEO_ASSET_ID ? 'NEO' : 'GAS',
-                name: b.asset === NEO_ASSET_ID ? 'NEO' : 'GAS',
-                isNep5: false,
-              };
-              if (restrictToSymbol && h.symbol !== restrictToSymbol) {
+              if (restrictToSymbol && fetchedBalance.symbol !== restrictToSymbol) {
                 return;
               }
-              if (h.symbol === 'NEO') {
+
+              const systemAssetHolding = {
+                assetId: fetchedBalance.assetId,
+                balance: new BigNumber(fetchedBalance.value),
+                symbol: fetchedBalance.symbol,
+                name: fetchedBalance.symbol,
+                isNep5: false,
+                decimals: fetchedBalance.assetId === NEO_ASSET_ID ? 0 : 8,
+                isUserAsset: true,
+              };
+              _.set(holdingsToQueryBalance, systemAssetHolding.assetId, systemAssetHolding);
+            });
+
+            const assetToHolding = (asset, isUserAsset) => {
+              const assetId = asset.assetId.replace('0x', '');
+              return {
+                assetId,
+                balance: new BigNumber(0),
+                symbol: asset.symbol,
+                name: asset.name,
+                isNep5: assetId.length === 40,
+                canPull: asset.canPull,
+                isUserAsset,
+                /* eslint-disable no-nested-ternary */
+                decimals: asset.decimals ?
+                  asset.decimals : (asset.symbol === 'NEO' ? 0 : 8),
+                /* eslint-enable no-nested-ternary */
+              };
+            };
+
+            store.state.assetsThatNeedRefresh.forEach((assetId) => {
+              if (_.has(networkAssets, assetId)) {
+                const asset = assetToHolding(_.get(networkAssets, assetId), false);
+                _.set(holdingsToQueryBalance, asset.assetId, asset);
+              }
+            });
+
+            _.values(userAssets).forEach((nep5Asset) => {
+              const asset = assetToHolding(nep5Asset, true);
+              if (_.has(holdingsToQueryBalance, asset.assetId) === false) {
+                _.set(holdingsToQueryBalance, nep5Asset.assetId, asset);
+                // console.log(`Fetching due to user asset ${asset.symbol} ${asset.assetId}`);
+              }
+            });
+
+            const willRefreshAllDueToPollingInterval
+              = moment().utc().diff(moment.unix(lastVerifiedTokenBalances), 'milliseconds')
+                > intervals.TOKENS_BALANCES_POLL_ALL;
+            // console.log(`forceRefreshAll: ${forceRefreshAll} onlyFetchUserAssets: ${onlyFetchUserAssets}
+            //   willRefreshAllDueToPollingInterval: ${willRefreshAllDueToPollingInterval}`);
+            if (forceRefreshAll || (!onlyFetchUserAssets && (!lastVerifiedTokenBalances
+              || willRefreshAllDueToPollingInterval))) {
+              _.values(networkAssets).forEach((nep5Asset) => {
+                if (_.has(holdingsToQueryBalance, nep5Asset.assetId) === false) {
+                  // This would turn off isUserAsset erroneously without user assets being added first.
+                  _.set(holdingsToQueryBalance, nep5Asset.assetId, assetToHolding(nep5Asset, false));
+                }
+                // console.log(`Fetching due to token balances poll ${nep5Asset.symbol} ${nep5Asset.assetId}`);
+              });
+              lastVerifiedTokenBalances = moment.utc();
+            }
+
+            if (!restrictToSymbol) {
+              _.values(tokensToRetryBalances).forEach((holding) => {
+                if (_.has(holdingsToQueryBalance, holding.assetId) === false) {
+                  _.set(holdingsToQueryBalance, holding.assetId, holding);
+                  // console.log(`Fetching due retry flag set ${holding.symbol} ${holding.assetId}`);
+                }
+                tokensToRetryBalances = _.omit(tokensToRetryBalances, holding.assetId);
+              });
+            }
+
+            _.values(holdingsToQueryBalance).forEach((holding) => {
+              if (restrictToSymbol && holding.symbol !== restrictToSymbol) {
+                return;
+              }
+
+              if (holding.isNep5 === true) {
+                promises.push(this.fetchNEP5Balance(address, holding.assetId)
+                  .then((val) => {
+                    if (!val.valid) {
+                      if (val.retry) {
+                        _.set(tokensToRetryBalances, holding.assetId, holding);
+                        // if we currently have a holding value for this ensure it doesn't vanish for a retryable error
+                        const existingHolding = this.getHolding(holding.assetId);
+                        if (existingHolding) {
+                          // TODO: May need some way in the UI to show that the balance of this asset may be out of date
+                          holding.balance = existingHolding.balance;
+                          holding.symbol = existingHolding.symbol;
+                          holding.name = existingHolding.name;
+                          holding.decimals = existingHolding.decimals;
+                          // console.log(`Using previous balance for token ${holding.symbol} ${holding.assetId}`
+                          //   + `balance: ${holding.balance}`);
+                          holdings.push(holding);
+                        }
+                      }
+
+                      // console.log(`Couldn't find token on network ${holding.symbol} ${holding.assetId}`);
+                      return; // token not found or other failure
+                    }
+
+                    holding.balance = new BigNumber(val.balance.toString());
+                    holding.symbol = val.symbol;
+                    holding.name = val.name;
+                    holding.decimals = val.decimals;
+
+                    // console.log(`fetched ${holding.symbol} ${holding.assetId} balance: ${holding.balance}`);
+                    store.commit('removeAssetHoldingsNeedRefresh', [holding.assetId]);
+
+                    if (val.balance > 0 || holding.isUserAsset === true) {
+                      if (holding.isUserAsset !== true) {
+                        // Saw a balance > 0 on this token but we haven't explicitly added to user assets.
+                        // Add to user's assets so it will stay there until explicitly removed.
+                        holding.isUserAsset = true;
+                        assets.addUserAsset(holding.assetId);
+                        // console.log(`adding user asset ${holding.symbol} ${holding.assetId}
+                        //   + balance: ${holding.balance}`);
+                      }
+
+                      // console.log(`adding holding ${holding.symbol} ${holding.assetId} balance: ${holding.balance}`);
+                      holdings.push(holding);
+                    }
+                  }));
+              } else {
+                // console.log(`fetched system asset ${holding.symbol} ${holding.assetId} balance: ${holding.balance}`);
+                holdings.push(holding);
+              }
+
+              if (holding.symbol === 'NEO') {
                 promises.push(api.getMaxClaimAmountFrom({
                   net: currentNetwork.net,
                   url: currentNetwork.rpc,
@@ -429,71 +551,14 @@ export default {
                   privateKey: currentWallet.privateKey,
                 }, api.neoscan)
                   .then((res) => {
-                    h.availableToClaim = toBigNumber(res);
+                    holding.availableToClaim = toBigNumber(res);
                   })
                   .catch((e) => {
-                    alerts.networkException(e);
+                    const msg = `Couldn't get available to claim for ${holding.symbol}: ${e.message}`;
+                    alerts.networkException(msg);
+                    // console.log(msg);
                   }));
               }
-
-              holdings.push(h);
-            });
-
-            tokens.getAllAsArray().forEach((nep5) => {
-              if (nep5.network !== currentNetwork.net) {
-                return;
-              }
-
-              const inMemory = _.get(store.state.nep5Balances, nep5.assetId);
-
-              if (inMemory && inMemory.balance === 0) {
-                if (inMemory.balance > 0 || nep5.isCustom === true) {
-                  if (restrictToSymbol && inMemory.symbol !== restrictToSymbol) {
-                    return;
-                  }
-
-                  holdings.push(inMemory);
-                }
-                return;
-              }
-              promises.push(this.fetchNEP5Balance(address, nep5.assetId)
-                .then((val) => {
-                  if (!val.symbol) {
-                    return; // token not found on this network
-                  }
-
-                  const nep5balance = {
-                    asset: nep5.assetId,
-                    balance: val.balance,
-                    symbol: val.symbol,
-                    name: val.name,
-                    isNep5: true,
-                    isCustom: nep5.isCustom,
-                  };
-                  localNep5Balances.push(nep5balance);
-
-                  if (val.balance > 0 || nep5.isCustom === true) {
-                    if (restrictToSymbol && nep5balance.symbol !== restrictToSymbol) {
-                      return;
-                    }
-
-                    if (nep5.isCustom !== true && val.balance > 0) {
-                      // saw a balance > 0 on this token but we haven't explicitly added to our tokens we hold,
-                      // mark isCustom = true so it will stay there until explicitly removed
-                      nep5.isCustom = true;
-                      tokens.add(nep5);
-                    }
-
-                    holdings.push(nep5balance);
-                  }
-                })
-                .catch((e) => {
-                  if (e.message.indexOf('Expected a hexstring but got') > -1) {
-                    tokens.remove(nep5.assetId, currentNetwork.net);
-                  }
-                  alerts.networkException(e);
-                  reject(e);
-                }));
             });
 
             return Promise.all(promises)
@@ -501,26 +566,25 @@ export default {
                 const valuationsPromises = [];
                 const lowercaseCurrency = settings.getCurrency().toLowerCase();
 
-                store.commit('putAllNep5Balances', localNep5Balances);
-
-                holdings.forEach((h) => {
+                holdings.forEach((holdingBalance) => {
                   valuationsPromises.push((done) => {
-                    valuation.getValuation(h.symbol)
+                    valuation.getValuation(holdingBalance.symbol)
                       .then((val) => {
-                        h.totalSupply = val.total_supply;
-                        h.marketCap = val[`market_cap_${lowercaseCurrency}`];
-                        h.change24hrPercent = val.percent_change_24h;
-                        h.unitValue = val[`price_${lowercaseCurrency}`];
-                        h.unitValue24hrAgo = h.unitValue / (1 + (h.change24hrPercent / 100.0));
-                        h.change24hrValue = (h.unitValue * h.balance)
-                          - (h.unitValue24hrAgo * h.balance);
-                        h.totalValue = h.unitValue * h.balance;
-                        if (h.unitValue === null) {
-                          h.totalValue = null;
-                          h.change24hrPercent = null;
-                          h.change24hrValue = null;
+                        holdingBalance.totalSupply = val.total_supply;
+                        holdingBalance.marketCap = val[`market_cap_${lowercaseCurrency}`];
+                        holdingBalance.change24hrPercent = val.percent_change_24h;
+                        holdingBalance.unitValue = val[`price_${lowercaseCurrency}`]
+                          ? parseFloat(val[`price_${lowercaseCurrency}`]) : 0;
+                        holdingBalance.unitValue24hrAgo = holdingBalance.unitValue
+                          / (1 + (holdingBalance.change24hrPercent / 100.0));
+                        holdingBalance.change24hrValue = (holdingBalance.unitValue * holdingBalance.balance)
+                          - (holdingBalance.unitValue24hrAgo * holdingBalance.balance);
+                        holdingBalance.totalValue = holdingBalance.unitValue * holdingBalance.balance;
+                        if (holdingBalance.unitValue === null || isNaN(holdingBalance.unitValue)) {
+                          holdingBalance.totalValue = null;
+                          holdingBalance.change24hrPercent = null;
+                          holdingBalance.change24hrValue = null;
                         }
-
                         done();
                       })
                       .catch((e) => {
@@ -529,13 +593,11 @@ export default {
                       });
                   });
                 });
-
                 return Async.series(valuationsPromises, (e) => {
                   if (e) {
                     return reject(e);
                   }
                   const res = { };
-
                   res.holdings = _.sortBy(holdings, [holding => holding.symbol.toLowerCase()], ['symbol']);
                   res.totalBalance = _.sumBy(holdings, 'totalValue');
                   res.change24hrValue = _.sumBy(holdings, 'change24hrValue');
@@ -548,12 +610,26 @@ export default {
               .catch(e => reject(e));
           })
           .catch((e) => {
-            reject(new Error(`NEO RPC Network Error: ${e.message}`));
+            reject(`NEO RPC Network Error: ${e}`);
           });
       } catch (e) {
-        return reject(e);
+        return reject(e.message);
       }
     });
+  },
+
+  getHolding(assetId) {
+    const holding = _.find(store.state.holdings, (o) => {
+      return o.assetId === assetId;
+    });
+
+    if (holding) {
+      if (holding.balance !== null) {
+        holding.balance = toBigNumber(holding.balance);
+      }
+    }
+
+    return holding;
   },
 
   fetchNEP5Tokens(done) {
@@ -561,25 +637,7 @@ export default {
 
     return new Promise((resolve, reject) => {
       try {
-        const defaultList = [{
-          symbol: 'APH',
-          assetId: '591eedcd379a8981edeefe04ef26207e1391904a',
-          isCustom: true, // always show even if 0 balance
-          name: 'Aphelion',
-          network: 'TestNet',
-        }, {
-          symbol: 'APH',
-          assetId: 'a0777c3ce2b169d4a23bcba4565e3225a0122d95',
-          isCustom: true, // always show even if 0 balance,
-          name: 'Aphelion',
-          network: 'MainNet',
-        },
-        ];
-        const localTokens = [];
-
-        defaultList.forEach((token) => {
-          localTokens.push(token);
-        });
+        const assetsMap = {};
         try {
           return axios.get(`${currentNetwork.aph}/tokens`)
             .then((res) => {
@@ -587,35 +645,27 @@ export default {
                 const token = {
                   symbol: fetchedToken.symbol,
                   assetId: fetchedToken.scriptHash.replace('0x', ''),
-                  isCustom: false,
                   name: fetchedToken.name,
-                  network: currentNetwork.net,
+                  decimals: fetchedToken.decimals,
+                  canPull: fetchedToken.canPull,
+                  sale: fetchedToken.sale,
                 };
-                let isDefaultToken = false;
-                defaultList.forEach((defaultToken) => {
-                  if (defaultToken.assetId === token.assetId && defaultToken.network === token.network) {
-                    isDefaultToken = true;
-                  }
-                });
-                if (fetchedToken.sale) {
-                  token.sale = fetchedToken.sale;
-                }
-                if (!isDefaultToken) {
-                  localTokens.push(token);
-                }
+                _.set(assetsMap, token.assetId, token);
               });
 
-              tokens.putAll(localTokens);
-              done();
+              assets.updateNetworkAssets(assetsMap);
+              if (done) {
+                done();
+              }
             })
             .catch((e) => {
-              alerts.exception(new Error(`APH API Error: ${e.message}`));
+              alerts.exception(`APH API Error: ${e}`);
             });
         } catch (e) {
           return reject(e);
         }
       } catch (e) {
-        return reject(e);
+        return reject(e.message);
       }
     });
   },
@@ -627,6 +677,7 @@ export default {
       return api.nep5.getToken(currentNetwork.rpc, assetId, address)
         .then((token) => {
           resolve({
+            valid: !!token.symbol,
             name: token.name,
             symbol: token.symbol,
             decimals: token.decimals,
@@ -634,8 +685,21 @@ export default {
             balance: token.balance,
           });
         })
-        .catch(() => {
-          resolve({ balance: 0 });
+        .catch((ex) => {
+          let retry = true;
+          if (ex.message.indexOf('Expected a hexstring but got') > -1) {
+            // console.log(`Removing token due to exception: ${nep5.assetId} ${e}`);
+            assets.removeUserAsset(assetId);
+            retry = false;
+          } else if (ex.message.indexOf('Invalid results length!') > -1) {
+            retry = false;
+          }
+
+          resolve({
+            valid: false,
+            retry,
+            error: `Error fetching NEP5 balance. Error: ${ex.message}`,
+          });
         });
     });
   },
@@ -654,7 +718,7 @@ export default {
             resolve(res);
           })
           .catch((e) => {
-            alerts.exception(new Error(`APH API Error: ${e.message}`));
+            alerts.exception(`APH API Error: ${e}`);
             resolve({
               data: {
                 transfers: [],
@@ -719,10 +783,14 @@ export default {
             }
 
             alerts.success(`Transaction Hash: ${res.tx.hash} Successfully Sent, waiting for confirmation.`);
-            resolve(`Transaction Hash: ${res.tx.hash} Successfully Sent, waiting for confirmation.`);
 
             if (callback) {
               setTimeout(() => callback(), timeouts.NEO_API_CALL);
+            }
+
+            if (isNep5) {
+              // don't wait for confirmation to be able to send again
+              store.commit('setSendInProgress', false);
             }
 
             res.tx.lastBroadcasted = moment().utc();
@@ -741,7 +809,7 @@ export default {
         return sendPromise;
       } catch (e) {
         store.commit('setSendInProgress', false);
-        return reject(e);
+        return reject(e.message);
       }
     });
   },
@@ -797,6 +865,12 @@ export default {
     const currentNetwork = network.getSelectedNetwork();
     const currentWallet = wallets.getCurrentWallet();
 
+    const token = assets.getNetworkAsset(assetId);
+    if (token.decimals >= 0 && token.decimals < 8) {
+      // Adjust for the token's number of decimals.
+      amount = toBigNumber(amount).dividedBy(10 ** (8 - token.decimals));
+    }
+
     const config = {
       net: currentNetwork.net,
       url: currentNetwork.rpc,
@@ -833,13 +907,14 @@ export default {
       });
   },
 
-  monitorTransactionConfirmation(tx) {
+  monitorTransactionConfirmation(tx, checkRpcForDetails) {
     return new Promise((resolve, reject) => {
       try {
         setTimeout(() => {
           const startedMonitoring = moment().utc();
           const interval = setInterval(() => {
-            if (moment().utc().diff(startedMonitoring, 'milliseconds') > timeouts.MONITOR_TRANSACTIONS) {
+            if (moment().utc().diff(startedMonitoring, 'milliseconds') > timeouts.MONITOR_TRANSACTIONS
+                && checkRpcForDetails !== true) {
               clearInterval(interval);
               reject('Timed out waiting for transaction to be returned from block explorer');
               return;
@@ -856,6 +931,23 @@ export default {
 
             const txInHistory = _.find(store.state.recentTransactions, { hash: tx.hash });
 
+            if (!txInHistory && checkRpcForDetails === true
+              && moment().utc().diff(startedMonitoring, 'milliseconds') >= intervals.BLOCK) {
+              this.fetchTransactionDetails(tx.hash)
+                .then((transactionDetails) => {
+                  if (transactionDetails && transactionDetails.confirmed) {
+                    alerts.success(`TX: ${transactionDetails.txid} CONFIRMED`);
+                    clearInterval(interval);
+                    resolve(transactionDetails);
+                  }
+                })
+                .catch(() => {
+                  if (moment().utc().diff(startedMonitoring, 'milliseconds') >= intervals.BLOCK * 2) {
+                    reject('Transaction confirmation failed.');
+                  }
+                });
+            }
+
             if (txInHistory) {
               alerts.success(`TX: ${tx.hash} CONFIRMED`);
               clearInterval(interval);
@@ -865,7 +957,7 @@ export default {
         }, 15 * 1000); // wait a block for propagation
         return null;
       } catch (e) {
-        return reject(e);
+        return reject(e.message);
       }
     });
   },
@@ -1031,11 +1123,10 @@ export default {
 
             return api.nep5.getToken(currentNetwork.rpc, scriptHash, currentWallet.address)
               .then((token) => {
-                if (tokens.tokenExists(scriptHash.replace('0x', ''), currentNetwork.net) !== true) {
-                  tokens.add({
+                if (assets.tokenExists(scriptHash.replace('0x', ''), currentNetwork.net) !== true) {
+                  assets.addNetworkAsset.add({
                     symbol: token.symbol,
                     assetId: scriptHash.replace('0x', ''),
-                    isCustom: true,
                     name: token.name,
                     network: currentNetwork.net,
                   });
@@ -1069,7 +1160,7 @@ export default {
             reject(e);
           });
       } catch (e) {
-        reject(e);
+        reject(e.message);
       }
     });
   },

@@ -2,41 +2,41 @@
   <div class="tile stats">
     <div class="inner">
       <div class="header">
-        <div class="label">{{$t('activeValue')}}</div>
+        <div class="label">{{ $t('activeValue') }}</div>
         <div class="value">{{ $formatMoney($store.state.statsToken.balance * $store.state.statsToken.unitValue) }}</div>
       </div>
       <div class="body">
         <div class="row">
           <div class="col change">
-            <div class="label">{{$t('twentyFourHourChange')}}</div>
+            <div class="label">{{ $t('twentyFourHourChange') }}</div>
             <div class="value">{{ $formatMoney($store.state.statsToken.change24hrValue) }} ({{ $formatNumber($store.state.statsToken.change24hrPercent) }}%)</div>
           </div>
         </div>
         <div class="row">
           <div class="col">
-            <div class="label">{{$t('twentyFourHourLow')}}</div>
+            <div class="label">{{ $t('twentyFourHourLow') }}</div>
             <div class="value">{{ $formatMoney(low) }}</div>
           </div>
           <div class="col">
-            <div class="label">{{$t('twnetyFourHourHigh')}}</div>
+            <div class="label">{{ $t('twentyFourHourHigh') }}</div>
             <div class="value">{{ $formatMoney(high) }}</div>
           </div>
         </div>
         <div class="row">
           <div class="col">
-            <div class="label">{{$t('twentyFourHourVolume')}}</div>
+            <div class="label">{{ $t('twentyFourHourVolume') }}</div>
             <div class="value">{{ $formatMoneyWithoutCents(volume) }}</div>
           </div>
         </div>
         <div class="row">
           <div class="col">
-            <div class="label">{{$t('marketCap')}}</div>
+            <div class="label">{{ $t('marketCap') }}</div>
             <div class="value">{{ $formatMoneyWithoutCents($store.state.statsToken.marketCap) }}</div>
           </div>
         </div>
         <div class="row">
           <div class="col">
-            <div class="label">{{$t('totalSupply')}}</div>
+            <div class="label">{{ $t('totalSupply') }}</div>
             <div class="value">{{ $formatNumber($store.state.statsToken.totalSupply) }}</div>
           </div>
         </div>
