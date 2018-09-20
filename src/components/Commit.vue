@@ -135,7 +135,7 @@
             <aph-icon name="commit"></aph-icon>
             <p>{{ $t('Commit') }}</p>
           </button>
-          <button class="compound-btn" v-if="shouldShowCompoundButton" @click="compound">
+          <button class="compound-btn" v-if="shouldShowCompoundButton" @click="compound" :disabled="shouldDisableCompoundButton">
             <aph-icon name="compound"></aph-icon>
             <p>{{ $t('Compound') }}</p>
           </button>
@@ -210,6 +210,11 @@ export default {
 
     shouldDisableClaimButton() {
       return this.$store.state.commitState.quantityCommitted <= 0;
+    },
+
+    shouldDisableCompoundButton() {
+      return this.$store.state.commitState.quantityCommitted <= 0
+        || this.$store.state.commitState.ableToCompoundHeight > this.currentBlock;
     },
 
     shouldShowCommitButton() {
