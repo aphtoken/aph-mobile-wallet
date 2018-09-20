@@ -99,9 +99,6 @@ const i18n = new VueI18n({
   fallbackLocale: 'en',
   locale: language,
   messages,
-  missing() {
-    //
-  },
 });
 
 /* eslint-disable no-new */

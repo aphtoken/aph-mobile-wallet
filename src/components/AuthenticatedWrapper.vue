@@ -143,7 +143,6 @@ export default {
       flex: 1;
       display: flex;
       flex-direction: column;
-      // justify-content: center;
 
       .aph-icon > svg {
           &.dashboard {

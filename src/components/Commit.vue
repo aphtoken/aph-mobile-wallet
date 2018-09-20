@@ -674,5 +674,3 @@ export default {
   }
 }
 </style>
-
-
