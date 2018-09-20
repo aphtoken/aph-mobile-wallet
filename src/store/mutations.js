@@ -15,9 +15,12 @@ export {
   handleNetworkChange,
   orderBookSnapshotReceived,
   putAllNep5Balances,
+  putBlockDetails,
   putTransactionDetail,
+  removeAssetHoldingsNeedRefresh,
   resetRequests,
   setActiveTransaction,
+  setAssetHoldingsNeedRefresh,
   setContacts,
   setCurrency,
   setCurrencySymbol,
@@ -106,12 +109,31 @@ function putAllNep5Balances(state, nep5balances) {
   const balances = state.nep5Balances;
   nep5balances.forEach((nep5balance) => {
     _.set(balances, nep5balance.asset, nep5balance);
+  neo.fetchNEP5Tokens(() => {
+    // Fetch holdings for user assets first for best UX
+    this.dispatch('fetchHoldings', {
+      // Then fetch all assets
+      done: () => { this.dispatch('fetchHoldings', { done: null, forceRefreshAll: true }); },
+      onlyFetchUserAssets: true });
+    this.dispatch('fetchRecentTransactions');
   });
 }
 
 function putTransactionDetail(state, transactionDetail) {
   const details = state.transactionDetails;
   _.set(details, transactionDetail.txid, transactionDetail);
+}
+
+function putBlockDetails(state, blockDetails) {
+  _.set(state.blockDetails, blockDetails.hash, blockDetails);
+}
+
+function removeAssetHoldingsNeedRefresh(state, assetIds) {
+  if (state.assetsThatNeedRefresh.length > 0) {
+    assetIds.forEach((assetId) => {
+      _.remove(state.assetsThatNeedRefresh, refreshId => assetId === refreshId);
+    });
+  }
 }
 
 function resetRequests(state) {
@@ -187,6 +209,14 @@ async function setHoldings(state, holdings) {
       return o.symbol === state.statsToken.symbol;
     });
   }
+}
+
+function setAssetHoldingsNeedRefresh(state, assetIds) {
+  assetIds.forEach((assetId) => {
+    if (assetId) {
+      state.assetsThatNeedRefresh.push(assetId);
+    }
+  });
 }
 
 function setLastReceivedBlock(state) {

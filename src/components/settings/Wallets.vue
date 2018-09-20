@@ -204,6 +204,9 @@ export default {
         passphrase: this.passphrase,
         done: () => {
           this.showOpenWallet = false;
+          this.$store.dispatch('fetchHoldings', {
+            done: () => { this.$store.dispatch('fetchHoldings', { forceRefreshAll: true }); },
+            onlyFetchUserAssets: true });
         },
       });
     },

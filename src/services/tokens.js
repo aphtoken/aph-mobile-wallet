@@ -1,4 +1,5 @@
 import storage from './storage';
+import assets from './assets';
 
 const TOKENS_STORAGE_KEY = 'aph.tokens';
 
@@ -40,6 +41,47 @@ export default {
     storage.set(TOKENS_STORAGE_KEY, _.set(tokens, `${assetId}_${network}`, token));
 
     return this;
+  },
+
+  removeAll(tokens) {
+    const existingTokens = this.getAll();
+
+    tokens.forEach((token) => {
+      this.removeInternal(existingTokens, token);
+    });
+
+    if (Object.keys(existingTokens).length === 0) {
+      storage.delete(TOKENS_STORAGE_KEY);
+    } else {
+      storage.set(TOKENS_STORAGE_KEY, existingTokens);
+    }
+  },
+
+  removeInternal(existingTokens, token) {
+    _.unset(existingTokens, `${token.assetId}_${token.network}`);
+  },
+
+  migrateToAssets(network) {
+    const oldTokens = this.getAll();
+    if (Object.keys(oldTokens).length > 0) {
+      // console.log(`Had ${Object.keys(oldTokens).length} existing token keys`);
+      const toRemove = [];
+      _.values(oldTokens).forEach((token) => {
+        if (network.net === token.network) {
+          const asset = {
+            symbol: token.symbol,
+            assetId: token.assetId,
+            name: token.name,
+            decimals: token.decimals,
+          };
+          toRemove.push(_.merge(_.cloneDeep(token, { network: token.network })));
+          assets.addNetworkAsset(asset, token.isCustom);
+          // console.log(`Added previous asset: ${token.symbol} ${token.network}`);
+        }
+      });
+      this.removeAll(toRemove);
+      // console.log(`Removed ${toRemove.length} legacy tokens for network: ${network.net}`);
+    }
   },
 
   getAll() {
