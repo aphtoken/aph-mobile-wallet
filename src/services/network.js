@@ -77,8 +77,8 @@ export default {
             store.commit('setLastSuccessfulRequest');
             this.normalizeAndStore(_.set(network, 'bestBlock', data)).sync();
           }),
-          failed: ((ex) => {
-            console.log(ex);
+          failed: ((e) => {
+            console.log(e);
           }) });
       })
       .catch((e) => {

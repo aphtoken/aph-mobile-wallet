@@ -66,8 +66,8 @@ export default {
     this.currencies = this.$services.settings.getCurrenciesAsArray();
     this.networks = this.$services.network.getNetworks();
     this.selectedCurrency = this.$services.settings.getCurrency();
-    this.selectedNetwork = _.find(this.networks, (o) => {
-      return o.value.net === this.$services.network.getSelectedNetwork().net;
+    this.selectedNetwork = _.find(this.networks, (network) => {
+      return network.value.net === this.$services.network.getSelectedNetwork().net;
     }).value;
   },
 

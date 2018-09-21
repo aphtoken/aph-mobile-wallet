@@ -24,8 +24,8 @@ export default {
   },
 
   methods: {
-    copy(e) {
-      this.position(e);
+    copy(event) {
+      this.position(event);
       this.copyToClipboard();
 
       setTimeout(() => {
@@ -47,11 +47,11 @@ export default {
       document.body.removeChild(el);
     },
 
-    position({ x, y }) {
+    position({ xCoord, yCoord }) {
       const $confirmationText = this.$refs.confirmationText;
 
-      $confirmationText.style.left = `${x}px`;
-      $confirmationText.style.top = `${y}px`;
+      $confirmationText.style.left = `${xCoord}px`;
+      $confirmationText.style.top = `${yCoord}px`;
     },
   },
 

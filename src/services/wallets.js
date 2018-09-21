@@ -69,10 +69,8 @@ export default {
     return storage.get(LAST_WALLET_STORAGE_KEY);
   },
 
-  getOne(name) {
-    return _.find(this.getAllAsArray(), (o) => {
-      return o.label === name;
-    });
+  getOne(label) {
+    return _.find(this.getAllAsArray(), { label });
   },
 
   walletExists(name) {
