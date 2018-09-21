@@ -1,4 +1,5 @@
 import alerts from './alerts';
+import assets from './assets';
 import contacts from './contacts';
 import dex from './dex';
 import formatting from './formatting';
@@ -13,6 +14,7 @@ import wallets from './wallets';
 
 export {
   alerts,
+  assets,
   contacts,
   dex,
   formatting,
