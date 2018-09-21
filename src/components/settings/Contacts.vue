@@ -106,7 +106,7 @@ export default {
     },
 
     getSwipeHandler(contact) {
-      const fn = function handleSwipe(direction) {
+      const handler = function handleSwipe(direction) {
         if (direction === 'right' && this.contactWithActionsShowing
           && contact.address === this.contactWithActionsShowing.address) {
           this.contactWithActionsShowing = null;
@@ -117,7 +117,7 @@ export default {
         }
       }.bind(this);
 
-      return fn;
+      return handler;
     },
 
     remove({ address }) {
