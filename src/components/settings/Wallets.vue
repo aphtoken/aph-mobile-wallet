@@ -159,7 +159,7 @@ export default {
     },
 
     getSwipeHandler(wallet) {
-      const fn = function handleSwipe(direction) {
+      const handler = function handleSwipe(direction) {
         if (direction === 'right' && this.walletWithActionsShowing
           && wallet.address === this.walletWithActionsShowing.address) {
           this.walletWithActionsShowing = null;
@@ -170,7 +170,7 @@ export default {
         }
       }.bind(this);
 
-      return fn;
+      return handler;
     },
 
     hideImportWallet() {
@@ -204,6 +204,9 @@ export default {
         passphrase: this.passphrase,
         done: () => {
           this.showOpenWallet = false;
+          this.$store.dispatch('fetchHoldings', {
+            done: () => { this.$store.dispatch('fetchHoldings', { forceRefreshAll: true }); },
+            onlyFetchUserAssets: true });
         },
       });
     },

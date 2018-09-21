@@ -17,7 +17,7 @@
       <div class="row">
         <div class="col">
           <div class="label">{{ $t('Hash') }}</div>
-          <div class="value">{{ transaction.address }}</div>
+          <div class="value address">{{ transaction.address }}</div>
         </div>
       </div>
       <div class="row">
@@ -157,6 +157,11 @@ export default {
 
   > .body {
     @extend %tile-grid;
+
+    .row > .col > .value.address {
+      white-space: normal;
+      word-break: break-all;
+    }
 
     background: white;
     color: $dark;

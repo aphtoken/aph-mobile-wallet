@@ -18,7 +18,7 @@
             <div class="value">{{ $formatMoney(low) }}</div>
           </div>
           <div class="col">
-            <div class="label">{{ $t('twnetyFourHourHigh') }}</div>
+            <div class="label">{{ $t('twentyFourHourHigh') }}</div>
             <div class="value">{{ $formatMoney(high) }}</div>
           </div>
         </div>

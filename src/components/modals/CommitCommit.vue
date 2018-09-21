@@ -23,9 +23,7 @@ export default {
   computed: {
     aphHolding() {
       if (this.$store.state.holdings) {
-        const holding = _.find(this.$store.state.holdings, (o) => {
-          return o.assetId === this.$services.assets.APH;
-        });
+        const holding = _.find(this.$store.state.holdings, { assetId: this.$services.assets.APH });
 
         if (holding) {
           return holding;

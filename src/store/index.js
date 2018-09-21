@@ -11,6 +11,8 @@ const pjson = require('../../package.json');
 
 const state = {
   activeTransaction: null,
+  assetsThatNeedRefresh: [],
+  blockDetails: {},
   commitState: null,
   contacts: [],
   currency: null,

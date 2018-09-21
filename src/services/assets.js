@@ -10,7 +10,7 @@ export default {
   NEO: 'c56f33fc6ecfcd0c225c4ab356fee59390af8560be0e930faebe74a6daff7c9b',
 
   // TODO: these different per network
-  DEX_SCRIPT_HASH: '953548bb4b3cfbc7c63a9481d288106a4bfb10cf',
+  DEX_SCRIPT_HASH: '4066b92f3ef198445807177937e98a81fb730d6b',
   APH: '591eedcd379a8981edeefe04ef26207e1391904a',
   ATI: '155153854ed377549a72cc1643e481bf25b48390',
 
@@ -91,7 +91,7 @@ export default {
     _.set(assets, asset.assetId, asset);
     storage.set(ASSETS_STORAGE_KEY(currentNetwork.net), assets);
 
-    if (addToUserAssets === true && this.userAssetExists(asset.assetId) === false) {
+    if (addToUserAssets && !this.userAssetExists(asset.assetId)) {
       this.addUserAsset(asset.assetId);
     }
   },
@@ -102,7 +102,6 @@ export default {
     }
 
     const assets = this.getNetworkAssets();
-    const userAssets = this.getUserAssets();
     const currentNetwork = network.getSelectedNetwork();
     const currentWallet = wallets.getCurrentWallet();
 
@@ -110,12 +109,11 @@ export default {
       return;
     }
 
-    _.set(userAssets, assetId, _.get(assets, assetId));
+    const userAssets = _.set(this.getUserAssets(), assetId, _.get(assets, assetId));
     storage.set(ASSETS_ADDED_STORAGE_KEY(currentNetwork.net, currentWallet), userAssets);
   },
 
   removeUserAsset(assetId) {
-    let userAssets = this.getUserAssets();
     const currentNetwork = network.getSelectedNetwork();
     const currentWallet = wallets.getCurrentWallet();
 
@@ -123,7 +121,8 @@ export default {
       return;
     }
 
-    userAssets = _.omit(userAssets, assetId);
+    // console.log(`Removing user asset: ${assetId}`)
+    const userAssets = _.omit(this.getUserAssets(), assetId);
     storage.set(ASSETS_ADDED_STORAGE_KEY(currentNetwork.net, currentWallet), userAssets);
   },
 
@@ -135,11 +134,7 @@ export default {
       return {};
     }
 
-    let userAssets = storage.get(ASSETS_ADDED_STORAGE_KEY(currentNetwork.net, currentWallet));
-    if (!userAssets) {
-      userAssets = {};
-    }
-    return userAssets;
+    return storage.get(ASSETS_ADDED_STORAGE_KEY(currentNetwork.net, currentWallet), {});
   },
 
   getUserAssetsAsArray() {

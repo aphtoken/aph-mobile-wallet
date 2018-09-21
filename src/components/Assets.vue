@@ -6,7 +6,7 @@
     </div>
     <div class="body">
       <div class="holdings">
-        <aph-holding :holding="holding" v-for="(holding, index) in filteredHoldings" :key="index" :on-remove="remove" :on-swipe="onSwipe" :show-actions="holdingWithActionsShowing && holdingWithActionsShowing.asset === holding.asset"></aph-holding>
+        <aph-holding :holding="holding" v-for="(holding, index) in filteredHoldings" :key="index" :on-remove="remove" :on-swipe="onSwipe" :show-actions="holdingWithActionsShowing && holdingWithActionsShowing.assetId === holding.assetId"></aph-holding>
       </div>
       <div class="add-btn" @click="showAddToken = true">
         <aph-icon name="plus"></aph-icon>
@@ -32,14 +32,18 @@
   </section>
 </template>
 
+
 <script>
+import { BigNumber } from 'bignumber.js';
+
 export default {
   computed: {
     holdingsWithCanRemove() {
       return this.$store.state.holdings.map((holding) => {
-        const canRemove = holding.isCustom === true && holding.symbol !== 'APH';
+        const canRemove = holding.isNep5 && holding.isUserAsset
+          && holding.symbol !== 'APH' && new BigNumber(holding.balance).isZero();
 
-        return _.merge(holding, { canRemove });
+        return _.merge(_.cloneDeep(holding), { canRemove });
       });
     },
 
@@ -94,19 +98,20 @@ export default {
       }
 
       if (direction === 'right' && this.holdingWithActionsShowing
-        && holding.asset === this.holdingWithActionsShowing.asset) {
+        && holding.assetId === this.holdingWithActionsShowing.assetId) {
         this.holdingWithActionsShowing = null;
       } else if (direction === 'left' && !this.holdingWithActionsShowing) {
         this.holdingWithActionsShowing = holding;
-      } else if (direction === 'left' && holding.asset !== this.holdingWithActionsShowing.asset) {
+      } else if (direction === 'left' && holding.assetId !== this.holdingWithActionsShowing.assetId) {
         this.holdingWithActionsShowing = holding;
       }
     },
 
     remove(holding) {
-      this.$services.tokens.remove(holding.asset, this.$store.state.currentNetwork.net);
+      // this.$services.tokens.remove(holding.asset, this.$store.state.currentNetwork.net);
+      this.$services.assets.removeUserAsset(holding.assetId);
       this.$services.alerts.success(`Removed ${holding.symbol}`);
-      this.$store.dispatch('fetchHoldings');
+      this.$store.dispatch('fetchHoldings', { onlyFetchUserAssets: true });
     },
   },
 
@@ -114,7 +119,7 @@ export default {
     showAddToken() {
       this.hashOrSymbol = '';
       this.$store.commit('endRequest', { identifier: 'addToken' });
-      this.$store.dispatch('fetchHoldings');
+      this.$store.dispatch('fetchHoldings', { onlyFetchUserAssets: true });
     },
   },
 };
