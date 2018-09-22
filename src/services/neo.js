@@ -25,6 +25,12 @@ let lastClaimSent;
 let lastVerifiedTokenBalances = 0;
 let tokensToRetryBalances = {};
 
+const calculateHoldingTotalBalance = (holding) => {
+  return toBigNumber(_.get(holding, 'balance', toBigNumber(0)))
+    .plus(_.get(holding, 'contractBalance', toBigNumber(0)))
+    .plus(_.get(holding, 'openOrdersBalance', toBigNumber(0)));
+};
+
 export default {
   createWallet(name, passphrase, passphraseConfirm) {
     return new Promise((resolve, reject) => {
@@ -620,10 +626,19 @@ export default {
 
   getHolding(assetId) {
     const holding = _.find(store.state.holdings, { assetId });
-
+    
     if (holding) {
       if (holding.balance !== null) {
         holding.balance = toBigNumber(holding.balance);
+      }
+      if (holding.contractBalance !== null) {
+        holding.contractBalance = toBigNumber(holding.contractBalance);
+      }
+      if (!holding.totalBalance) {
+        holding.totalBalance = calculateHoldingTotalBalance(holding);
+      }
+      if (holding.totalBalance !== null) {
+        holding.totalBalance = toBigNumber(holding.totalBalance);
       }
     }
 
