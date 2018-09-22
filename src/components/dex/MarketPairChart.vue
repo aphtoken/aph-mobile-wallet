@@ -49,8 +49,12 @@
 </template>
 
 <script>
-
+let storeUnwatch;
 export default {
+
+  beforeDestroy() {
+    storeUnwatch();
+  },
 
   computed: {
     percentChangeAbsolute() {
@@ -78,6 +82,13 @@ export default {
 
   mounted() {
     this.loadTrades();
+
+    storeUnwatch = this.$store.watch(
+      () => {
+        return this.$store.state.currentMarket;
+      }, () => {
+        this.loadTrades();
+      });
   },
 
   watch: {
