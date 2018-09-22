@@ -1,8 +1,7 @@
-import assets from './assets';
-import alerts from './alerts';
-import network from './network';
 import { BigNumber } from 'bignumber.js';
-import { MARKETS, HISTORY } from '../../sample_api/dex_sample.js';
+import alerts from './alerts';
+import assets from './assets';
+import network from './network';
 import { toBigNumber } from './formatting.js';
 
 export default {

@@ -49,7 +49,7 @@ export default {
       }
       return value;
     },
-    
+
     getRelativeChange(value, entry, key) {
       if (key === '24H change') {
         return value > 0 ? 'increase' : 'decrease';
