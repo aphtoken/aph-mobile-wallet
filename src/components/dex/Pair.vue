@@ -25,8 +25,12 @@ import MarketPairChart from './MarketPairChart';
 import MarketSelector from './MarketSelector';
 
 export default {
-  mounted() {
-    this.loadTrades();
+  data() {
+    return {
+      columns: TICKER_LIST.COLUMNS,
+      data: TICKER_LIST.DATA,
+      searchBy: '',
+    };
   },
 
   components: {
@@ -38,32 +42,23 @@ export default {
     //
   },
 
-  data() {
-    return {
-      searchBy: '',
-      data: TICKER_LIST.DATA,
-      columns: TICKER_LIST.COLUMNS,
-    };
-  },
-
   methods: {
-    loadTrades() {
-      this.$store.dispatch('fetchTradeHistory', {
-        marketName: this.$store.state.currentMarket.marketName,
-      });
-    },
     formatEntry(value, entry, key) {
       if (key === '24H change') {
         return `${this.$services.formatting.formatNumber(value)}%`;
       }
       return value;
     },
+    
     getRelativeChange(value, entry, key) {
       if (key === '24H change') {
         return value > 0 ? 'increase' : 'decrease';
       }
       return null;
     },
+  },
+
+  mounted() {
   },
 
   watch: {
