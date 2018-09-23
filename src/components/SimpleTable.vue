@@ -52,7 +52,7 @@ export default {
     handleRowClick: {
       default: () => {},
       type: Function,
-    }
+    },
   },
 
   data() {
