@@ -2,9 +2,9 @@
   <section id="dex--pair">
     <div class="body">
       <market-pair-chart></market-pair-chart>
-      <market-selector></market-selector>
+      <base-selector v-model="baseCurrency" v-bind="{baseCurrencies}"></base-selector>
       <aph-search-bar v-model="searchBy"></aph-search-bar>
-      <aph-simple-table v-bind="{columns, data, formatEntry, injectStyling: getRelativeChange}">
+      <aph-simple-table v-bind="{ columns, data: tableData, formatEntry, injectStyling: getRelativeChange, handleRowClick: handleMarketSelection }">
         <div class="cell-price" slot="price" slot-scope="slotProps">
           <div>
             {{ slotProps.value }}
@@ -20,29 +20,44 @@
 
 <script>
 
-import { TICKER_LIST } from '../../../sample_api/dex_sample.js';
 import MarketPairChart from './MarketPairChart';
-import MarketSelector from './MarketSelector';
+import BaseSelector from './BaseSelector';
+
+const TABLE_COLUMNS = ['asset', 'price', 'volume', '24H change'];
 
 export default {
+  components: {
+    MarketPairChart,
+    BaseSelector,
+  },
+
+  computed: {
+    baseCurrencies() {
+      return _.uniq(_.map(this.$store.state.markets, 'baseCurrency'));
+    },
+
+    tableData() {
+      return this.filteredMarkets().map(({ quoteCurrency, minimumSize, buyFee, sellFee }) => {
+        return { asset: quoteCurrency, price: minimumSize, volume: buyFee, '24H change': sellFee };
+      });
+    },
+  },
+
   data() {
     return {
-      columns: TICKER_LIST.COLUMNS,
-      data: TICKER_LIST.DATA,
+      baseCurrency: '',
+      columns: TABLE_COLUMNS,
       searchBy: '',
     };
   },
 
-  components: {
-    MarketPairChart,
-    MarketSelector,
-  },
-
-  computed: {
-    //
-  },
-
   methods: {
+    filteredMarkets() {
+      return this.$store.state.markets.filter((market) => {
+        return market.baseCurrency === this.baseCurrency;
+      });
+    },
+
     formatEntry(value, entry, key) {
       if (key === '24H change') {
         return `${this.$services.formatting.formatNumber(value)}%`;
@@ -56,9 +71,16 @@ export default {
       }
       return null;
     },
+
+    handleMarketSelection({ asset }) {
+      this.$store.commit('setCurrentMarket', this.filteredMarkets().find((market) => {
+        return market.quoteCurrency === asset;
+      }));
+    },
   },
 
   mounted() {
+    this.baseCurrency = _.first(this.baseCurrencies);
   },
 
   watch: {
