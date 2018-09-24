@@ -1103,7 +1103,7 @@ export default {
           args: [
           ],
         },
-        fees: currentNetwork.fee,
+        fees: currentNetwork.fee || 0,
         gas: 0,
       };
 
@@ -1356,7 +1356,7 @@ export default {
             args: [
             ],
           },
-          fees: currentNetwork.fee,
+          fees: currentNetwork.fee || 0,
           gas: 0,
         };
 
@@ -1454,7 +1454,7 @@ export default {
             args: [
             ],
           },
-          fees: currentNetwork.fee,
+          fees: currentNetwork.fee || 0,
           gas: 0,
         };
 
@@ -2033,7 +2033,7 @@ export default {
             operation,
             args: parameters,
           },
-          fees: currentNetwork.fee,
+          fees: currentNetwork.fee || 0,
           gas: 0,
         };
 
@@ -2057,7 +2057,7 @@ export default {
 
         api.fillKeys(config)
           .then((configResponse) => {
-            if (!configResponse.intents && currentNetwork.fee === 0) {
+            if (!configResponse.intents && (!currentNetwork.fee || currentNetwork.fee === 0)) {
               return new Promise((balanceResolve) => {
                 configResponse.balance = new wallet.Balance({ address: configResponse.address, net: configResponse.net });
                 balanceResolve(configResponse);
