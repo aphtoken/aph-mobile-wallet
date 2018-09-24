@@ -11,6 +11,7 @@ export {
   createWallet,
   deleteWallet,
   fetchBlockHeaderByHash,
+  fetchCommitState,
   fetchHoldings,
   fetchLatestVersion,
   fetchMarkets,
@@ -362,6 +363,22 @@ function deleteWallet({ commit }, { name, done }) {
         commit('failRequest', { identifier: 'deleteWallet', message: e });
       });
   }, timeouts.NEO_API_CALL);
+}
+
+async function fetchCommitState({ commit }) {
+  const currentWallet = wallets.getCurrentWallet();
+  let commitState;
+
+  commit('startRequest', { identifier: 'fetchCommitState' });
+
+  try {
+    commitState = await dex.fetchCommitState(currentWallet.address);
+    commit('setCommitState', commitState);
+    commit('endRequest', { identifier: 'fetchCommitState' });
+  } catch (message) {
+    alerts.networkException(message);
+    commit('failRequest', { identifier: 'fetchCommitState', message });
+  }
 }
 
 function fetchLatestVersion({ commit }) {

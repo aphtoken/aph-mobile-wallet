@@ -1,7 +1,7 @@
 <template>
   <section id="languages">
     <div class="header">
-      <div class="title">{{$t('Language')}}</div>
+      <div class="title">{{ $t('Language') }}</div>
     </div>
     <div class="body">
       <div class="languages">

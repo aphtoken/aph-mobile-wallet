@@ -1,15 +1,15 @@
 <template>
   <section id="dashboard--token-stats" :class="[{'show-receive': showReceive, 'show-send': showSend}]">
     <div class="header">
-      <div class="title">{{$t('tokenStats')}}</div>
+      <div class="title">{{ $t('tokenStats') }}</div>
       <div class="btn-group">
         <div class="receive-btn" @click="showReceive = true">
           <aph-icon name="receive"></aph-icon>
-          <p>{{$t('Receive')}}</p>
+          <p>{{ $t('Receive') }}</p>
         </div>
         <div class="send-btn" @click="showSend = true">
           <aph-icon name="send"></aph-icon>
-          <p>{{$t('Send')}}</p>
+          <p>{{ $t('Send') }}</p>
         </div>
       </div>
     </div>
@@ -32,11 +32,11 @@
     <div class="receive">
       <div class="control" @click="hideReceive">
         <aph-icon name="arrow-down"></aph-icon>
-        <div class="title">{{$t('Receive')}}</div>
+        <div class="title">{{ $t('Receive') }}</div>
       </div>
       <div class="body">
         <div class="inner">
-          <div class="title">{{$t('shareThisWallet')}}</div>
+          <div class="title">{{ $t('shareThisWallet') }}</div>
           <vue-qrcode :value="$store.state.currentWallet.address" :options="{ backgroundAlpha: 0, size: 150 }"></vue-qrcode>
           <div class="address">{{ $store.state.currentWallet.address }}</div>
         </div>
@@ -46,41 +46,41 @@
       <div class="send confirmation">
         <div class="control" @click="showSendConfirmation = false">
           <aph-icon name="arrow-left"></aph-icon>
-          <div class="title">{{$t('Send')}}</div>
+          <div class="title">{{ $t('Send') }}</div>
         </div>
         <div class="body">
           <div class="inner">
-            <p>{{$t('youAreSending')}}</p>
+            <p>{{ $t('youAreSending') }}</p>
             <aph-token-icon :symbol="$store.state.statsToken.symbol"></aph-token-icon>
             <div class="amount">{{amount}} {{ $store.state.statsToken.symbol }}</div>
             <div class="row">
               <div class="col">
-                <div class="label">{{$t('Value')}}</div>
+                <div class="label">{{ $t('Value') }}</div>
                 <div class="value">{{ $formatMoney($store.state.statsToken.unitValue * amount) }}</div>
               </div>
             </div>
             <div class="row">
               <div class="col">
-                <div class="label">{{$t('Token')}}</div>
+                <div class="label">{{ $t('Token') }}</div>
                 <div class="value">{{ $store.state.statsToken.name }}</div>
               </div>
             </div>
             <div class="row">
               <div class="col">
-                <div class="label">{{$t('Recipient')}}</div>
+                <div class="label">{{ $t('Recipient') }}</div>
                 <div class="value">{{ address }}</div>
               </div>
             </div>
           </div>
         </div>
-        <button class="send-btn" :disabled="shouldDisableSendButton" @click="send">{{$t('Send')}}</button>
+        <button class="send-btn" :disabled="shouldDisableSendButton" @click="send">{{ $t('Send') }}</button>
       </div>
     </template>
     <template v-else>
       <div class="send">
         <div class="control" @click="hideSend">
           <aph-icon name="arrow-down"></aph-icon>
-          <div class="title">{{$t('Send')}}</div>
+          <div class="title">{{ $t('Send') }}</div>
         </div>
         <div class="header">
           <aph-token-icon :symbol="$store.state.statsToken.symbol"></aph-token-icon>
@@ -91,14 +91,14 @@
           <aph-icon name="arrow-right"></aph-icon>
         </div>
         <div class="body">
-          <div class="underlined">{{$t('sendTo')}}</div>
+          <div class="underlined">{{ $t('sendTo') }}</div>
           <div class="tile send-to">
             <aph-input placeholder="Address" :light="true" v-model="address"></aph-input>
             <div class="help-text">
               <div class="symbol">{{ $store.state.statsToken.symbol }}</div>
             </div>
           </div>
-          <div class="underlined">{{$t('Amount')}}</div>
+          <div class="underlined">{{ $t('Amount') }}</div>
           <div class="tile amount">
             <aph-input placeholder="Amount" :light="true" type="number" v-model="amount"></aph-input>
             <div class="help-text">
@@ -107,13 +107,14 @@
             </div>
           </div>
         </div>
-        <button class="next-btn" :disabled="shouldDisableNextButton" @click="showSendConfirmation = true">{{$t('Next')}}</button>
+        <button class="next-btn" :disabled="shouldDisableNextButton" @click="showSendConfirmation = true">{{ $t('Next') }}</button>
       </div>
     </template>
   </section>
 </template>
 
 <script>
+import { BigNumber } from 'bignumber.js';
 import VueQrcode from '@xkeshi/vue-qrcode';
 import ClaimGas from './token-stats/ClaimGas';
 import Preview from './token-stats/Preview';
@@ -199,6 +200,13 @@ export default {
     },
 
     send() {
+      if (new BigNumber(this.amount).isGreaterThan(this.$store.state.statsToken.balance)) {
+        this.$services.alerts
+          .exception(`Insufficient ${this.$store.state.statsToken.symbol}!` +
+            ` Need ${this.amount} but only found ${this.$store.state.statsToken.balance}`);
+        return;
+      }
+
       this.sendInProgress = true;
       setTimeout(() => {
         this.$services.neo.sendFunds(this.address, this.$store.state.statsToken.assetId,

@@ -9,9 +9,9 @@
     </div>
     <div class="body">
       <div class="btn-group">
-        <router-link to="/login/create-wallet" class="create-wallet-btn">{{$t('createWallet')}}</router-link>
-        <router-link to="/login/import" class="import-wallet-btn">{{$t('importWallet')}}</router-link>
-        <router-link to="/login/wallets" class="wallets-btn" v-if="$store.state.wallets.length">{{$t('Wallets')}}</router-link>
+        <router-link to="/login/create-wallet" class="create-wallet-btn">{{ $t('createWallet') }}</router-link>
+        <router-link to="/login/import" class="import-wallet-btn">{{ $t('importWallet') }}</router-link>
+        <router-link to="/login/wallets" class="wallets-btn" v-if="$store.state.wallets.length">{{ $t('wallets') }}</router-link>
       </div>
     </div>
   </section>

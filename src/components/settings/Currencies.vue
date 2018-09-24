@@ -1,7 +1,7 @@
 <template>
   <section id="currencies">
     <div class="header">
-      <div class="title">{{$t('Currency')}}</div>
+      <div class="title">{{ $t('Currency') }}</div>
       <div class="search">
         <div class="inner">
           <aph-icon name="search"></aph-icon>

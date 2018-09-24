@@ -12,10 +12,10 @@
     </div>
     <div class="body">
       <login-form-wrapper identifier="openSavedWallet">
-        <aph-input :placeholder="$t('Passphrase')" v-model="passphrase" type="password"></aph-input>
+        <aph-input :placeholder="$t('passphrase')" v-model="passphrase" type="password"></aph-input>
         <button class="login-btn" @click="login" :disabled="shouldDisableLButton">{{ buttonLabel }}</button>
       </login-form-wrapper>
-      <router-link class="switch-btn" to="/login/landing">{{$t('Switch')}}</router-link>
+      <router-link class="switch-btn" to="/login/landing">{{ $t('Switch') }}</router-link>
     </div>
   </section>
 </template>
@@ -39,7 +39,7 @@ export default {
 
   computed: {
     buttonLabel() {
-      return this.$isPending('openSavedWallet') ? this.$t('loggingIn') : this.$t('Login');
+      return this.$isPending('openSavedWallet') ? this.$t('loggingIn') : this.$t('login');
     },
 
     shouldDisableLButton() {

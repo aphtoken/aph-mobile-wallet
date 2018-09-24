@@ -6,81 +6,81 @@
     <div class="header">
         <div class="confirmed" v-if="transaction.details.confirmed">
           <aph-icon name="confirmed-big"></aph-icon>
-          <div class="label">{{$t('Confirmed')}}</div>
+          <div class="label">{{ $t('Confirmed') }}</div>
         </div>
         <div class="unconfirmed" v-else>
           <aph-icon name="unconfirmed-big"></aph-icon>
-          <div class="label">{{$t('Unconfirmed')}}</div>
+          <div class="label">{{ $t('Unconfirmed') }}</div>
         </div>
     </div>
     <div class="body">
       <div class="row">
         <div class="col">
-          <div class="label">{{$t('Hash')}}</div>
+          <div class="label">{{ $t('Hash') }}</div>
           <div class="value address">{{ transaction.address }}</div>
         </div>
       </div>
       <div class="row">
         <div class="col">
-          <div class="label">{{$t('Date')}}</div>
+          <div class="label">{{ $t('Date') }}</div>
           <div class="value">{{ $formatDate(transaction.block_time) }}</div>
         </div>
         <div class="col">
-          <div class="label">{{$t('Time')}}</div>
+          <div class="label">{{ $t('Time') }}</div>
           <div class="value">{{ $formatTime(transaction.block_time) }}</div>
         </div>
       </div>
       <div class="row">
         <div class="col">
-          <div class="label">{{$t('Token')}}</div>
+          <div class="label">{{ $t('Token') }}</div>
           <div class="value">{{ transaction.symbol }}</div>
         </div>
         <div class="col">
-          <div class="label">{{$t('Amount')}}</div>
+          <div class="label">{{ $t('Amount') }}</div>
           <div :class="['value', {green: transaction.value > 0, red: transaction.value < 0}]">{{ $formatNumber(transaction.value) }}</div>
         </div>
       </div>
       <div class="row">
         <div class="col">
-          <div class="label">{{$t('Block')}}</div>
+          <div class="label">{{ $t('Block') }}</div>
           <div class="value purple">{{ $formatNumber(transaction.block_index) }}</div>
         </div>
         <div class="col">
-          <div class="label">{{$t('Status')}}</div>
-          <div class="value" v-if="transaction.value < 0">{{$t('Sent')}}</div>
-          <div class="value" v-else>{{$t('Received')}}</div>
+          <div class="label">{{ $t('Status') }}</div>
+          <div class="value" v-if="transaction.value < 0">{{ $t('Sent') }}</div>
+          <div class="value" v-else>{{ $t('Received') }}</div>
         </div>
       </div>
       <div class="row">
         <div class="col">
-          <div class="label">{{$t('From')}}</div>
+          <div class="label">{{ $t('From') }}</div>
           <div class="value">{{  transaction.from }}</div>
         </div>
       </div>
       <div class="row">
         <div class="col">
-          <div class="label">{{$t('To')}}</div>
+          <div class="label">{{ $t('To') }}</div>
           <div class="value purple">{{  transaction.to }}</div>
         </div>
       </div>
       <div class="row">
         <div class="col">
-          <div class="label">{{$t('networkFee')}}</div>
-          <div class="value">{{$t('feeInGas', { fee: $formatNumber(transaction.details.net_fee) })}}</div>
+          <div class="label">{{ $t('networkFee') }}</div>
+          <div class="value">{{ $t('feeInGas', { fee: formatNumber(transaction.details.net_fee) }) }}</div>
         </div>
         <div class="col">
-          <div class="label">{{$t('systemFee')}}</div>
-          <div class="value">{{$t('systemFeeInGas', { fee: $formatNumber(transaction.details.sys_fee)})}}</div>
+          <div class="label">{{ $t('systemFee') }}</div>
+          <div class="value">{{ $t('systemFeeInGas', { fee: $formatNumber(transaction.details.sys_fee)}) }}</div>
         </div>
       </div>
       <div class="row">
         <div class="col">
-          <div class="label">{{$t('Confirmations')}}</div>
+          <div class="label">{{ $t('Confirmations') }}</div>
           <div class="value">{{ $formatNumber(transaction.details.confirmations) }}</div>
         </div>
         <div class="col">
-          <div class="label">{{$t('Size')}}</div>
-          <div class="value">{{$t('sizeInBytes', { bytes: $formatNumber(transaction.details.size)})}}</div>
+          <div class="label">{{ $t('Size') }}</div>
+          <div class="value">{{ $t('sizeInBytes', { bytes: $formatNumber(transaction.details.size)}) }}</div>
         </div>
       </div>
     </div>
