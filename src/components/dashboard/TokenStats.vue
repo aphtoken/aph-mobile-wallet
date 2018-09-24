@@ -119,6 +119,7 @@ import ClaimGas from './token-stats/ClaimGas';
 import Preview from './token-stats/Preview';
 import Stats from './token-stats/Stats';
 import TransactionHistory from './token-stats/TransactionHistory';
+import { BigNumber } from 'bignumber.js';
 const HOURS = 24;
 
 export default {
@@ -199,6 +200,13 @@ export default {
     },
 
     send() {
+      if (new BigNumber(this.amount).isGreaterThan(this.$store.state.statsToken.balance)) {
+        this.$services.alerts
+          .exception(`Insufficient ${this.$store.state.statsToken.symbol}!` +
+            ` Need ${this.amount} but only found ${this.$store.state.statsToken.balance}`);
+        return;
+      }
+
       this.sendInProgress = true;
       setTimeout(() => {
         this.$services.neo.sendFunds(this.address, this.$store.state.statsToken.assetId,
