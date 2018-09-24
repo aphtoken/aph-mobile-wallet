@@ -1,9 +1,9 @@
 <template>
   <section id="portfolio-header">
-    <div class="title-underlined">{{$t('totalBalance')}}</div>
+    <div class="title-underlined">{{ $t('totalBalance') }}</div>
     <div class="total-balance">{{ $formatMoney($store.state.portfolio.balance) }}</div>
     <div class="change">
-      <div class="label">{{$t('twentyFourHourChange')}}</div>
+      <div class="label">{{ $t('twentyFourHourChange') }}</div>
       <div :class="['amount', {increase: $store.state.portfolio.changeValue > 0, decrease: $store.state.portfolio.changeValue < 0}]">{{ $formatMoney($store.state.portfolio.changeValue) }} (<span class="percentage">{{ $formatNumber($store.state.portfolio.changePercent) }}</span>)</div>
     </div>
   </section>

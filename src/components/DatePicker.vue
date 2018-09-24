@@ -28,6 +28,9 @@
           <div @click="toggleSelectedDay(day.moment)" :class="['day', {active: day.isSelectedDay, 'disabled': day.disabled, 'is-today': isToday(day.moment)}]" v-for="(day, dayIndex) in week" :key="dayIndex">{{ day.label }}</div>
         </div>
       </div>
+      <div class="footer">
+        <div class="close-btn" @click="isOpen = false">{{ $t('close') }}</div>
+      </div>
     </div>
   </div>
 </template>
@@ -207,9 +210,10 @@ export default {
   .calendar-wrapper {
     @include transition(top);
 
-    align-items: center;
     background: white;
     box-shadow: $box-shadow;
+    display: flex;
+    flex-direction: column;
     height: 100%;
     left: 0;
     padding: 0;
@@ -220,6 +224,7 @@ export default {
 
     .controls {
       display: flex;
+      flex: none;
 
       .left, .right {
         cursor: pointer;
@@ -249,6 +254,7 @@ export default {
     .weekdays {
       background: $background;
       display: flex;
+      flex: none;
       padding: $space $space-sm;
 
       > div {
@@ -261,6 +267,7 @@ export default {
     }
 
     .calendar-days {
+      flex: 1;
       padding: $space-sm;
 
       .week {
@@ -301,6 +308,14 @@ export default {
             color: white;
           }
         }
+      }
+    }
+
+    .footer {
+      flex: none;
+
+      .close-btn {
+        @extend %btn-footer-light;
       }
     }
   }

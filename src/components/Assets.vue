@@ -15,7 +15,7 @@
     <div class="add-token">
       <div class="control" @click="hideAddToken">
         <aph-icon name="arrow-down"></aph-icon>
-        <div class="title">{{$t('addToken')}}</div>
+        <div class="title">{{ $t('addToken') }}</div>
       </div>
       <div class="body">
         <div class="inner">
@@ -27,7 +27,7 @@
           </div>
         </div>
       </div>
-      <button class="submit-btn" @click="add" :disabled="shouldDisableAddButton">{{$t('Add')}}</button>
+      <button class="submit-btn" @click="add" :disabled="shouldDisableAddButton">{{ $t('Add') }}</button>
     </div>
   </section>
 </template>

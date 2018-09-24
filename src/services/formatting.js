@@ -35,6 +35,14 @@ const formatNumberBase = (value, wholeNumberFormat) => {
 };
 
 export default {
+  abbreviateNumber(value, wholeNumberFormat = formats.WHOLE_NUMBER, defaultValue = 'N/A') {
+    if (nullOrUndefined(value)) {
+      return defaultValue;
+    }
+
+    return numeral(formatNumberBase(value, wholeNumberFormat)).format('0.0a');
+  },
+
   formatDate(timestamp, defaultValue = '--') {
     if (nullOrUndefined(timestamp)) {
       return defaultValue;
@@ -83,6 +91,14 @@ export default {
     return moment.unix(timestamp).format(formats.TIME);
   },
 
+  formatWeekdayAndTime(timestamp, defaultValue = '--') {
+    if (nullOrUndefined(timestamp)) {
+      return defaultValue;
+    }
+
+    return moment.unix(timestamp).format(formats.WEEKDAY_AND_TIME);
+  },
+
   formatTokenAmount(value, threshold = 1000, defaultValue = 'N/A') {
     if (nullOrUndefined(value)) {
       return defaultValue;
@@ -90,13 +106,5 @@ export default {
 
     return toBigNumber(value).isGreaterThan(threshold) ?
       accounting.formatMoney(toBigNumber(value), '', 0) : formatNumberBase(value);
-  },
-
-  formatWeekdayAndTime(timestamp, defaultValue = '--') {
-    if (nullOrUndefined(timestamp)) {
-      return defaultValue;
-    }
-
-    return moment.unix(timestamp).format(formats.WEEKDAY_AND_TIME);
   },
 };
