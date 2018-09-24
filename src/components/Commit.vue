@@ -108,10 +108,12 @@
       <div class="bottom">
         <template v-if="$store.state.commitState.quantityCommitted > 0">
           <div class="inner" v-if="$store.state.commitState.ableToClaimHeight > currentBlock">
-            <div class="copy">{{ $store.state.commitState.ableToClaimHeight - currentBlock }}<br />{{ $t('blocksUntilClaim') }} ({{ $store.state.commitState.ableToCompoundHeight }})</div>
+            <div class="header">{{ $store.state.commitState.ableToClaimHeight - currentBlock }}</div>
+            <div class="copy">{{ $t('blocksUntilClaim') }} ({{ $store.state.commitState.ableToCompoundHeight }})</div>
           </div>
           <div class="inner" v-else-if="$store.state.commitState.ableToCompoundHeight > currentBlock">
-            <div class="copy">{{ $store.state.commitState.ableToCompoundHeight - currentBlock }}<br />{{ $t('blocksUntilClaim') }} ({{ $store.state.commitState.ableToCompoundHeight }})</div>
+            <div class="header">{{ $store.state.commitState.ableToCompoundHeight - currentBlock }}</div>
+            <div class="copy">{{ $t('blocksUntilClaim') }} ({{ $store.state.commitState.ableToCompoundHeight }})</div>
           </div>
           <div class="inner" v-else>
             <div class="line"></div>
@@ -127,15 +129,15 @@
           </div>
         </template>
         <div class="btn-group">
-          <button class="claim-btn" @click="showClaimModal = true" :disabled="shouldDisableClaimButton">
-            <aph-icon name="claim"></aph-icon>
-            <p>{{ $t('Claim') }}</p>
-          </button>
           <button class="commit-btn" v-if="shouldShowCommitButton" @click="showCommitModal = true">
             <aph-icon name="commit"></aph-icon>
             <p>{{ $t('commit') }}</p>
           </button>
-          <button class="compound-btn" v-if="shouldShowCompoundButton" @click="compound" :disabled="shouldDisableCompoundButton">
+          <button class="claim-btn" v-else @click="showClaimModal = true" :disabled="shouldDisableClaimButton">
+            <aph-icon name="claim"></aph-icon>
+            <p>{{ $t('claim') }}</p>
+          </button>
+          <button class="compound-btn" @click="compound" :disabled="shouldDisableCompoundButton">
             <aph-icon name="compound"></aph-icon>
             <p>{{ $t('compound') }}</p>
           </button>
@@ -222,12 +224,7 @@ export default {
     },
 
     shouldShowCommitButton() {
-      return false;
-      // return this.$store.state.commitState.quantityCommitted <= 0;
-    },
-
-    shouldShowCompoundButton() {
-      return !this.shouldShowCommitButton;
+      return this.$store.state.commitState.quantityCommitted <= 0;
     },
   },
 
@@ -404,17 +401,29 @@ export default {
         display: flex;
         flex-direction: column;
         flex: 1;
-        padding-bottom: toRem(62.5px);
 
         .line {
           background: $purple;
           content: " ";
           height: $border-width;
-          margin: $space-lg 0;
+          margin-top: $space-lg;
           width: 5vw;
 
           @include lowRes() {
-            margin: $space 0;
+            margin-top: $space;
+            transform: scale(.9);
+          }
+        }
+
+        .header {
+          color: $purple;
+          font-family: GilroySemibold;
+          font-size: toRem(18px);
+          margin-top: $space-lg;
+
+          @include lowRes() {
+            margin-top: $space;
+            transform: scale(.9);
           }
         }
 
@@ -422,11 +431,16 @@ export default {
           @extend %small-uppercase-grey-label-dark;
 
           line-height: 200%;
-          // margin-bottom: $space-lg;
+          margin-top: $space-lg;
           text-align: center;
 
           .block {
             color: $dark;
+          }
+
+          @include lowRes() {
+            margin-top: $space;
+            transform: scale(.9);
           }
         }
       }
@@ -435,7 +449,7 @@ export default {
         display: flex;
         flex: none;
         flex-direction: row;
-        justify-content: space-around;
+        justify-content: space-evenly;
         margin-top: toRem(-62.5px);
         width: 100%;
         z-index: 100;
@@ -443,19 +457,27 @@ export default {
         > * {
           @extend %btn-square;
 
+          background: $purple;
           box-shadow: $box-shadow;
           width: 40%;
 
           > p {
+            color: white;
             margin-top: 0;
           }
 
           &.disabled, &:disabled {
-            opacity: 0.7;
+            background-color: $grey;
+            color: $dark;
+
+            > p {
+              color: $dark;
+              margin-top: 0;
+            }
           }
 
           @include lowRes() {
-            height: 100px;
+            height: toRem(100px);
 
             .aph-icon {
               svg {
@@ -465,26 +487,8 @@ export default {
           }
         }
 
-        .claim-btn, .compound-btn {
-          background: $purple;
-          box-shadow: $box-shadow;
-
-          > p {
-            color: white;
-          }
-        }
-
-        .commit-btn {
-          background: $light-grey;
-          color: $darker-grey;
-
-          .aph-icon {
-            svg {
-              .fill {
-                fill: $darker-grey;
-              }
-            }
-          }
+        @include lowRes() {
+          margin-top: toRem(-50px);
         }
       }
     }
@@ -541,7 +545,7 @@ export default {
             }
 
             @include lowRes() {
-              margin-right: toRem(-35px);
+              margin-right: toRem(-32px);
 
               .hex {
                 height: toRem(70px);
