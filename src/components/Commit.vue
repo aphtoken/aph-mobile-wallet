@@ -465,7 +465,7 @@ export default {
           }
         }
 
-        .claim-btn {
+        .claim-btn, .compound-btn {
           background: $purple;
           box-shadow: $box-shadow;
 
@@ -474,7 +474,7 @@ export default {
           }
         }
 
-        .commit-btn, .compound-btn {
+        .commit-btn {
           background: $light-grey;
           color: $darker-grey;
 
@@ -517,7 +517,7 @@ export default {
             align-items: center;
             display: flex;
             flex: none;
-            margin-right: toRem(-50px);
+            margin-right: toRem(-46px);
             position: relative;
             z-index: 10;
 
