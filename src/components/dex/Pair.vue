@@ -54,6 +54,10 @@ export default {
   methods: {
     filteredMarkets() {
       return this.$store.state.markets.filter((market) => {
+        if (this.searchBy.length > 0) {
+          const isSearchMatch = _.includes(market.quoteCurrency, this.searchBy.toUpperCase());
+          return market.baseCurrency === this.baseCurrency && isSearchMatch;
+        }
         return market.baseCurrency === this.baseCurrency;
       });
     },
