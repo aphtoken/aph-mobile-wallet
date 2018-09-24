@@ -1,8 +1,8 @@
 <template>
   <section id="dex--pair">
     <div class="body">
-      <market-pair-chart></market-pair-chart>
-      <base-selector v-model="baseCurrency" v-bind="{baseCurrencies}"></base-selector>
+      <market-pair-chart v-bind="{ percentChangeAbsolute }"></market-pair-chart>
+      <base-selector v-model="baseCurrency" v-bind="{ baseCurrencies }"></base-selector>
       <aph-search-bar v-model="searchBy"></aph-search-bar>
       <aph-simple-table v-bind="{ columns, data: tableData, formatEntry, injectStyling: getRelativeChange, handleRowClick: handleMarketSelection }">
         <div class="cell-price" slot="price" slot-scope="slotProps">
@@ -24,8 +24,13 @@ import MarketPairChart from './MarketPairChart';
 import BaseSelector from './BaseSelector';
 
 const TABLE_COLUMNS = ['asset', 'price', 'volume', '24H change'];
+let storeUnwatch;
 
 export default {
+  beforeDestroy() {
+    storeUnwatch();
+  },
+
   components: {
     MarketPairChart,
     BaseSelector,
@@ -36,9 +41,19 @@ export default {
       return _.uniq(_.map(this.$store.state.markets, 'baseCurrency'));
     },
 
+    percentChangeAbsolute() {
+      return this.$store.state.tradeHistory ?
+        Math.abs(this.$store.state.tradeHistory.change24HourPercent) : 0;
+    },
+
     tableData() {
-      return this.filteredMarkets().map(({ quoteCurrency, minimumSize, buyFee, sellFee }) => {
-        return { asset: quoteCurrency, price: minimumSize, volume: buyFee, '24H change': sellFee };
+      return this.filteredMarkets().map(({ quoteCurrency }) => {
+        // TODO: This needs to be improved with real data.
+        const tradeHistory = this.$store.state.tradeHistory;
+        const price = this.$formatTokenAmount(tradeHistory ? tradeHistory.close24Hour : 0);
+        const vol = this.$formatNumber(tradeHistory ? tradeHistory.volume24Hour : 0);
+        const change = this.$formatNumber(this.percentChangeAbsolute);
+        return { asset: quoteCurrency, price, volume: vol, '24H change': change };
       });
     },
   },
@@ -81,10 +96,28 @@ export default {
         return market.quoteCurrency === asset;
       }));
     },
+
+    loadTrades() {
+      if (!this.$store.state.currentMarket) {
+        return;
+      }
+
+      this.$store.dispatch('fetchTradeHistory', {
+        marketName: this.$store.state.currentMarket.marketName,
+      });
+    },
   },
 
   mounted() {
+    this.loadTrades();
     this.baseCurrency = _.first(this.baseCurrencies);
+
+    storeUnwatch = this.$store.watch(
+      () => {
+        return this.$store.state.currentMarket;
+      }, () => {
+        this.loadTrades();
+      });
   },
 
   watch: {

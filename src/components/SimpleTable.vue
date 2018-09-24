@@ -12,7 +12,7 @@
           </th>
         </tr>
       </thead>
-      <tbody class="table-body-wrapper">
+      <tbody class="table-body-wrapper" v-if="data.length > 0">
         <tr class="row" v-for="entry in filteredData" @click="handleRowClick ? handleRowClick(entry) : () => {}">
           <td class="cell" :class="[key, injectStyling(entry[key], entry, key)]" v-for="key in columns">
             <slot :name=key :value=entry[key]>
@@ -21,6 +21,9 @@
           </td>
         </tr>
       </tbody>
+      <div class="error-message" v-else-if="data.length < 1">
+        There's no data here.
+      </div>
     </table>
   </section>
 </template>
@@ -164,6 +167,11 @@ export default {
       .header-cell.active .arrow {
         opacity: .66;
       }
+    }
+
+    .error-message {
+      text-align: center;
+      color: $darker-grey;
     }
 
     .table-body-wrapper {

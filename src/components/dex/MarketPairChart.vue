@@ -48,47 +48,19 @@
 </template>
 
 <script>
-let storeUnwatch;
+
 export default {
-
-  beforeDestroy() {
-    storeUnwatch();
-  },
-
   computed: {
-    percentChangeAbsolute() {
-      return this.$store.state.tradeHistory ?
-        Math.abs(this.$store.state.tradeHistory.change24HourPercent) : 0;
+  },
+
+  props: {
+    percentChangeAbsolute: {
+      default: '',
+      type: Number,
     },
-  },
-
-  methods: {
-    loadTrades() {
-      if (!this.$store.state.currentMarket) {
-        return;
-      }
-
-      this.$store.dispatch('fetchTradeHistory', {
-        marketName: this.$store.state.currentMarket.marketName,
-      });
-    },
-  },
-
-  mounted() {
-    this.loadTrades();
-
-    storeUnwatch = this.$store.watch(
-      () => {
-        return this.$store.state.currentMarket;
-      }, () => {
-        this.loadTrades();
-      });
-  },
-
-  watch: {
-    //
   },
 };
+
 </script>
 
 <style lang="scss">
