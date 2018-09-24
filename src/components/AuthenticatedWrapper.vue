@@ -11,7 +11,7 @@
         </router-link>
         <router-link v-if="shouldShowCommitLink" to="/authenticated/commit">
           <aph-icon name="commit"></aph-icon>
-          <p>{{ $t('Commit') }}</p>
+          <p>{{ $t('commit') }}</p>
         </router-link>
         <router-link to="/authenticated/assets">
           <aph-icon name="wallet"></aph-icon>

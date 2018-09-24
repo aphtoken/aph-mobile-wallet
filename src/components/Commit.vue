@@ -133,11 +133,11 @@
           </button>
           <button class="commit-btn" v-if="shouldShowCommitButton" @click="showCommitModal = true">
             <aph-icon name="commit"></aph-icon>
-            <p>{{ $t('Commit') }}</p>
+            <p>{{ $t('commit') }}</p>
           </button>
           <button class="compound-btn" v-if="shouldShowCompoundButton" @click="compound" :disabled="shouldDisableCompoundButton">
             <aph-icon name="compound"></aph-icon>
-            <p>{{ $t('Compound') }}</p>
+            <p>{{ $t('compound') }}</p>
           </button>
         </div>
       </div>
@@ -168,6 +168,10 @@ export default {
   },
 
   computed: {
+    ...mapGetters([
+      'currentNetwork',
+    ]),
+
     activeMiddleSlideClass() {
       return `active-slide-${this.activeMiddleSlide}`;
     },
@@ -218,16 +222,13 @@ export default {
     },
 
     shouldShowCommitButton() {
-      return this.$store.state.commitState.quantityCommitted <= 0;
+      return false;
+      // return this.$store.state.commitState.quantityCommitted <= 0;
     },
 
     shouldShowCompoundButton() {
       return !this.shouldShowCommitButton;
     },
-
-    ...mapGetters([
-      'currentNetwork',
-    ]),
   },
 
   data() {

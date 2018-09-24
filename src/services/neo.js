@@ -626,7 +626,7 @@ export default {
 
   getHolding(assetId) {
     const holding = _.find(store.state.holdings, { assetId });
-    
+
     if (holding) {
       if (holding.balance !== null) {
         holding.balance = toBigNumber(holding.balance);
