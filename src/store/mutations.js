@@ -3,7 +3,7 @@ import Vue from 'vue';
 import moment from 'moment';
 
 import { requests } from '../constants';
-import { alerts, neo } from '../services';
+import { alerts, dex, neo } from '../services';
 
 export {
   clearActiveTransaction,
@@ -13,6 +13,7 @@ export {
   failRequest,
   handleLogout,
   handleNetworkChange,
+  orderBookSnapshotReceived,
   putBlockDetails,
   putTransactionDetail,
   removeAssetHoldingsNeedRefresh,
@@ -31,6 +32,8 @@ export {
   setLastSuccessfulRequest,
   setLatestVersion,
   setMarkets,
+  setOrderPrice,
+  setOrderQuantity,
   setPortfolio,
   setRecentTransactions,
   setSearchTransactionFromDate,
@@ -48,6 +51,13 @@ export {
 
 function clearActiveTransaction(state) {
   state.showPriceTile = true;
+}
+
+function clearLocalNetworkState(state) {
+  state.holdings = [];
+  state.statsToken = null;
+  state.portfolio = {};
+  state.recentTransactions = [];
 }
 
 function clearRecentTransactions(state) {
@@ -92,6 +102,13 @@ function handleNetworkChange(state) {
       onlyFetchUserAssets: true });
     this.dispatch('fetchRecentTransactions');
   });
+}
+
+function orderBookSnapshotReceived(state, res) {
+  const orderBook = dex.formOrderBook(res.asks, res.bids);
+  orderBook.pair = res.pair;
+
+  state.orderBook = orderBook;
 }
 
 function putTransactionDetail(state, transactionDetail) {
@@ -204,6 +221,14 @@ function setMarkets(state, markets) {
   state.markets = markets;
 }
 
+function setOrderPrice(state, price) {
+  state.orderPrice = price;
+}
+
+function setOrderQuantity(state, quantity) {
+  state.orderQuantity = quantity;
+}
+
 function setPortfolio(state, portfolio) {
   if (portfolio) {
     state.portfolio = portfolio;
@@ -225,13 +250,6 @@ function setRecentTransactions(state, transactions) {
       alerts.success(`New Transaction Found. TX: ${transaction.hash}`);
     }
   });
-}
-
-function clearLocalNetworkState(state) {
-  state.holdings = [];
-  state.statsToken = null;
-  state.portfolio = {};
-  state.recentTransactions = [];
 }
 
 function setLatestVersion(state, version) {
