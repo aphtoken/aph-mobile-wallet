@@ -315,7 +315,7 @@ export default {
 
     return new Promise((resolve, reject) => {
       try {
-        const inMemory = _.get(store.state.transactionDetails, hash);
+        const inMemory = _.get(store.state.transactionDetails, hash.replace('0x', ''));
         if (inMemory) {
           if (network.getSelectedNetwork().bestBlock) {
             inMemory.currentBlockHeight = network.getSelectedNetwork().bestBlock.index;
@@ -325,7 +325,7 @@ export default {
         }
 
         return rpcClient.getRawTransaction(hash, 1)
-          .then((transaction) => {
+          .then(async (transaction) => {
             const transactionPromises = [];
 
             if (transaction.confirmations > 0) {
@@ -357,24 +357,34 @@ export default {
               }
             });
 
+            const setInputTxDetails = ((input, inputTx) => {
+              const inputSource = inputTx.vout[input.vout];
+              if (inputSource.asset === NEO_ASSET_ID || inputSource.asset === `0x${NEO_ASSET_ID}`) {
+                input.symbol = 'NEO';
+              } else if (inputSource.asset === GAS_ASSET_ID || inputSource.asset === `0x${GAS_ASSET_ID}`) {
+                input.symbol = 'GAS';
+              }
+              input.address = inputSource.address;
+              input.value = inputSource.value;
+            });
+
             // pull information for inputs from their previous outputs
             transaction.vin.forEach((input) => {
+              const inMemory = _.get(store.state.transactionDetails, input.txid.replace('0x', ''));
+              if (inMemory) {
+                setInputTxDetails(input, inMemory);
+                return;
+              }
               transactionPromises.push(rpcClient
-                .getRawTransaction(input.txid, 1)
+                .getRawTransaction(input.txid.replace('0x', ''), 1)
                 .then((inputTransaction) => {
-                  const inputSource = inputTransaction.vout[input.vout];
-                  if (inputSource.asset === NEO_ASSET_ID || inputSource.asset === `0x${NEO_ASSET_ID}`) {
-                    input.symbol = 'NEO';
-                  } else if (inputSource.asset === GAS_ASSET_ID || inputSource.asset === `0x${GAS_ASSET_ID}`) {
-                    input.symbol = 'GAS';
-                  }
-                  input.address = inputSource.address;
-                  input.value = inputSource.value;
+                  store.commit('putTransactionDetail', inputTransaction);
+                  setInputTxDetails(input, inputTransaction);
                 })
                 .catch(e => reject(e)));
             });
 
-            Promise.all(transactionPromises)
+            await Promise.all(transactionPromises)
               .then(() => {
                 store.commit('putTransactionDetail', transaction);
                 resolve(transaction);
@@ -1123,7 +1133,7 @@ export default {
       try {
         setTimeout(() => {
           const startedMonitoring = moment().utc();
-          const interval = setInterval(() => {
+          const interval = setInterval(async () => {
             if (moment().utc().diff(startedMonitoring, 'milliseconds') > timeouts.MONITOR_TRANSACTIONS
                 && checkRpcForDetails !== true) {
               clearInterval(interval);
@@ -1144,7 +1154,7 @@ export default {
 
             if (!txInHistory && checkRpcForDetails === true
               && moment().utc().diff(startedMonitoring, 'milliseconds') >= intervals.BLOCK) {
-              this.fetchTransactionDetails(tx.hash)
+              await this.fetchTransactionDetails(tx.hash)
                 .then((transactionDetails) => {
                   if (transactionDetails && transactionDetails.confirmed) {
                     alerts.success(`TX: ${transactionDetails.txid} CONFIRMED`);

@@ -109,7 +109,7 @@ function orderBookSnapshotReceived(state, res) {
 
 function putTransactionDetail(state, transactionDetail) {
   const details = state.transactionDetails;
-  _.set(details, transactionDetail.txid, transactionDetail);
+  _.set(details, transactionDetail.txid.replace('0x', ''), transactionDetail);
 }
 
 function putBlockDetails(state, blockDetails) {
