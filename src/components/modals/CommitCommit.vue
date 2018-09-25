@@ -31,7 +31,7 @@ export default {
       }
 
       return {
-        balance: 0,
+        balance: new BigNumber(0),
         contractBalance: 0,
         openOrdersBalance: 0,
         symbol: 'APH',
@@ -40,7 +40,7 @@ export default {
     },
 
     shouldDisableCommitButton() {
-      return !this.amount.length || this.amount <= 0;
+      return !this.amount.length || this.amount <= 0 || this.aphHolding.balance.isLessThan(this.amount);
     },
   },
 
