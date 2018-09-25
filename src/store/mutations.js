@@ -16,10 +16,8 @@ export {
   orderBookSnapshotReceived,
   putBlockDetails,
   putTransactionDetail,
-  removeAssetHoldingsNeedRefresh,
   resetRequests,
   setActiveTransaction,
-  setAssetHoldingsNeedRefresh,
   setCommitState,
   setContacts,
   setCurrency,
@@ -98,10 +96,7 @@ function handleNetworkChange(state) {
   state.sendInProgress = false;
   neo.fetchNEP5Tokens(() => {
     // Fetch holdings for user assets first for best UX
-    this.dispatch('fetchHoldings', {
-      // Then fetch all assets
-      done: () => { this.dispatch('fetchHoldings', { done: null, forceRefreshAll: true }); },
-      onlyFetchUserAssets: true });
+    this.dispatch('fetchHoldings');
     this.dispatch('fetchRecentTransactions');
   });
 }
@@ -115,19 +110,11 @@ function orderBookSnapshotReceived(state, res) {
 
 function putTransactionDetail(state, transactionDetail) {
   const details = state.transactionDetails;
-  _.set(details, transactionDetail.txid, transactionDetail);
+  _.set(details, transactionDetail.txid.replace('0x', ''), transactionDetail);
 }
 
 function putBlockDetails(state, blockDetails) {
   _.set(state.blockDetails, blockDetails.hash, blockDetails);
-}
-
-function removeAssetHoldingsNeedRefresh(state, assetIds) {
-  if (state.assetsThatNeedRefresh.length > 0) {
-    assetIds.forEach((assetId) => {
-      _.remove(state.assetsThatNeedRefresh, refreshId => assetId === refreshId);
-    });
-  }
 }
 
 function resetRequests(state) {
@@ -209,14 +196,6 @@ async function setHoldings(state, holdings) {
   } else if (state.statsToken) {
     state.statsToken = _.find(state.holdings, { symbol: state.statsToken.symbol });
   }
-}
-
-function setAssetHoldingsNeedRefresh(state, assetIds) {
-  assetIds.forEach((assetId) => {
-    if (assetId) {
-      state.assetsThatNeedRefresh.push(assetId);
-    }
-  });
 }
 
 function setLastReceivedBlock(state) {

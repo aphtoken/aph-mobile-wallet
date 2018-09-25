@@ -111,7 +111,7 @@ export default {
       // this.$services.tokens.remove(holding.asset, this.$store.state.currentNetwork.net);
       this.$services.assets.removeUserAsset(holding.assetId);
       this.$services.alerts.success(`Removed ${holding.symbol}`);
-      this.$store.dispatch('fetchHoldings', { onlyFetchUserAssets: true });
+      this.$store.dispatch('fetchHoldings');
     },
   },
 
@@ -119,7 +119,7 @@ export default {
     showAddToken() {
       this.hashOrSymbol = '';
       this.$store.commit('endRequest', { identifier: 'addToken' });
-      this.$store.dispatch('fetchHoldings', { onlyFetchUserAssets: true });
+      this.$store.dispatch('fetchHoldings');
     },
   },
 };
