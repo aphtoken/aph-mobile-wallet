@@ -303,7 +303,7 @@ export default {
     });
   },
 
-  fetchOrderHistory(before = 0) {
+  fetchOrderHistory(before = 0, after = 0, sort = 'DESC') {
     return new Promise((resolve, reject) => {
       try {
         const currentNetwork = network.getSelectedNetwork();
@@ -311,7 +311,7 @@ export default {
         const ordersPageSize = 100;
 
         axios.get(`${currentNetwork.aph}/orders/${currentWallet.address}
-?contractScriptHash=${assets.DEX_SCRIPT_HASH}&pageSize=${ordersPageSize}&before=${before}`)
+?contractScriptHash=${assets.DEX_SCRIPT_HASH}&pageSize=${ordersPageSize}&before=${before}&after=${after}&sort=${sort}`)
           .then((res) => {
             const orders = res.data.orders;
 
@@ -341,8 +341,11 @@ export default {
                 || orders.length >= totalOrders) {
               resolve(orders);
             } else {
+              const lastOrder = orders[orders.length - 1];
+              const nextBefore = (before > 0 || sort === 'DESC') ? lastOrder.created : before;
+              const nextAfter = after > 0 ? lastOrder.updated : after;
               // get the next page
-              this.fetchOrderHistory(orders[orders.length - 1].created)
+              this.fetchOrderHistory(nextBefore, nextAfter, sort)
                 .then((nextOrders) => {
                   orders.push(...nextOrders);
                   resolve(orders);
@@ -392,6 +395,11 @@ export default {
   fetchOpenOrderBalance(assetId) {
     return new Promise((resolve, reject) => {
       try {
+        if (!store.state.orderHistory) {
+          resolve(0);
+          return;
+        }
+
         const openOrdersForAsset = _.filter(store.state.orderHistory, (order) => {
           return order.assetIdToGive === assetId && (order.status === 'Open' || order.status === 'PartiallyFilled');
         });
@@ -660,11 +668,8 @@ export default {
                   .catch((error) => {
                     reject(`Error sending order retry. Error: ${error}`);
                   });
-                return;
               }
             }
-
-            store.commit('setAssetHoldingsNeedRefresh', [order.assetIdToBuy, order.assetIdToSell]);
           })
           .catch((e) => {
             // console.log(e);
@@ -937,8 +942,6 @@ export default {
                 } else {
                   reject('Cancel failed');
                 }
-
-                store.commit('setAssetHoldingsNeedRefresh', [order.assetIdToBuy, order.assetIdToSell]);
               })
               .catch((e) => {
                 reject(`APH API Error: ${e}`);
@@ -994,7 +997,6 @@ export default {
                 alerts.success('Deposit relayed, waiting for confirmation...');
                 neo.monitorTransactionConfirmation(res.tx, true)
                   .then(() => {
-                    store.commit('setAssetHoldingsNeedRefresh', [assetId]);
                     neo.resetSystemAssetBalanceCache();
                     resolve(res.tx);
                   })
@@ -1004,9 +1006,6 @@ export default {
               } else {
                 reject('Transaction rejected');
               }
-
-              // Set in memory holding needsRefresh flag to cause retrieving balances again
-              store.commit('setAssetHoldingsNeedRefresh', [assetId]);
             })
             .catch((e) => {
               reject(`Deposit Failed. ${e}`);
@@ -1018,9 +1017,6 @@ export default {
           })
             .then((tx) => {
               resolve(tx);
-
-              // Set in memory holding needsRefresh flag to cause retrieving balances again
-              store.commit('setAssetHoldingsNeedRefresh', [assetId]);
             })
             .catch((e) => {
               reject(`Deposit Failed. ${e}`);
@@ -1860,8 +1856,6 @@ export default {
               alerts.success('Commit relayed, waiting for confirmation...');
               neo.monitorTransactionConfirmation(res.tx, true)
                 .then(() => {
-                  store.commit('setAssetHoldingsNeedRefresh', [assets.APH]);
-
                   resolve(res.tx);
                 })
                 .catch((e) => {
@@ -1890,8 +1884,6 @@ export default {
               alerts.success('Claim relayed, waiting for confirmation...');
               neo.monitorTransactionConfirmation(res.tx, true)
                 .then(() => {
-                  store.commit('setAssetHoldingsNeedRefresh', [assets.APH]);
-
                   resolve(res.tx);
                 })
                 .catch((e) => {

@@ -114,12 +114,12 @@
 </template>
 
 <script>
+import { BigNumber } from 'bignumber.js';
 import VueQrcode from '@xkeshi/vue-qrcode';
 import ClaimGas from './token-stats/ClaimGas';
 import Preview from './token-stats/Preview';
 import Stats from './token-stats/Stats';
 import TransactionHistory from './token-stats/TransactionHistory';
-import { BigNumber } from 'bignumber.js';
 const HOURS = 24;
 
 export default {
