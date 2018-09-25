@@ -376,7 +376,7 @@ export default {
                 return;
               }
               transactionPromises.push(rpcClient
-                .getRawTransaction(input.txid.replace('0x', ''), 1)
+                .getRawTransaction(input.txid, 1)
                 .then((inputTransaction) => {
                   store.commit('putTransactionDetail', inputTransaction);
                   setInputTxDetails(input, inputTransaction);
