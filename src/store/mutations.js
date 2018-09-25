@@ -46,6 +46,7 @@ export {
   setWalletToBackup,
   setWallets,
   startRequest,
+  startSilentRequest,
 };
 
 function clearActiveTransaction(state) {
@@ -288,6 +289,10 @@ function setTradeHistory(state, tradeHistory) {
 
 function startRequest(state, payload) {
   updateRequest(state, payload, requests.PENDING);
+}
+
+function startSilentRequest(state, payload) {
+  updateRequest(state, Object.assign(payload, { isSilent: true }), requests.PENDING);
 }
 
 

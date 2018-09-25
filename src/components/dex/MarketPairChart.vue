@@ -50,21 +50,17 @@
 <script>
 
 export default {
-
   computed: {
-    percentChangeAbsolute() {
-      return this.$store.state.tradeHistory ?
-        Math.abs(this.$store.state.tradeHistory.change24HourPercent) : 0;
+  },
+
+  props: {
+    percentChangeAbsolute: {
+      default: '',
+      type: Number,
     },
   },
-
-  methods: {
-  },
-
-  watch: {
-    //
-  },
 };
+
 </script>
 
 <style lang="scss">

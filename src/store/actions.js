@@ -10,12 +10,13 @@ export {
   claimGas,
   createWallet,
   deleteWallet,
+  fetchBlockHeaderByHash,
   fetchCommitState,
   fetchHoldings,
   fetchLatestVersion,
   fetchMarkets,
   fetchRecentTransactions,
-  fetchBlockHeaderByHash,
+  fetchTradeHistory,
   findTransactions,
   importWallet,
   openEncryptedKey,
@@ -188,6 +189,26 @@ async function fetchRecentTransactions({ commit }) {
   } catch (message) {
     alerts.exception(message);
     commit('failRequest', { identifier: 'fetchRecentTransactions', message });
+  }
+}
+
+async function fetchTradeHistory({ state, commit }, { marketName, isRequestSilent }) {
+  let history;
+  commit(isRequestSilent ? 'startSilentRequest' : 'startRequest',
+    { identifier: 'fetchTradeHistory' });
+
+  try {
+    history = await dex.fetchTradeHistory(marketName);
+    if (state.tradeHistory && state.tradeHistory.apiBuckets && state.tradeHistory.marketName === marketName) {
+      history.apiBuckets = state.tradeHistory.apiBuckets;
+    } else {
+      history.apiBuckets = await dex.fetchTradesBucketed(marketName);
+    }
+    commit('setTradeHistory', history);
+    commit('endRequest', { identifier: 'fetchTradeHistory' });
+  } catch (message) {
+    alerts.networkException(message);
+    commit('failRequest', { identifier: 'fetchTradeHistory', message });
   }
 }
 

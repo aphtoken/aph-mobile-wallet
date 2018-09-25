@@ -76,8 +76,6 @@
 
 <script>
 import { BigNumber } from 'bignumber.js';
-import MarketPairChart from './MarketPairChart';
-import MarketSelector from './MarketSelector';
 
 const ORDER_TYPES_LIST = [
   {
@@ -87,11 +85,6 @@ const ORDER_TYPES_LIST = [
 ];
 
 export default {
-  components: {
-    MarketPairChart,
-    MarketSelector,
-  },
-
   computed: {
     amountLabel() {
       if (!this.currentMarket) {
