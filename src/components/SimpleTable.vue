@@ -13,7 +13,7 @@
         </tr>
       </thead>
       <tbody class="table-body-wrapper" v-if="data.length > 0">
-        <tr class="row" v-for="entry in filteredData" @click="handleRowClick ? handleRowClick(entry) : () => {}">
+        <tr class="row" v-for="entry in filteredData" @click="handleRowClick(entry)">
           <td class="cell" :class="[key, injectStyling(entry[key], entry, key)]" v-for="key in columns">
             <slot :name=key :value=entry[key]>
               {{ formatEntry !== 'null' ? formatEntry(entry[key], entry, key) : entry[key] }}
