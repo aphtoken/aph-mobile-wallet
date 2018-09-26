@@ -1,11 +1,8 @@
 <template>
   <section id="dex--orders">
-    <orders-tabs></orders-tabs>
+    <orders-tabs v-bind="{ selectedTab }" v-on:updateSelectedTab="handleTabUpdate"></orders-tabs>
     <div class="body">
-      REFINE
-      <div>
-        Open/Completed Chart
-      </div>
+      <my-orders v-if="selectedTab === 'my-orders'"></my-orders>
     </div>
   </section>
 </template>
@@ -13,10 +10,16 @@
 <script>
 
 import OrdersTabs from './OrdersTabs';
+import MyOrders from './MyOrders';
+
+const MY_ORDERS = 'my-orders';
+const ORDER_BOOK = 'order-book';
+const TRADE_HISTORY = 'trade-history';
   
 export default {
   components: {
     OrdersTabs,
+    MyOrders,
   },
 
   computed: {
@@ -24,10 +27,14 @@ export default {
 
   data() {
     return {
+      selectedTab: MY_ORDERS,
     };
   },
 
   methods: {
+    handleTabUpdate(tab) {
+      this.selectedTab = tab;
+    }
   },
 
   mounted() {
@@ -47,7 +54,7 @@ export default {
   flex-direction: column;
   
   .body {
-    margin: $space;
+    margin: 0 $space $space;
     display: flex;
     flex: 1;
     flex-direction: column;

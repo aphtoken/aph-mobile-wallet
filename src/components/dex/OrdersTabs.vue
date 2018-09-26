@@ -1,13 +1,9 @@
 <template>
   <section id="dex--orders-tabs">
-    <div class="my-orders">
-      My orders
-    </div>
-    <div class="order-book">
-      Order book
-    </div>
-    <div class="trade-history">
-      Trade history
+    <div v-for="option in tabOptions"
+      :class="[option.key, { active: selectedTab === option.key }]"
+      @click="$emit('updateSelectedTab', option.key)">
+      {{ option.label }}
     </div>
   </section>
 </template>
@@ -23,6 +19,13 @@ export default {
 
   data() {
     return {
+      tabOptions: [
+        {key: 'my-orders', label: 'My orders'}
+      ,
+        {key: 'order-book', label: 'Order book'}
+      ,
+        {key: 'trade-history', label: 'Trade history'}
+      ],
     };
   },
 
@@ -30,6 +33,13 @@ export default {
   },
 
   mounted() {
+  },
+
+  props: {
+    selectedTab: {
+      default: '',
+      type: String,
+    },
   },
 
   watch: {
@@ -54,9 +64,12 @@ export default {
     margin: 0 $space;
     border-radius: $border-radius;
 
-
     &:first-child, &:last-child {
       margin: 0;
+    }
+
+    &.active {
+      background-color: $purple;
     }
   }
 }
