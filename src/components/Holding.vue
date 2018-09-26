@@ -1,7 +1,7 @@
 <template>
   <div :class="['holding', {'show-actions': showActions}]">
     <div class="actions">
-      <div class="delete" @click="handleOnRemove">{{ $t('Delete') }}</div>
+      <div class="delete" @click="handleRemoveConfirm">{{ $t('Delete') }}</div>
     </div>
     <div class="content" v-touch:swipe="getOnSwipeHandler()" @click="handleOnClick">
       <div class="left">
@@ -18,6 +18,21 @@
         </div>
       </div>
     </div>
+    <div class="holding--remove-confirm" v-if="showDeleteConfirmation">
+      <div class="body">
+        <div class="content">
+          <div class="content-inner">
+            <aph-icon name="unconfirmed-big"></aph-icon>
+            <div class="help-text">{{ $t('confirmDelete') }}</div>
+            <div class="name">{{ holding.name }}</div>
+          </div>
+          <button class="btn-delete" @click="handleOnRemove">{{ $t('Delete') }}</button>
+        </div>
+      </div>
+      <div class="footer">
+        <button class="btn-cancel" @click="showDeleteConfirmation = false">{{ $t('Cancel') }}</button>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -31,6 +46,12 @@ export default {
     isClickable() {
       return _.isFunction(this.onClick);
     },
+  },
+
+  data() {
+    return {
+      showDeleteConfirmation: false,
+    };
   },
 
   methods: {
@@ -50,7 +71,13 @@ export default {
       }
     },
 
+    handleRemoveConfirm() {
+      this.showDeleteConfirmation = true;
+      this.onSwipe(this.holding, 'right');
+    },
+
     handleOnRemove() {
+      this.showDeleteConfirmation = false
       this.onRemove(this.holding);
     },
   },
@@ -87,7 +114,7 @@ export default {
   overflow: hidden;
   position: relative;
 
-  .content {
+  > .content {
     @include transitionFast(left);
 
     background: white;
@@ -198,6 +225,90 @@ export default {
 
     .actions {
       opacity: 1;
+    }
+  }
+}
+
+.holding--remove-confirm {
+  background: rgba($dark, .7);
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  left: 0;
+  position: fixed;
+  right: 0;
+  top: 0;
+  width: 100%;
+  z-index: 100;
+
+  > .body {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    justify-content: center;
+    overflow: hidden;
+    padding: $space-xl;
+
+    > .content {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      justify-content: center;
+      left: auto;
+
+      .content-inner {
+        align-items: center;
+        background: white;
+        border-radius: $border-radius;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        left: 0;
+        padding: $space-xl;
+        position: relative;
+
+        .aph-icon {
+          svg {
+            height: toRem(60px);
+
+            .fill {
+              fill: $red;
+            }
+          }
+        }
+
+        .help-text {
+          color: $dark;
+          margin-top: $space-lg;
+          text-align: center;
+        }
+
+        .name {
+          color: $purple;
+          font-size: toRem(18px);
+          margin-top: $space-lg;
+        }
+      }
+
+      .btn-delete {
+        @extend %btn;
+
+        background: $red;
+        border-color: transparent;
+        margin-top: $space;
+      }
+    }
+  }
+
+  > .footer {
+    display: flex;
+    flex: none;
+
+    .btn-cancel {
+      @extend %btn-footer;
+
+      flex: 1;
     }
   }
 }
