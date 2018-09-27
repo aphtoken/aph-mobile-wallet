@@ -1904,7 +1904,7 @@ export default {
     return new Promise((resolve, reject) => {
       try {
         const approximateAPHClaimAmount = toBigNumber(store.state.commitState.totalUnitsContributed)
-          .plus(toBigNumber(store.state.commitState.availableToClaim)
+          .plus(toBigNumber(store.state.commitState.availableToClaim))
           .decimalPlaces(8, BigNumber.ROUND_DOWN);
         this.executeContractTransaction('claim',
           [])
