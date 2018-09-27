@@ -77,7 +77,7 @@ export default {
     },
 
     handleOnRemove() {
-      this.showDeleteConfirmation = false
+      this.showDeleteConfirmation = false;
       this.onRemove(this.holding);
     },
   },
