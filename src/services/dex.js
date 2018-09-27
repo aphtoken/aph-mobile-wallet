@@ -1883,6 +1883,7 @@ export default {
               neo.monitorTransactionConfirmation(res.tx, true)
                 .then(() => {
                   resolve(res.tx);
+                  this.fetchCommitState(wallets.getCurrentWallet().address);
                 })
                 .catch((e) => {
                   reject(`Commit Failed. ${e}`);
@@ -1903,7 +1904,8 @@ export default {
   claimAPH() {
     return new Promise((resolve, reject) => {
       try {
-        const approximateAPHClaimAmount = toBigNumber(store.state.commitState.totalUnitsContributed)
+        const withdrawAmountAfterClaim = toBigNumber(store.state.commitState.totalUnitsContributed)
+          .dividedBy(100000000)
           .plus(toBigNumber(store.state.commitState.availableToClaim))
           .decimalPlaces(8, BigNumber.ROUND_DOWN);
         this.executeContractTransaction('claim',
@@ -1919,9 +1921,10 @@ export default {
                   reject(`Failed to monitor transaction confirmation. ${e}`);
                 })
                 .then(() => {
-                  this.withdrawAsset(assets.APH, Number(approximateAPHClaimAmount))
+                  this.withdrawAsset(assets.APH, Number(withdrawAmountAfterClaim))
                     .then(() => {
-                      alerts.success(`Submitted Withdraw of ${approximateAPHClaimAmount.toString()} APH.`);
+                      console.log(`Submitted Withdraw of ${withdrawAmountAfterClaim.toString()} APH.`);
+                      alerts.success(`Submitted Withdraw of ${withdrawAmountAfterClaim.toString()} APH.`);
                     })
                     .catch((e) => {
                       alerts.exception(e);
