@@ -14,6 +14,7 @@ import settings from './settings';
 import valuation from './valuation';
 import wallets from './wallets';
 import ledger from './ledger';
+import dex from './dex';
 import { store } from '../store';
 import { timeouts, intervals } from '../constants';
 import { toBigNumber } from './formatting.js';
@@ -24,6 +25,16 @@ const NEO_ASSET_ID = 'c56f33fc6ecfcd0c225c4ab356fee59390af8560be0e930faebe74a6da
 let lastClaimSent;
 let lastGasFractureNotification;
 let addressBalances = {};
+
+const calculateHoldingTotalBalance = (holding) => {
+  return toBigNumber(_.get(holding, 'balance', toBigNumber(0)))
+    .plus(_.get(holding, 'contractBalance', toBigNumber(0)))
+    .plus(_.get(holding, 'openOrdersBalance', toBigNumber(0)));
+};
+const calculateHoldingAvailableBalance = (holding) => {
+  return toBigNumber(_.get(holding, 'balance', toBigNumber(0)))
+    .plus(_.get(holding, 'contractBalance', toBigNumber(0)));
+};
 
 export default {
   createWallet(name, passphrase, passphraseConfirm) {
@@ -74,7 +85,6 @@ export default {
                   fetchedTransactions.push({
                     txid: nep5Transfer.transactionHash.replace('0x', ''),
                     symbol: nep5Transfer.symbol,
-                    scriptHash: nep5Transfer.scriptHash,
                     value: toBigNumber(nep5Transfer.received - nep5Transfer.sent),
                     block_index: nep5Transfer.blockIndex,
                     blockHeight: nep5Transfer.blockIndex,
@@ -419,6 +429,8 @@ export default {
             symbol,
             name: symbol,
             isNep5: false,
+            contractBalance: new BigNumber(0),
+            totalBalance: new BigNumber(0),
             decimals: assetId === NEO_ASSET_ID ? 0 : 8,
             isUserAsset: true,
           };
@@ -469,6 +481,8 @@ export default {
             symbol: asset.symbol,
             name: asset.name,
             isNep5: assetId.length === 40,
+            contractBalance: new BigNumber(0),
+            totalBalance: new BigNumber(0),
             canPull: asset.canPull,
             isUserAsset,
             /* eslint-disable no-nested-ternary */
@@ -520,7 +534,28 @@ export default {
           }
         });
 
+        const fetchHoldingBalanceComponent = (fetchFunc, memberBeingFetched, holding) => {
+          return fetchFunc.call(dex, holding.assetId)
+            .then((res) => {
+              holding[memberBeingFetched] = toBigNumber(res);
+              holding.availableBalance = calculateHoldingAvailableBalance(holding);
+              holding.totalBalance = calculateHoldingTotalBalance(holding);
+            })
+            .catch((e) => {
+              const existingHolding = this.getHolding(holding.assetId);
+              if (existingHolding) {
+                holding[memberBeingFetched] = existingHolding[memberBeingFetched];
+                holding.availableBalance = calculateHoldingAvailableBalance(holding);
+                holding.totalBalance = calculateHoldingTotalBalance(holding);
+              }
+              alerts.networkException(e);
+            });
+        };
+
         holdings.forEach((holding) => {
+          promises.push(fetchHoldingBalanceComponent(dex.fetchContractBalance, 'contractBalance', holding));
+          promises.push(fetchHoldingBalanceComponent(dex.fetchOpenOrderBalance, 'openOrdersBalance', holding));
+
           if (holding.symbol === 'NEO') {
             promises.push(api.getMaxClaimAmountFrom({
               net: currentNetwork.net,
@@ -614,6 +649,12 @@ export default {
       }
       if (holding.contractBalance !== null) {
         holding.contractBalance = toBigNumber(holding.contractBalance);
+      }
+      if (!holding.totalBalance) {
+        holding.totalBalance = calculateHoldingTotalBalance(holding);
+      }
+      if (holding.totalBalance !== null) {
+        holding.totalBalance = toBigNumber(holding.totalBalance);
       }
     }
 
@@ -809,13 +850,7 @@ export default {
       intentAmounts.GAS = gasAmount;
     }
 
-    // TODO: When we merge in settings for adding fees to transactions, then switch to Desktop code used here.
-    return api.getBalanceFrom({
-      net: currentNetwork.net,
-      url: currentNetwork.rpc,
-      address: currentWallet.address,
-    }, api.neoscan)
-    // maybe we should stand up our own version ?
+    return this.fetchSystemAssetBalance()
       .then((balance) => {
         if (balance.net !== currentNetwork.net) {
           alerts.error('Unable to read address balance from neonDB or neoscan api. Please try again later.');
@@ -826,8 +861,9 @@ export default {
           url: currentNetwork.rpc,
           address: currentWallet.address,
           privateKey: currentWallet.privateKey,
-          balance: balance.balance,
+          balance,
           intents: api.makeIntent(intentAmounts, toAddress),
+          fees: currentNetwork.fee || 0,
         };
 
         if (currentWallet.isLedger === true) {
@@ -835,7 +871,10 @@ export default {
         }
 
         return api.sendAsset(config)
-          .then(res => res)
+          .then((res) => {
+            this.applyTxToAddressSystemAssetBalance(currentWallet.address, res.tx);
+            return res;
+          })
           .catch((e) => {
             alerts.exception(e);
           });
@@ -1165,18 +1204,15 @@ export default {
               return;
             }
 
-            if (moment().utc().diff(tx.lastBroadcasted, 'milliseconds') > intervals.REBROADCAST_TRANSACTIONS) {
-              tx.lastBroadcasted = moment().utc();
-              api.sendTx({
-                tx,
-                url: network.getSelectedNetwork().rpc,
-              });
+            const txInHistory = _.find(store.state.recentTransactions, { hash: tx.hash });
+            if (txInHistory) {
+              alerts.success(`TX: ${tx.hash} CONFIRMED`);
+              clearInterval(interval);
+              resolve(txInHistory);
               return;
             }
 
-            const txInHistory = _.find(store.state.recentTransactions, { hash: tx.hash });
-
-            if (!txInHistory && checkRpcForDetails === true
+            if (checkRpcForDetails === true
               && moment().utc().diff(startedMonitoring, 'milliseconds') >= intervals.BLOCK) {
               await this.fetchTransactionDetails(tx.hash)
                 .then((transactionDetails) => {
@@ -1191,12 +1227,22 @@ export default {
                     reject('Transaction confirmation failed.');
                   }
                 });
+              return;
             }
 
-            if (txInHistory) {
-              alerts.success(`TX: ${tx.hash} CONFIRMED`);
-              clearInterval(interval);
-              resolve(txInHistory);
+            if (moment().utc().diff(tx.lastBroadcasted, 'milliseconds') > intervals.REBROADCAST_TRANSACTIONS) {
+              tx.lastBroadcasted = moment().utc();
+              api.sendTx({
+                tx,
+                url: network.getSelectedNetwork().rpc,
+              }).catch((e) => {
+                if (e.message.indexOf('transaction already exists') !== -1) {
+                  // already in the mem_pool
+                  alerts.info(`Transaction TX: ${tx.hash} still awaiting verification`);
+                } else {
+                  alerts.exception(e);
+                }
+              });
             }
           }, 1000);
         }, 15 * 1000); // wait a block for propagation
