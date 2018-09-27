@@ -15,7 +15,6 @@ import wallets from './wallets';
 import ledger from './ledger';
 import { store } from '../store';
 import { toBigNumber } from './formatting.js';
-
 import { claiming, intervals } from '../constants';
 
 const TX_ATTR_USAGE_SCRIPT = 0x20;
@@ -44,29 +43,106 @@ export default {
             resolve(res.data.markets);
           })
           .catch((e) => {
-            alerts.exception(`APH API Error: ${e.message}`);
+            alerts.exception(`APH API Error: ${e}`);
           });
       } catch (e) {
-        reject(e);
+        reject(`Failed to fetch markets. ${e.message}`);
       }
     });
   },
 
-  fetchTradesBucketed(marketName, binSize = 1) {
-    return new Promise((resolve, reject) => {
-      try {
-        const currentNetwork = network.getSelectedNetwork();
-        axios.get(`${currentNetwork.aph}/trades/bucketed/${marketName}?binSize=${binSize}`)
-          .then((res) => {
-            resolve(res.data.buckets);
-          })
-          .catch(() => {
-            resolve([]);
+  formOrderBook(asks, bids) {
+    const book = {
+      asks: [],
+      bids: [],
+    };
+
+    asks.forEach((ask) => {
+      ask.price = toBigNumber(ask[0]);
+      ask.quantity = toBigNumber(ask[1]);
+      book.asks.push(ask);
+    });
+    bids.forEach((bid) => {
+      bid.price = toBigNumber(bid[0]);
+      bid.quantity = toBigNumber(bid[1]);
+      book.bids.push(bid);
+    });
+
+    this.setOrderBookMeta(book);
+    return book;
+  },
+
+  setOrderBookMeta(book) {
+    let totalAsk = new BigNumber(0);
+
+    book.asks = _.sortBy(book.asks, [level => level.price.toNumber()]);
+    book.bids = _.sortBy(book.bids, [level => level.price.toNumber()]).reverse();
+
+    book.asks.forEach(({ quantity }) => {
+      totalAsk = totalAsk.plus(quantity);
+    });
+    let totalBid = new BigNumber(0);
+    book.bids.forEach(({ quantity }) => {
+      totalBid = totalBid.plus(quantity);
+    });
+
+    if (book.asks.length > 0 && book.bids.length > 0) {
+      book.spread = book.asks[0].price - book.bids[0].price;
+      book.spreadPercentage = Math.round((book.spread / book.asks[0].price) * 10000) / 100;
+    }
+
+    let runningAsks = new BigNumber(0);
+    book.asks.forEach((ask) => {
+      runningAsks = runningAsks.plus(ask.quantity);
+      ask.quantityTotalRatio = runningAsks.dividedBy(totalAsk);
+      ask.quantityRatio = ask.quantity.dividedBy(totalAsk);
+    });
+    let runningBids = new BigNumber(0);
+    book.bids.forEach((bid) => {
+      runningBids = runningBids.plus(bid.quantity);
+      bid.quantityTotalRatio = runningBids.dividedBy(totalBid);
+      bid.quantityRatio = bid.quantity.dividedBy(totalBid);
+    });
+
+    return book;
+  },
+
+  updateOrderBook(book, side, changes) {
+    const sideLevels = side === 'ask' ? book.asks : book.bids;
+    changes.forEach((change) => {
+      const price = toBigNumber(change[0]);
+      const remainingQuantity = toBigNumber(change[1]);
+      const pendingQuantity = toBigNumber(change[2]);
+
+      const availableQuantity = remainingQuantity.minus(pendingQuantity);
+      let quantity;
+      if (availableQuantity.isLessThan(0)) {
+        quantity = new BigNumber(0);
+      } else {
+        quantity = availableQuantity;
+      }
+
+      const level = _.find(sideLevels, (sideLevel) => {
+        return sideLevel.price.isEqualTo(price);
+      });
+
+      if (!level) {
+        if (quantity.isGreaterThan(0)) {
+          sideLevels.push({
+            price,
+            quantity,
           });
-      } catch (e) {
-        reject(e);
+        }
+      } else if (quantity.isLessThanOrEqualTo(0)) {
+        sideLevels.splice(sideLevels.indexOf(level), 1);
+      } else {
+        level.price = price;
+        level.quantity = quantity;
       }
     });
+
+    this.setOrderBookMeta(book);
+    return book;
   },
 
   fetchTradeHistory(marketName) {
@@ -98,8 +174,9 @@ export default {
             if (todayTrades.length > 0) {
               history.close24Hour = todayTrades[0].price;
               history.open24Hour = todayTrades[todayTrades.length - 1].price;
-              history.low24Hour = _.minBy(todayTrades, (trade) => { return trade.price; }).price;
-              history.volume24Hour = _.sumBy(todayTrades, (trade) => { return trade.quantity; });
+              history.low24Hour = _.minBy(todayTrades, 'price').price;
+              history.high24Hour = _.maxBy(todayTrades, 'price').price;
+              history.volume24Hour = _.sumBy(todayTrades, 'quantity');
               history.change24HourPercent = Math.round(((history.close24Hour - history.open24Hour)
                 / history.open24Hour) * 10000) / 100;
               history.change24Hour = history.close24Hour - history.open24Hour;
@@ -117,33 +194,12 @@ export default {
             resolve(history);
           })
           .catch((e) => {
-            alerts.exception(`APH API Error: ${e.message}`);
+            alerts.exception(`APH API Error: ${e}`);
           });
       } catch (e) {
-        reject(e);
+        reject(`Failed to fetch trade history. ${e.message}`);
       }
     });
-  },
-
-  formOrderBook(asks, bids) {
-    const book = {
-      asks: [],
-      bids: [],
-    };
-
-    asks.forEach((ask) => {
-      ask.price = toBigNumber(ask[0]);
-      ask.quantity = toBigNumber(ask[1]);
-      book.asks.push(ask);
-    });
-    bids.forEach((bid) => {
-      bid.price = toBigNumber(bid[0]);
-      bid.quantity = toBigNumber(bid[1]);
-      book.bids.push(bid);
-    });
-
-    this.setOrderBookMeta(book);
-    return book;
   },
 
   getTradeHistoryBars(tradeHistory, resolution, from, to, last) {
@@ -228,77 +284,21 @@ export default {
     return bars;
   },
 
-  setOrderBookMeta(book) {
-    let totalAsk = new BigNumber(0);
-
-    book.asks = _.sortBy(book.asks, [level => level.price.toNumber()]);
-    book.bids = _.sortBy(book.bids, [level => level.price.toNumber()]).reverse();
-
-    book.asks.forEach(({ quantity }) => {
-      totalAsk = totalAsk.plus(quantity);
-    });
-    let totalBid = new BigNumber(0);
-    book.bids.forEach(({ quantity }) => {
-      totalBid = totalBid.plus(quantity);
-    });
-
-    if (book.asks.length > 0 && book.bids.length > 0) {
-      book.spread = book.asks[0].price - book.bids[0].price;
-      book.spreadPercentage = Math.round((book.spread / book.asks[0].price) * 10000) / 100;
-    }
-
-    let runningAsks = new BigNumber(0);
-    book.asks.forEach((ask) => {
-      runningAsks = runningAsks.plus(ask.quantity);
-      ask.quantityTotalRatio = runningAsks.dividedBy(totalAsk);
-      ask.quantityRatio = ask.quantity.dividedBy(totalAsk);
-    });
-    let runningBids = new BigNumber(0);
-    book.bids.forEach((bid) => {
-      runningBids = runningBids.plus(bid.quantity);
-      bid.quantityTotalRatio = runningBids.dividedBy(totalBid);
-      bid.quantityRatio = bid.quantity.dividedBy(totalBid);
-    });
-
-    return book;
-  },
-
-  updateOrderBook(book, side, changes) {
-    const sideLevels = side === 'ask' ? book.asks : book.bids;
-    changes.forEach((change) => {
-      const price = toBigNumber(change[0]);
-      const remainingQuantity = toBigNumber(change[1]);
-      const pendingQuantity = toBigNumber(change[2]);
-
-      const availableQuantity = remainingQuantity.minus(pendingQuantity);
-      let quantity;
-      if (availableQuantity.isLessThan(0)) {
-        quantity = new BigNumber(0);
-      } else {
-        quantity = availableQuantity;
-      }
-
-      const level = _.find(sideLevels, (sideLevel) => {
-        return sideLevel.price.isEqualTo(price);
-      });
-
-      if (!level) {
-        if (quantity.isGreaterThan(0)) {
-          sideLevels.push({
-            price,
-            quantity,
+  fetchTradesBucketed(marketName, binSize = 1) {
+    return new Promise((resolve, reject) => {
+      try {
+        const currentNetwork = network.getSelectedNetwork();
+        axios.get(`${currentNetwork.aph}/trades/bucketed/${marketName}?binSize=${binSize}`)
+          .then((res) => {
+            resolve(res.data.buckets);
+          })
+          .catch(() => {
+            resolve([]);
           });
-        }
-      } else if (quantity.isLessThanOrEqualTo(0)) {
-        sideLevels.splice(sideLevels.indexOf(level), 1);
-      } else {
-        level.price = price;
-        level.quantity = quantity;
+      } catch (e) {
+        reject(`Failed to fetch trade buckets. ${e.message}`);
       }
     });
-
-    this.setOrderBookMeta(book);
-    return book;
   },
 
   fetchOrderHistory(before = 0, after = 0, sort = 'DESC') {
@@ -1277,34 +1277,62 @@ export default {
             const unspents = assetId === assets.GAS ? config.balance.assets.GAS.unspent : config.balance.assets.NEO.unspent;
             await this.checkUnspentsReservedState(assetId, unspents);
 
-            let inputTotal = new BigNumber(0);
-            _.sortBy(unspents, [unspent => Math.abs(unspent.value.minus(quantity).toNumber())]).forEach((currentUnspent) => {
-              if (inputTotal.isGreaterThanOrEqualTo(quantity)) {
-                return;
-              }
+            const pickedInputs = [];
+            const pickedUnspents = [];
+            let quantitySumOfPickedInputs = new BigNumber(0);
+            _.orderBy(unspents, [unspent => parseFloat(unspent.value.toString())], ['desc']).some((currentUnspent) => {
               if (currentUnspent.reservedFor === currentWalletScriptHash) {
                 this.completeSystemAssetWithdrawals();
                 reject('Already have a UTXO reserved for your address. Completing open withdraw.');
-                return;
+                return false;
               }
               if (currentUnspent.reservedFor && currentUnspent.reservedFor.length >= 40) {
                 // reserved for someone else
-                return;
+                return false;
               }
               if (_.has(assetUTXOsToIgnore, currentUnspent.txid)
                 && _.get(assetUTXOsToIgnore, currentUnspent.txid) === currentUnspent.index) {
                 // we've tried to use this UTXO before and failed, skip it
-                return;
+                return false;
               }
 
-              inputTotal = inputTotal.plus(currentUnspent.value);
-              config.tx.inputs.push({
+              if (quantitySumOfPickedInputs.isGreaterThanOrEqualTo(quantity)) {
+                let isDonePicking = true;
+                let i = 0;
+                pickedUnspents.some((pickedUnspent) => {
+                  if (quantitySumOfPickedInputs.minus(pickedUnspent.value).plus(currentUnspent.value)
+                    .isGreaterThanOrEqualTo(quantity)) {
+                    // remove pickedInput and use the current one.
+                    pickedInputs.splice(i, 1);
+                    /* const removedUnspent = */ pickedUnspents.splice(i, 1);
+                    quantitySumOfPickedInputs = quantitySumOfPickedInputs.minus(pickedUnspent.value);
+                    // console.log(`-$ removed input to use for withdraw total: ${quantitySumOfPickedInputs} unspent: ${JSON.stringify(removedUnspent)}`);
+                    isDonePicking = false;
+                    return true;
+                  }
+                  i += 1;
+                  return false;
+                });
+                if (isDonePicking) {
+                  return true;
+                }
+              }
+              quantitySumOfPickedInputs = quantitySumOfPickedInputs.plus(currentUnspent.value);
+              pickedUnspents.push(currentUnspent);
+              pickedInputs.push({
                 prevHash: currentUnspent.txid,
                 prevIndex: currentUnspent.index,
               });
+              // console.log(`$ added input to use for withdraw total: ${quantitySumOfPickedInputs} unspent: ${JSON.stringify(currentUnspent)}`);
+              return false;
             });
 
+            // console.log(`pickedInputs.length: ${pickedInputs.length} quantitySumOfPickedInputs: ${quantitySumOfPickedInputs}`);
+            const inputTotal = quantitySumOfPickedInputs;
+            config.tx.inputs = config.tx.inputs.concat(pickedInputs);
+
             if (inputTotal.isLessThan(quantity)) {
+              // console.log('Contract does not have enough balance for withdraw.');
               reject('Contract does not have enough balance for withdraw.');
               return;
             }
