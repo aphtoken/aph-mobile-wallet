@@ -1903,6 +1903,9 @@ export default {
   claimAPH() {
     return new Promise((resolve, reject) => {
       try {
+        const approximateAPHClaimAmount = toBigNumber(store.state.commitState.totalUnitsContributed
+          + store.state.commitState.availableToClaim)
+          .decimalPlaces(8, BigNumber.ROUND_DOWN);
         this.executeContractTransaction('claim',
           [])
           .then((res) => {
@@ -1914,6 +1917,15 @@ export default {
                 })
                 .catch((e) => {
                   reject(`Failed to monitor transaction confirmation. ${e}`);
+                })
+                .then(() => {
+                  this.withdrawAsset(assets.APH, Number(approximateAPHClaimAmount))
+                    .then(() => {
+                      alerts.success(`Submitted Withdraw of ${approximateAPHClaimAmount.toString()} APH.`);
+                    })
+                    .catch((e) => {
+                      alerts.exception(e);
+                    });
                 });
             } else {
               reject('Transaction rejected');
