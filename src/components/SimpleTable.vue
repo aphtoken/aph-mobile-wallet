@@ -1,7 +1,7 @@
 <template>
   <section class="aph-simple-table">
     <table class="table-wrapper">
-      <thead>
+      <thead v-if="hasHeader">
         <tr class="table-header-row">
           <th v-for="key in columns"
             @click="sortBy(key)"
@@ -47,6 +47,10 @@ export default {
     formatEntry: {
       default: null,
       type: Function,
+    },
+    hasHeader: {
+      default: true,
+      type: Boolean,
     },
     injectStyling: {
       default: () => {},
@@ -100,6 +104,9 @@ export default {
   },
 
   methods: {
+    debug(entry) {
+      console.log('data', entry);
+    },
     sortBy(key) {
       this.sortKey = key;
       this.sortOrders[key] = this.sortOrders[key] * -1;
