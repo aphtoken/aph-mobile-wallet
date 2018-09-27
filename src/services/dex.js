@@ -1904,9 +1904,8 @@ export default {
   claimAPH() {
     return new Promise((resolve, reject) => {
       try {
-        const withdrawAmountAfterClaim = toBigNumber(store.state.commitState.totalUnitsContributed)
-          .dividedBy(100000000)
-          .plus(toBigNumber(store.state.commitState.availableToClaim))
+        const withdrawAmountAfterClaim = toBigNumber(store.state.commitState.quantityCommitted
+          + store.state.commitState.availableToClaim)
           .decimalPlaces(8, BigNumber.ROUND_DOWN);
         this.executeContractTransaction('claim',
           [])
