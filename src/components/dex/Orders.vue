@@ -15,7 +15,7 @@ import MyOrders from './MyOrders';
 const MY_ORDERS = 'my-orders';
 const ORDER_BOOK = 'order-book';
 const TRADE_HISTORY = 'trade-history';
-  
+
 export default {
   components: {
     MyOrders,
@@ -34,7 +34,7 @@ export default {
   methods: {
     handleTabUpdate(tab) {
       this.selectedTab = tab;
-    }
+    },
   },
 
   mounted() {

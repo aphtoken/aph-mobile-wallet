@@ -49,7 +49,6 @@ const COMPLETED = 'Completed';
 const OPEN = 'Open';
 const TABLE_COLUMNS = ['pairAndSide', 'details'];
 
-  
 export default {
   components: {
   },
@@ -57,7 +56,7 @@ export default {
   computed: {
     ordersTableData() {
       return [{pairAndSide: {pair: 'APH/NEO', side: 'Buy'}, details: {amount: '72,043.56', base: 'APH', price: '0.225', cost: '$.25'}}, {pairAndSide: {pair: 'APH/ATI', side: 'Sell'}, details: {amount: '72,043.56', base: 'APH', price: '0.225', cost: '$.25'}}];
-    }
+    },
   },
 
   data() {

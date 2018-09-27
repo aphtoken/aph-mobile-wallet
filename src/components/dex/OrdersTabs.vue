@@ -51,18 +51,18 @@ export default {
 <style lang="scss">
 #dex--orders-tabs {
   display: flex;
-  flex: none;
   flex-direction: row;
+  flex: none;
   margin: $space $space 0;
   overflow: scroll;
   white-space: nowrap;
 
   > div {
-    padding: $space;
     background-color: $dark-purple;
+    border-radius: $border-radius;
     font-size: toRem(16px);
     margin: 0 $space;
-    border-radius: $border-radius;
+    padding: $space;
 
     &:first-child, &:last-child {
       margin: 0;

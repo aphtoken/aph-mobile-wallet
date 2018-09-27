@@ -10,7 +10,7 @@
 <script>
 
 import OrdersTable from './OrdersTable';
-  
+
 export default {
   components: {
     OrdersTable,
