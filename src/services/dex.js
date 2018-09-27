@@ -1922,7 +1922,6 @@ export default {
                 .then(() => {
                   this.withdrawAsset(assets.APH, Number(withdrawAmountAfterClaim))
                     .then(() => {
-                      console.log(`Submitted Withdraw of ${withdrawAmountAfterClaim.toString()} APH.`);
                       alerts.success(`Submitted Withdraw of ${withdrawAmountAfterClaim.toString()} APH.`);
                     })
                     .catch((e) => {
