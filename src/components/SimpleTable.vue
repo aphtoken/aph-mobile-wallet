@@ -16,7 +16,6 @@
         <tr class="row" v-for="entry in filteredData" @click="handleRowClick(entry)">
           <td class="cell" :class="[key, injectStyling(entry[key], entry, key)]" v-for="key in columns">
             <slot :name=key :value=entry[key]>
-              {{ formatEntry !== 'null' ? formatEntry(entry[key], entry, key) : entry[key] }}
             </slot>
           </td>
         </tr>
@@ -104,9 +103,6 @@ export default {
   },
 
   methods: {
-    debug(entry) {
-      console.log('data', entry);
-    },
     sortBy(key) {
       this.sortKey = key;
       this.sortOrders[key] = this.sortOrders[key] * -1;
