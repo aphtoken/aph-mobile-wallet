@@ -18,8 +18,8 @@ const TRADE_HISTORY = 'trade-history';
   
 export default {
   components: {
-    OrdersTabs,
     MyOrders,
+    OrdersTabs,
   },
 
   computed: {
@@ -50,14 +50,14 @@ export default {
 #dex--orders {
   background: $dark-purple*1.25;
   display: flex;
-  flex: 1;
   flex-direction: column;
+  flex: 1;
   
   .body {
-    margin: 0 $space $space;
     display: flex;
-    flex: 1;
     flex-direction: column;
+    flex: 1;
+    margin: 0 $space $space;
   }
 }
 </style>

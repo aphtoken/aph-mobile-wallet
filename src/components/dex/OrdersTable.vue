@@ -45,8 +45,8 @@
 
 <script>
 
-const OPEN = 'Open';
 const COMPLETED = 'Completed';
+const OPEN = 'Open';
 const TABLE_COLUMNS = ['pairAndSide', 'details'];
 
   
@@ -87,15 +87,15 @@ export default {
 #dex--orders-table {
   background: $dark-purple;
   display: flex;
-  flex: 1;
   flex-direction: column;
+  flex: 1;
   
   .header {
-    margin: 0 $space;
     display: flex;
     flex-direction: row;
     flex: none;
     justify-content: space-between;
+    margin: 0 $space;
 
     > div {
       flex: 1;
@@ -173,9 +173,9 @@ export default {
     }
 
     .cancel-btn {
-      margin: auto 0 auto $space;
       border-radius: 50%;
       border: 1px $darker-grey solid;
+      margin: auto 0 auto $space;
       padding: $space-sm
     }
   }

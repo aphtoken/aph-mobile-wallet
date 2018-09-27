@@ -40,17 +40,17 @@ export default {
 #dex--my-orders {
   background: $dark-purple*1.25;
   display: flex;
-  flex: 1;
   flex-direction: column;
+  flex: 1;
   
   .refine {
     background: $dark-purple;
-    font-size: toRem(16px);
+    border-radius: $border-radius;
     flex: none;
+    font-size: toRem(16px);
+    margin-bottom: $space;
     padding: $space;
     text-align: center;
-    border-radius: $border-radius;
-    margin-bottom: $space;
   }
 }
 </style>
