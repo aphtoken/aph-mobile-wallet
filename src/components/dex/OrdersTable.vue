@@ -55,7 +55,7 @@ export default {
 
   computed: {
     ordersTableData() {
-      return [{pairAndSide: {pair: 'APH/NEO', side: 'Buy'}, details: {amount: '72,043.56', base: 'APH', price: '0.225', cost: '$.25'}}, {pairAndSide: {pair: 'APH/ATI', side: 'Sell'}, details: {amount: '72,043.56', base: 'APH', price: '0.225', cost: '$.25'}}];
+      return [{pairAndSide: {pair: 'APH/NEO', side: 'buy'}, details: {amount: '72,043.56', base: 'APH', price: '0.225', cost: '$.25'}}, {pairAndSide: {pair: 'APH/ATI', side: 'sell'}, details: {amount: '72,043.56', base: 'APH', price: '0.225', cost: '$.25'}}];
     },
   },
 
@@ -121,8 +121,9 @@ export default {
 
     .side {
       margin-top: $space-sm;
+      text-transform: capitalize;
 
-      &.Buy {
+      &.buy {
         color: $green;
         
         &:before {
@@ -130,7 +131,7 @@ export default {
         }
       }
 
-      &.Sell {
+      &.sell {
         color: $red;
 
         &:before {
