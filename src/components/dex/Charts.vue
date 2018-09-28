@@ -217,6 +217,7 @@ export default {
     loadChart() {
       /* eslint-disable */
       const regressionTrend = this.$t('regressionTrend'); // Fixes the `Cannot read property '_t' of undefined` error
+      const _this = this;
 
       try {
         const container = document.getElementById('chart-container');
@@ -277,32 +278,32 @@ export default {
           },
 
           getBars: (_symbolInfo, resolution, from, to, onDataCallback, onErrorCallback) => {
-            const bars = this.$store.state.tradeHistory && this.$store.state.tradeHistory.getBars ?
-              this.$store.state.tradeHistory.getBars(this.$store.state.tradeHistory, resolution, from, to, this.lastPrice) :
+            const bars = _this.$store.state.tradeHistory && _this.$store.state.tradeHistory.getBars ?
+              _this.$store.state.tradeHistory.getBars(_this.$store.state.tradeHistory, resolution, from, to, _this.lastPrice) :
               [];
 
             if (bars.length === 0) {
               onDataCallback(bars, { noData: true })
             } else {
-              this.lastPrice = bars[bars.length - 1].close;
+              _this.lastPrice = bars[bars.length - 1].close;
               onDataCallback(bars, { noData: false })
             }
           },
 
           subscribeBars: (_symbolInfo, resolution, onRealtimeCallback, subscriberUID, onResetCacheNeededCallback) => {
             let lastBarTime = NaN;
-            if (this.barsSubscription) {
-              clearInterval(this.barsSubscription);
+            if (_this.barsSubscription) {
+              clearInterval(_this.barsSubscription);
             }
 
-            this.barsSubscription = setInterval(() => {
-              if (!this.tradingView || !this.tradingView._options) {
+            _this.barsSubscription = setInterval(() => {
+              if (!_this.tradingView || !_this.tradingView._options) {
                 return;
               }
               const to = parseInt((new Date().valueOf()) / 1000, 10)
               const from = to - 120
 
-              this.tradingView._options.datafeed.getBars(_symbolInfo, resolution, from, to, (bars) => {
+              _this.tradingView._options.datafeed.getBars(_symbolInfo, resolution, from, to, (bars) => {
                 if (bars.length === 0) {
                   return;
                 }
@@ -337,7 +338,7 @@ export default {
           },
 
           unsubscribeBars: (subscriberUID) => {
-            clearInterval(this.barsSubscription);
+            clearInterval(_this.barsSubscription);
           },
         }
 
@@ -353,7 +354,7 @@ export default {
           drawings_access: { type: 'black', tools: [ { name: regressionTrend } ] },
           enabled_features: [],
           fullscreen: false,
-          hide_top_toolbar: true,
+          hide_top_toolbar: false,
           interval: '5',
           library_path: '/static/charting_library/',
           locale: "en",
@@ -367,7 +368,7 @@ export default {
           },
           symbol: symbolName,
           toolbar_bg: '#1d1c33',
-		    };
+        };
 
         this.tradingView = new TradingView.widget(settings);
 
