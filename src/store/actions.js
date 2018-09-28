@@ -96,6 +96,23 @@ function createWallet({ commit }, { name, passphrase, passphraseConfirm }) {
   }, timeouts.NEO_API_CALL);
 }
 
+function deleteWallet({ commit }, { name, done }) {
+  commit('startRequest', { identifier: 'deleteWallet' });
+
+  setTimeout(() => {
+    wallets.remove(name)
+      .then(() => {
+        wallets.sync();
+        done();
+        commit('endRequest', { identifier: 'deleteWallet' });
+      })
+      .catch((e) => {
+        alerts.exception(e);
+        commit('failRequest', { identifier: 'deleteWallet', message: e });
+      });
+  }, timeouts.NEO_API_CALL);
+}
+
 async function fetchBlockHeaderByHash({ state, commit }, { blockHash, done, failed }) {
   commit('startRequest', { identifier: 'fetchBlockHeaderByHash' });
 
@@ -134,6 +151,22 @@ async function fetchBlockHeaderByHash({ state, commit }, { blockHash, done, fail
   commit('endRequest', { identifier: 'fetchBlockHeaderByHash' });
 }
 
+async function fetchCommitState({ commit }) {
+  const currentWallet = wallets.getCurrentWallet();
+  let commitState;
+
+  commit('startRequest', { identifier: 'fetchCommitState' });
+
+  try {
+    commitState = await dex.fetchCommitState(currentWallet.address);
+    commit('setCommitState', commitState);
+    commit('endRequest', { identifier: 'fetchCommitState' });
+  } catch (message) {
+    alerts.networkException(message);
+    commit('failRequest', { identifier: 'fetchCommitState', message });
+  }
+}
+
 async function fetchHoldings({ commit }, { done, isRequestSilent } = {}) {
   const currentWallet = wallets.getCurrentWallet();
   let holdings;
@@ -161,6 +194,20 @@ async function fetchHoldings({ commit }, { done, isRequestSilent } = {}) {
   }
 
   return holdings;
+}
+
+function fetchLatestVersion({ commit }) {
+  commit('startRequest', { identifier: 'fetchLatestVersion' });
+
+  return axios.get(`${network.getSelectedNetwork().aph}/LatestWalletInfo`)
+    .then(({ data }) => {
+      commit('setLatestVersion', data);
+      commit('endRequest', { identifier: 'fetchLatestVersion' });
+    })
+    .catch((e) => {
+      console.log(e);
+      commit('failRequest', { identifier: 'fetchLatestVersion', message: e });
+    });
 }
 
 async function fetchMarkets({ commit }, { done }) {
@@ -235,6 +282,22 @@ function findTransactions({ state, commit }) {
     });
 }
 
+function importWallet({ commit }, { name, wif, passphrase, done }) {
+  commit('startRequest', { identifier: 'importWallet' });
+
+  setTimeout(() => {
+    wallets.importWIF(name, wif, passphrase)
+      .then(() => {
+        wallets.sync();
+        done();
+        commit('endRequest', { identifier: 'importWallet' });
+      })
+      .catch((e) => {
+        commit('failRequest', { identifier: 'importWallet', message: e });
+      });
+  }, timeouts.NEO_API_CALL);
+}
+
 function openEncryptedKey({ commit }, { encryptedKey, passphrase, done }) {
   commit('startRequest', { identifier: 'openEncryptedKey' });
 
@@ -248,20 +311,6 @@ function openEncryptedKey({ commit }, { encryptedKey, passphrase, done }) {
         commit('failRequest', { identifier: 'openEncryptedKey', message: e });
       });
   }, timeouts.NEO_API_CALL);
-}
-
-function verifyLedgerConnection({ commit }, { done, failed }) {
-  commit('startRequest', { identifier: 'verifyLedgerConnection' });
-
-  ledger.open()
-    .then(() => {
-      done();
-      commit('endRequest', { identifier: 'verifyLedgerConnection' });
-    })
-    .catch((e) => {
-      failed(e);
-      commit('failRequest', { identifier: 'verifyLedgerConnection', message: e });
-    });
 }
 
 function openLedger({ commit }, { done, failed }) {
@@ -373,6 +422,7 @@ async function subscribeToMarket({ state, commit }, { market, isRequestSilent })
     commit('failRequest', { identifier: 'subscribeToMarket', message });
   }
 }
+
 async function unsubscribeFromMarket({ state, commit }, { market }) {
   if (!market) {
     return;
@@ -396,65 +446,16 @@ async function unsubscribeFromMarket({ state, commit }, { market }) {
   }
 }
 
-function importWallet({ commit }, { name, wif, passphrase, done }) {
-  commit('startRequest', { identifier: 'importWallet' });
+function verifyLedgerConnection({ commit }, { done, failed }) {
+  commit('startRequest', { identifier: 'verifyLedgerConnection' });
 
-  setTimeout(() => {
-    wallets.importWIF(name, wif, passphrase)
-      .then(() => {
-        wallets.sync();
-        done();
-        commit('endRequest', { identifier: 'importWallet' });
-      })
-      .catch((e) => {
-        commit('failRequest', { identifier: 'importWallet', message: e });
-      });
-  }, timeouts.NEO_API_CALL);
-}
-
-function deleteWallet({ commit }, { name, done }) {
-  commit('startRequest', { identifier: 'deleteWallet' });
-
-  setTimeout(() => {
-    wallets.remove(name)
-      .then(() => {
-        wallets.sync();
-        done();
-        commit('endRequest', { identifier: 'deleteWallet' });
-      })
-      .catch((e) => {
-        alerts.exception(e);
-        commit('failRequest', { identifier: 'deleteWallet', message: e });
-      });
-  }, timeouts.NEO_API_CALL);
-}
-
-async function fetchCommitState({ commit }) {
-  const currentWallet = wallets.getCurrentWallet();
-  let commitState;
-
-  commit('startRequest', { identifier: 'fetchCommitState' });
-
-  try {
-    commitState = await dex.fetchCommitState(currentWallet.address);
-    commit('setCommitState', commitState);
-    commit('endRequest', { identifier: 'fetchCommitState' });
-  } catch (message) {
-    alerts.networkException(message);
-    commit('failRequest', { identifier: 'fetchCommitState', message });
-  }
-}
-
-function fetchLatestVersion({ commit }) {
-  commit('startRequest', { identifier: 'fetchLatestVersion' });
-
-  return axios.get(`${network.getSelectedNetwork().aph}/LatestWalletInfo`)
-    .then(({ data }) => {
-      commit('setLatestVersion', data);
-      commit('endRequest', { identifier: 'fetchLatestVersion' });
+  ledger.open()
+    .then(() => {
+      done();
+      commit('endRequest', { identifier: 'verifyLedgerConnection' });
     })
     .catch((e) => {
-      console.log(e);
-      commit('failRequest', { identifier: 'fetchLatestVersion', message: e });
+      failed(e);
+      commit('failRequest', { identifier: 'verifyLedgerConnection', message: e });
     });
 }
