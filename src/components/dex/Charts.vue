@@ -217,7 +217,6 @@ export default {
     loadChart() {
       /* eslint-disable */
       const regressionTrend = this.$t('regressionTrend'); // Fixes the `Cannot read property '_t' of undefined` error
-      const _this = this;
 
       try {
         const container = document.getElementById('chart-container');
@@ -278,32 +277,32 @@ export default {
           },
 
           getBars: (_symbolInfo, resolution, from, to, onDataCallback, onErrorCallback) => {
-            const bars = _this.$store.state.tradeHistory && _this.$store.state.tradeHistory.getBars ?
-              _this.$store.state.tradeHistory.getBars(_this.$store.state.tradeHistory, resolution, from, to, _this.lastPrice) :
+            const bars = this.$store.state.tradeHistory && this.$store.state.tradeHistory.getBars ?
+              this.$store.state.tradeHistory.getBars(this.$store.state.tradeHistory, resolution, from, to, this.lastPrice) :
               [];
 
             if (bars.length === 0) {
               onDataCallback(bars, { noData: true })
             } else {
-              _this.lastPrice = bars[bars.length - 1].close;
+              this.lastPrice = bars[bars.length - 1].close;
               onDataCallback(bars, { noData: false })
             }
           },
 
           subscribeBars: (_symbolInfo, resolution, onRealtimeCallback, subscriberUID, onResetCacheNeededCallback) => {
             let lastBarTime = NaN;
-            if (_this.barsSubscription) {
-              clearInterval(_this.barsSubscription);
+            if (this.barsSubscription) {
+              clearInterval(this.barsSubscription);
             }
 
-            _this.barsSubscription = setInterval(() => {
-              if (!_this.tradingView || !_this.tradingView._options) {
+            this.barsSubscription = setInterval(() => {
+              if (!this.tradingView || !this.tradingView._options) {
                 return;
               }
               const to = parseInt((new Date().valueOf()) / 1000, 10)
               const from = to - 120
 
-              _this.tradingView._options.datafeed.getBars(_symbolInfo, resolution, from, to, (bars) => {
+              this.tradingView._options.datafeed.getBars(_symbolInfo, resolution, from, to, (bars) => {
                 if (bars.length === 0) {
                   return;
                 }
@@ -338,7 +337,7 @@ export default {
           },
 
           unsubscribeBars: (subscriberUID) => {
-            clearInterval(_this.barsSubscription);
+            clearInterval(this.barsSubscription);
           },
         }
 
