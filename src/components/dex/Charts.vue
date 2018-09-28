@@ -356,6 +356,7 @@ export default {
           hide_top_toolbar: false,
           interval: '5',
           library_path: '/static/charting_library/',
+          loading_screen: false,
           locale: "en",
           overrides: {
             "paneProperties.background": "#1d1c33",
