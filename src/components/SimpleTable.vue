@@ -1,7 +1,7 @@
 <template>
   <section class="aph-simple-table">
     <table class="table-wrapper">
-      <thead>
+      <thead v-if="hasHeader">
         <tr class="table-header-row">
           <th v-for="key in columns"
             @click="sortBy(key)"
@@ -16,7 +16,7 @@
         <tr class="row" v-for="entry in filteredData" @click="handleRowClick(entry)">
           <td class="cell" :class="[key, injectStyling(entry[key], entry, key)]" v-for="key in columns">
             <slot :name=key :value=entry[key]>
-              {{ formatEntry !== 'null' ? formatEntry(entry[key], entry, key) : entry[key] }}
+              {{ formatEntry !== null ? formatEntry(entry[key], entry, key) : entry[key] }}
             </slot>
           </td>
         </tr>
@@ -47,6 +47,10 @@ export default {
     formatEntry: {
       default: null,
       type: Function,
+    },
+    hasHeader: {
+      default: true,
+      type: Boolean,
     },
     injectStyling: {
       default: () => {},
