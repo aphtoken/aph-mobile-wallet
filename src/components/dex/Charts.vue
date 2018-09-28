@@ -437,7 +437,7 @@ export default {
   overflow: hidden;
 
    > .body {
-    background: $dark-purple*1.25;
+    background: lighten($dark-purple, 3%);
     display: flex;
     flex-direction: column;
     flex: 1;
@@ -450,6 +450,7 @@ export default {
 
       > * {
         @extend %btn;
+
         margin: 0 $space;
 
         &:not(.active) {
@@ -460,9 +461,9 @@ export default {
     }
 
     .chart {
-      flex: 1;
       display: flex;
       flex-direction: column;
+      flex: 1;
       padding: $space;
 
       #chart-container {
@@ -471,10 +472,10 @@ export default {
       }
 
       #depth-container {
-        padding-top: $space-lg;
         display: flex;
         flex-direction: column;
         flex: 1;
+        padding-top: $space-lg;
 
         .upper {
           display: flex;
@@ -502,59 +503,55 @@ export default {
           }
 
           .panel {
-            flex: 1;
             display: flex;
+            flex: 1;
             overflow: hidden;
-            margin: -50px -50px 0px -50px;
-            padding: 50px 50px 0px 50px;
 
             .bids, .asks {
-              flex: 1;
               display: flex;
+              flex: 1;
 
               .level {
                 flex: 1;
                 position: relative;
 
                 .size-bar {
-                  width: 100%;
-                  position: absolute;
                   bottom: 0px;
+                  position: absolute;
+                  width: 100%;
 
                   span {
-                    // @extend %light-background;
-
-                    display: none;
-                    padding: $space-sm $space;
-                    border: 1px solid $green;
                     border-radius: 4px;
-                    position: absolute;
-                    top: -45px;
+                    border: 1px solid $green;
+                    display: none;
                     left: -10px;
+                    padding: $space-sm $space;
+                    position: absolute;
                     right: -10px;
                     text-align: center;
+                    top: -45px;
 
                     &:before {
-                      content: "";
-                      height: 500px;
-                      width: 1px;
                       background-color: $grey;
+                      content: "";
                       display: block;
+                      height: 500px;
+                      left: 48%;
                       position: absolute;
                       top: 30px;
-                      left: 48%;
+                      width: 1px;
                     }
 
                     &:after {
-                      content: "\25CF";
-                      height: 5px;
-                      width: 100%;
                       color: $green;
+                      content: "\25CF";
                       display: block;
-                      position: absolute;
-                      top: 35px;
+                      height: 5px;
                       left: 0px;
+                      position: absolute;
                       right: 0px;
+                      top: 35px;
+                      width: 100%;
                     }
                   }
 
@@ -569,27 +566,27 @@ export default {
 
             .bids {
               .level {
-                margin-left: -2px;
+                margin-left: -$border-width-thin;
 
                 .size-bar {
                   background-color: $light-green;
-                  border-top: 2px solid $green;
-                  border-right: 2px solid $green;
+                  border-right: $border-width-thin solid $green;
+                  border-top: $border-width-thin solid $green;
                 }
               }
             }
 
             .asks {
-              flex-direction: row-reverse;
               border-left: 1px solid $dark-grey;
+              flex-direction: row-reverse;
 
               .level {
-                margin-right: -2px;
+                margin-right: -$border-width-thin;
 
                 .size-bar {
                   background-color: $light-red;
-                  border-top: 2px solid $red;
-                  border-left: 2px solid $red;
+                  border-left: $border-width-thin solid $red;
+                  border-top: $border-width-thin solid $red;
 
                   span {
                     border: 1px solid $red;
@@ -617,8 +614,8 @@ export default {
             width: percentage(1/12);
 
             span {
-              transform: rotate(59deg) translateX(25px) translateY(0px);
               display: block;
+              transform: rotate(59deg) translateX(25px) translateY(0px);
             }
           }
         }
