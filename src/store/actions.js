@@ -23,6 +23,9 @@ export {
   openLedger,
   openPrivateKey,
   openSavedWallet,
+  pingSocket,
+  subscribeToMarket,
+  unsubscribeFromMarket,
   verifyLedgerConnection,
 };
 
@@ -330,6 +333,67 @@ function openSavedWallet({ commit }, { walletToOpen, passphrase, done }) {
         commit('failRequest', { identifier: 'openSavedWallet', message: e });
       });
   }, timeouts.NEO_API_CALL);
+}
+
+async function pingSocket({ state, commit }) {
+  commit('startRequest', { identifier: 'pingSocket' });
+
+  try {
+    if (!state.socket || state.socket.isConnected !== true) {
+      return;
+    }
+
+    state.socket.client.sendObj({ op: 'ping' });
+    commit('endRequest', { identifier: 'pingSocket' });
+  } catch (message) {
+    alerts.networkException(message);
+    commit('failRequest', { identifier: 'pingSocket', message });
+  }
+}
+
+async function subscribeToMarket({ state, commit }, { market, isRequestSilent }) {
+  if (!market) {
+    return;
+  }
+  commit(isRequestSilent ? 'startSilentRequest' : 'startRequest',
+    { identifier: 'subscribeToMarket' });
+
+  try {
+    state.socket.client.sendObj({ op: 'subscribe', args: `orderBook:${market.marketName}` });
+
+    const currentWallet = wallets.getCurrentWallet();
+    state.socket.client.sendObj({
+      op: 'subscribe',
+      args: `orderUpdates:${market.marketName}:${currentWallet.address}`,
+    });
+
+    commit('endRequest', { identifier: 'subscribeToMarket' });
+  } catch (message) {
+    alerts.networkException(message);
+    commit('failRequest', { identifier: 'subscribeToMarket', message });
+  }
+}
+async function unsubscribeFromMarket({ state, commit }, { market }) {
+  if (!market) {
+    return;
+  }
+
+  commit('startRequest', { identifier: 'unsubscribeFromMarket' });
+
+  try {
+    state.socket.client.sendObj({ op: 'unsubscribe', args: `orderBook:${market.marketName}` });
+
+    const currentWallet = wallets.getCurrentWallet();
+    state.socket.client.sendObj({
+      op: 'unsubscribe',
+      args: `orderUpdates:${market.marketName}:${currentWallet.address}`,
+    });
+
+    commit('endRequest', { identifier: 'unsubscribeFromMarket' });
+  } catch (message) {
+    alerts.networkException(message);
+    commit('failRequest', { identifier: 'unsubscribeFromMarket', message });
+  }
 }
 
 function importWallet({ commit }, { name, wif, passphrase, done }) {

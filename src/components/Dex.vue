@@ -35,32 +35,122 @@
 </template>
 
 <script>
-// Import fake data
-import { ORDER_BOOK } from '../../sample_api/dex_sample.js';
+import assets from '../services/assets';
 
 export default {
-  mounted() {
-    this.loadMarkets();
-
-    // the below is to introduce fake data
-    this.loadOrderBookSampleData();
-  },
-
-  computed: {
-    //
+  beforeDestroy() {
+    this.$store.state.showPortfolioHeader = true;
+    clearInterval(this.connectionStatusInterval);
+    clearInterval(this.marketsRefreshInterval);
+    clearInterval(this.completeSystemAssetWithdrawalsInterval);
   },
 
   data() {
     return {
-      currentTab: 'Pair',
+      connected: false,
+      currentTab: 'Pairs',
     };
   },
 
-  methods: {
-    loadOrderBookSampleData() {
-      this.$store.commit('orderBookSnapshotReceived', ORDER_BOOK.DATA);
-    },
+  mounted() {
+    this.$store.state.showPortfolioHeader = false;
+    this.loadMarkets();
 
+    this.$services.dex.completeSystemAssetWithdrawals();
+
+    this.$store.commit('setSocketOrderCreated', (message) => {
+      /* eslint-disable max-len */
+      this.$services.alerts.success(`${(message.side === 'bid' ? 'Buy' : 'Sell')} Order Created. x${message.data.quantity} @${message.data.price}`);
+      this.$store.dispatch('fetchHoldings');
+      this.$services.neo.resetSystemAssetBalanceCache();
+    });
+
+    const services = this.$services;
+    const store = this.$store;
+    store.commit('setSocketOrderMatched', (message) => {
+      /* eslint-disable max-len */
+      services.alerts.success(`${(message.side === 'bid' ? 'Buy' : 'Sell')} Order Filled. x${message.data.quantity} @${message.data.price}`);
+      // If the asset purchased is not a user asset, we must add it as one.
+      // Note: Since this runs from a mutation it is safe to add it directly)
+
+      const market = _.find(store.state.markets, { marketName: message.pair });
+
+      const userAssets = assets.getUserAssets();
+      let addedToken = false;
+      if (!_.has(userAssets, market.baseAssetId)) {
+        store.dispatch('addToken', {
+          hashOrSymbol: market.baseAssetId,
+        });
+        addedToken = true;
+      }
+      if (!_.has(userAssets, market.quoteAssetId)) {
+        store.dispatch('addToken', {
+          hashOrSymbol: market.quoteAssetId,
+        });
+        addedToken = true;
+      }
+
+      if (!addedToken) {
+        this.$store.dispatch('fetchHoldings');
+      }
+      this.$services.neo.resetSystemAssetBalanceCache();
+    });
+
+    store.commit('setSocketOrderCreationFailed', (message) => {
+      services.alerts.error(`Failed to Create ${(message.side === 'bid' ? 'Buy' : 'Sell')} Order. ${message.data.errorMessage}`);
+      services.neo.resetSystemAssetBalanceCache();
+    });
+
+    store.commit('setSocketOrderMatchFailed', (message) => {
+      services.alerts.error(`Failed to Match ${(message.side === 'bid' ? 'Buy' : 'Sell')} x${message.data.quantity}. ${message.data.errorMessage}`);
+      services.neo.resetSystemAssetBalanceCache();
+    });
+
+    services.neo.promptGASFractureIfNecessary();
+  },
+
+  created() {
+    this.setConnected();
+    this.connectionStatusInterval = setInterval(() => {
+      this.setConnected();
+    }, 1000);
+    this.marketsRefreshInterval = setInterval(() => {
+      this.loadMarkets();
+    }, this.$constants.intervals.MARKETS_POLLING);
+    this.completeSystemAssetWithdrawalsInterval = setInterval(() => {
+      this.$services.dex.completeSystemAssetWithdrawals();
+    }, this.$constants.intervals.COMPLETE_SYSTEM_WITHDRAWALS);
+  },
+
+  computed: {
+    isOutOfDate() {
+      return this.$store.state.latestVersion && this.$store.state.latestVersion.testExchangeScriptHash
+        && this.$store.state.latestVersion.testExchangeScriptHash.replace('0x', '')
+          !== this.$services.assets.DEX_SCRIPT_HASH;
+    },
+  },
+
+  methods: {
+    setConnected() {
+      if (!this.$store.state.socket || this.$store.state.socket.isConnected !== true) {
+        if (moment().utc().diff(this.$store.state.socket.connectionClosed, 'milliseconds')
+          > this.$constants.timeouts.WEBSOCKET_CONNECTION) {
+          this.connected = false;
+          return;
+        }
+      }
+
+      if (this.$store.state.currentMarket) {
+        if (!this.$store.state.socket.subscribedMarket
+          || this.$store.state.socket.subscribedMarket !== this.$store.state.currentMarket.marketName) {
+          this.$store.dispatch('subscribeToMarket', {
+            market: this.$store.state.currentMarket,
+          });
+        }
+      }
+
+      this.connected = true;
+    },
     loadMarkets() {
       this.$store.dispatch('fetchMarkets', {
         done: () => {
@@ -74,10 +164,6 @@ export default {
     setTab(event) {
       this.currentTab = event.target.innerText;
     },
-  },
-
-  watch: {
-    //
   },
 };
 </script>
@@ -130,7 +216,7 @@ export default {
       flex-direction: column;
       flex: 1;
       height: toRem(60px);
-      justify-content: center;  
+      justify-content: center;
 
       &.router-link-active {
         border-bottom-color: $purple;
