@@ -19,7 +19,6 @@
 </template>
 
 <script>
-
 import MarketPairChart from './MarketPairChart';
 import BaseSelector from './BaseSelector';
 
@@ -98,7 +97,7 @@ export default {
     },
 
     injectRowStyling({ asset }) {
-      if(asset === this.$store.state.currentMarket.quoteCurrency &&
+      if (asset === this.$store.state.currentMarket.quoteCurrency &&
         this.baseCurrency === this.$store.state.currentMarket.baseCurrency) {
         return 'active';
       }

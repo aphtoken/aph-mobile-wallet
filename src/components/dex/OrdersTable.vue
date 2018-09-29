@@ -55,7 +55,32 @@ export default {
 
   computed: {
     ordersTableData() {
-      return [{pairAndSide: {pair: 'APH/NEO', side: 'buy'}, details: {amount: '72,043.56', base: 'APH', price: '0.225', cost: '$.25'}}, {pairAndSide: {pair: 'APH/ATI', side: 'sell'}, details: {amount: '72,043.56', base: 'APH', price: '0.225', cost: '$.25'}}];
+      return [
+        {
+          pairAndSide: {
+            pair: 'APH/NEO',
+            side: 'buy',
+          },
+          details: {
+            amount: '72,043.56',
+            base: 'APH',
+            price: '0.225',
+            cost: '$.25',
+          },
+        },
+        {
+          pairAndSide: {
+            pair: 'APH/ATI',
+            side: 'sell',
+          },
+          details: {
+            amount: '72,043.56',
+            base: 'APH',
+            price: '0.225',
+            cost: '$.25',
+          },
+        },
+      ];
     },
   },
 
@@ -88,7 +113,7 @@ export default {
   display: flex;
   flex-direction: column;
   flex: 1;
-  
+
   .header {
     display: flex;
     flex-direction: row;
@@ -125,7 +150,7 @@ export default {
 
       &.buy {
         color: $green;
-        
+
         &:before {
           content: "+";
         }
