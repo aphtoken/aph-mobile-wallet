@@ -4,10 +4,10 @@
       <div v-for="status in orderStatus"
         :class="[status, { active: selectedStatus === status }]"
         @click="handleStatusChange(status)">
-        {{ status }} (3)
+        {{ status }} ({{ openOrdersTableData.length }})
       </div>
     </div>
-    <aph-simple-table v-bind="{ data: ordersTableData, columns, hasHeader: false }">
+    <aph-simple-table v-if="selectedStatus === 'open'" v-bind="{ data: openOrdersTableData, columns: openOrderColumns, hasHeader: false }">
       <div slot="pairAndSide" slot-scope="{value}" class="pair-and-side-cell">
         <div class="pair">
           {{ value.pair }}
@@ -40,28 +40,30 @@
         </div>
       </div>
     </aph-simple-table>
+    <aph-simple-table v-if="selectedStatus === 'completed'" v-bind="{}">
+    </aph-simple-table>
   </section>
 </template>
 
 <script>
 
-const COMPLETED = 'Completed';
-const OPEN = 'Open';
-const TABLE_COLUMNS = ['pairAndSide', 'details'];
+const COMPLETED = 'completed';
+const OPEN = 'open';
+const OPEN_ORDER_COLUMNS = ['pairAndSide', 'details'];
 
 export default {
   components: {
   },
 
   computed: {
-    ordersTableData() {
+    openOrdersTableData() {
       return [{pairAndSide: {pair: 'APH/NEO', side: 'buy'}, details: {amount: '72,043.56', base: 'APH', price: '0.225', cost: '$.25'}}, {pairAndSide: {pair: 'APH/ATI', side: 'sell'}, details: {amount: '72,043.56', base: 'APH', price: '0.225', cost: '$.25'}}];
     },
   },
 
   data() {
     return {
-      columns: TABLE_COLUMNS,
+      openOrderColumns: OPEN_ORDER_COLUMNS,
       orderStatus: [OPEN, COMPLETED],
       selectedStatus: OPEN,
     };
@@ -100,6 +102,7 @@ export default {
       flex: 1;
       padding: $space;
       text-align: center;
+      text-transform: capitalize;
 
       &.active {
         border-bottom: $border;
