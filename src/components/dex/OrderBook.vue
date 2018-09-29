@@ -72,23 +72,23 @@ export default {
   flex: 1;
   
   .book {
+    background-color: $dark-purple;
     display: flex;
     flex-direction: column;
     flex: 1;
-    background-color: $dark-purple;
 
     .order-book-table {
       display: flex;
-      flex: 1;
       flex-direction: column;
+      flex: 1;
       margin: $space;
 
       .header {
-        display: flex;
-        flex: none;
-        flex-direction: row;
-        justify-content: space-between;
         color: $darker-grey;
+        display: flex;
+        flex-direction: row;
+        flex: none;
+        justify-content: space-between;
         text-transform: uppercase;
 
         .cell {
@@ -98,15 +98,15 @@ export default {
       }
 
       .table-data {
-        margin-top: $space;
         display: flex;
-        flex: 1;
         flex-direction: column;
+        flex: 1;
+        margin-top: $space;
 
         .row {
           display: flex;
-          flex: 1;
           flex-direction: row;
+          flex: 1;
           justify-content: space-between;
 
           .cell {
@@ -114,12 +114,12 @@ export default {
 
             &.graph {
               font-size: 0;
-              text-align: right;
               position: relative;
+              text-align: right;
 
               .size-bar {
-                height: toRem(12px);
                 display: inline-block;
+                height: toRem(12px);
                 position: absolute;
                 right: 0px;
 
@@ -145,22 +145,28 @@ export default {
           }
         }
       }
+
+      &.asks {
+        .table-data {
+          flex-direction: column-reverse;
+        }
+      }
     }
 
     .spread-divider {
+      border-bottom: 1px solid $darker-grey/2;
+      border-top: 1px solid $darker-grey/2;
       display: flex;
-      flex: none;
       flex-direction: row;
+      flex: none;
       justify-content: space-between;
       margin: $space;
-      border-top: 1px solid $darker-grey/2;
-      border-bottom: 1px solid $darker-grey/2;
       padding: $space-sm;
 
       > div {
         flex: 1;
-        text-transform: uppercase;
         margin: auto 0;
+        text-transform: uppercase;
 
         &.label {
           color: $darker-grey;
