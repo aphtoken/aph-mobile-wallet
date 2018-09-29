@@ -193,7 +193,7 @@ export default {
       }
 
       .row.active {
-        background: $softer-dark;
+        background: lighten($dark-purple, 10%);
       }
     }
 
