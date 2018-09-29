@@ -56,35 +56,35 @@ export default {
   flex: 1;
 
   .trade-history-table {
-    display: flex;
-    flex: 1;
-    flex-direction: column;
-    margin: $space;
     background-color: $dark-purple;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    margin: $space;
     overflow: auto;
 
     .table-header {
       display: flex;
-      flex: none;
       flex-direction: row;
+      flex: none;
       justify-content: space-between;
 
     .cell {
-      text-transform: uppercase;
       color: $darker-grey;
       margin: $space;
+      text-transform: uppercase;
       }
     }
 
     .table-body {
       display: flex;
-      flex: 1;
       flex-direction: column;
+      flex: 1;
 
       .row {
         display: flex;
-        flex: none;
         flex-direction: row;
+        flex: none;
         justify-content: space-between;
 
         .cell {
