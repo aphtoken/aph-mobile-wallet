@@ -344,7 +344,6 @@ export default {
         }
 
         var settings = {
-          // debug: true,
           autosize: true,
           container_id: "chart-container",
           datafeed: datafeed,
