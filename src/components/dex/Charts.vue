@@ -43,12 +43,14 @@
             </div>
           </div>
           <div class="bottom-axis" v-if="$store.state.orderBook">
+            <div class="level"><span>&nbsp;</span></div>
             <div class="level" v-for="(bid, index) in bidGroups" :key="`bottom-bid-${index}`">
               <span>{{ bid.priceLabel }}</span>
             </div>
             <div class="level" v-for="(ask, index) in askGroups" :key="`bottom-ask-${index}`">
               <span>{{ ask.priceLabel }}</span>
             </div>
+            <div class="level"><span>&nbsp;</span></div>
           </div>
         </div>
       </div>
@@ -613,10 +615,11 @@ export default {
           .level {
             flex: 1;
             width: percentage(1/12);
+            font-size: toRem(12px);
 
             span {
               display: block;
-              transform: rotate(59deg) translateX(25px) translateY(0px);
+              transform: rotate(90deg) translateX(14px);
             }
           }
         }
