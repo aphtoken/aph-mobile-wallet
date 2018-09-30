@@ -194,6 +194,10 @@ export default {
 
       .row.active {
         background: lighten($dark-purple, 10%);
+
+        .cell {
+          border-color: transparent;
+        }
       }
     }
 
