@@ -41,6 +41,12 @@ const state = {
   showPortfolioHeader: true,
   showPriceTile: true,
   showSendRequestLedgerSignature: false,
+  socket: {
+    lastMessage: null,
+    isConnected: false,
+    client: null,
+    reconnectError: false,
+  },
   statsToken: null,
   tradeHistory: null,
   transactionDetails: {},

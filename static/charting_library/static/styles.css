@@ -1,0 +1,52 @@
+.chart-page {
+  background: rgba(255, 255, 255, .30);
+}
+
+.bottom-widgetbar-content.backtesting .button,
+.header-chart-panel .button,
+.hotlist-controls .button,
+.symbol-edit-widget .button,
+.favored-list-container span,
+.drawingToolbar-2CoOuCv8- {
+  background: rgba(255, 255, 255, .30);
+}
+
+
+.bottom-widgetbar-content.backtesting .button,
+.header-chart-panel .button,
+.hotlist-controls .button,
+.symbol-edit-widget .button,
+.favored-list-container span,
+.drawingToolbar-2CoOuCv8- {
+  color: #ffffff;
+}
+
+.bottom-widgetbar-content.backtesting .button path,
+.header-chart-panel .button path,
+.hotlist-controls .button path,
+.symbol-edit-widget .button path,
+.favored-list-container span path,
+.drawingToolbar-2CoOuCv8- path {
+  fill: #ffffff;
+}
+
+.chart-container {
+  background: transparent !important;
+  border: none !important;
+}
+
+.layout__area--center {
+  top: 0 !important;
+}
+
+.pane-legend-minbtn,
+.pane-legend-line:after,
+.header-chart-panel,
+.pane-legend-icon-container,
+.control-bar-wrapper {
+  display: none !important;
+}
+
+#loading-indicator {
+  background: transparent;
+}

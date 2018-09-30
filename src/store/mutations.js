@@ -14,6 +14,7 @@ export {
   handleLogout,
   handleNetworkChange,
   orderBookSnapshotReceived,
+  orderBookUpdateReceived,
   putBlockDetails,
   putTransactionDetail,
   resetRequests,
@@ -41,13 +42,25 @@ export {
   setSendInProgress,
   setShowClaimGasStatus,
   setShowSendRequestLedgerSignature,
+  setSocketOrderCreated,
+  setSocketOrderCreationFailed,
+  setSocketOrderMatchFailed,
+  setSocketOrderMatched,
   setStatsToken,
   setTradeHistory,
   setWalletToBackup,
   setWallets,
   startRequest,
   startSilentRequest,
+  SOCKET_ONOPEN,
+  SOCKET_ONCLOSE,
+  SOCKET_ONMESSAGE,
+  SOCKET_RECONNECT,
+  SOCKET_RECONNECT_ERROR,
 };
+
+// local constants
+const TRADE_MSG_LENGTH = 3;
 
 function clearActiveTransaction(state) {
   state.showPriceTile = true;
@@ -106,6 +119,16 @@ function orderBookSnapshotReceived(state, res) {
   orderBook.pair = res.pair;
 
   state.orderBook = orderBook;
+}
+
+function orderBookUpdateReceived(state, res) {
+  if (!state.orderBook || state.orderBook.pair !== res.pair) {
+    return;
+  }
+
+  const orderBook = dex.updateOrderBook(state.orderBook, res.side, res.changes);
+  const side = res.side === 'ask' ? orderBook.asks : orderBook.bids;
+  Vue.set(state.orderBook, res.side, side);
 }
 
 function putTransactionDetail(state, transactionDetail) {
@@ -261,6 +284,22 @@ function setShowSendRequestLedgerSignature(state, value) {
   state.showSendRequestLedgerSignature = value;
 }
 
+function setSocketOrderCreated(state, value) {
+  state.socket.orderCreated = value;
+}
+
+function setSocketOrderMatched(state, value) {
+  state.socket.orderMatched = value;
+}
+
+function setSocketOrderCreationFailed(state, value) {
+  state.socket.orderCreationFailed = value;
+}
+
+function setSocketOrderMatchFailed(state, value) {
+  state.socket.orderMatchFailed = value;
+}
+
 function setSendInProgress(state, value) {
   state.sendInProgress = value;
 }
@@ -293,6 +332,104 @@ function startRequest(state, payload) {
 
 function startSilentRequest(state, payload) {
   updateRequest(state, Object.assign(payload, { isSilent: true }), requests.PENDING);
+}
+
+function SOCKET_ONCLOSE(state) {
+  state.socket.client = null;
+  state.socket.isConnected = false;
+  if (!state.socket.connectionClosed) {
+    state.socket.connectionClosed = moment().utc();
+  }
+}
+
+function SOCKET_ONOPEN(state, event) {
+  state.socket.client = event.target;
+  state.socket.isConnected = true;
+  state.socket.connectionClosed = null;
+  if (state.socket.opened) {
+    state.socket.opened();
+  }
+  if (state.needsWsReconnectHandling) {
+    state.needsWsReconnectHandling = false;
+    if (state.currentMarket) {
+      this.dispatch('subscribeToMarket', {
+        market: state.currentMarket,
+        isRequestSilent: true,
+      });
+
+      // Ensure trade history is up-to-date on reconnect. (may have dropped some trades during disconnect)
+      this.dispatch('fetchTradeHistory', {
+        marketName: state.currentMarket.marketName,
+        isRequestSilent: true,
+      });
+    }
+  }
+}
+
+function SOCKET_ONMESSAGE(state, message) {
+  state.socket.lastMessage = message;
+
+  if (message.subscribe && message.subscribe.indexOf('orderBook') > -1) {
+    state.socket.subscribedMarket = message.subscribe.substring(message.subscribe.indexOf(':') + 1);
+  } else if (message.unsubscribe && message.unsubscribe.indexOf('orderBook') > -1) {
+    state.socket.subscribedMarket = null;
+  } else if (message.type === 'bookSnapshot') {
+    orderBookSnapshotReceived(state, message);
+  } else if (message.type === 'bookUpdate') {
+    orderBookUpdateReceived(state, message);
+  } else if (message.type === 'orderCreated') {
+    if (state.socket.orderCreated) {
+      state.socket.orderCreated(message);
+    }
+  } else if (message.type === 'orderMatched') {
+    if (state.socket.orderMatched) {
+      state.socket.orderMatched(message);
+    }
+  } else if (message.type === 'orderCreationFailed') {
+    if (state.socket.orderCreationFailed) {
+      state.socket.orderCreationFailed(message);
+    }
+  } else if (message.type === 'orderMatchFailed') {
+    if (state.socket.orderMatchFailed) {
+      state.socket.orderMatchFailed(message);
+    }
+  } else if (message.type === 'trades') {
+    tradeUpdateReceived(state, message);
+  } else if (message.type) {
+    // unknown message type
+    // console.log(message);
+  }
+}
+
+function SOCKET_RECONNECT_ERROR(state) {
+  state.socket.reconnectError = true;
+}
+
+function SOCKET_RECONNECT(state) {
+  // Note: at this point SOCKET_ONOPEN will not have been called yet, state.socket.client will still be null
+  // So we cannot actually send any messages out the websocket here. We can set a flag so that SOCKET_ONOPEN will know
+  // that has opened as a result of a RECONNECT.
+  state.needsWsReconnectHandling = true;
+}
+
+function tradeUpdateReceived(state, tradeUpdateMsg) {
+  if (!state.tradeHistory || !state.tradeHistory.trades) {
+    return;
+  }
+
+  tradeUpdateMsg.trades.forEach((trade) => {
+    if (trade.length !== TRADE_MSG_LENGTH) {
+      return;
+    }
+
+    state.tradeHistory.trades.unshift({
+      // Trade executing in ask side means a Buy executed.
+      side: tradeUpdateMsg.side === 'ask' ? 'Buy' : 'Sell',
+      price: trade[0],
+      quantity: trade[1],
+      tradeTime: moment(trade[2]).unix(),
+    });
+  });
 }
 
 

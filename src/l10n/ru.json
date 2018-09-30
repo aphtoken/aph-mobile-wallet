@@ -113,6 +113,7 @@
   "tokenStats": "Статистика токенов",
   "totalBalance": "Общий Баланс",
   "totalSupply": "Общий Запас",
+  "tradeDEX": "Торговля DEX",
   "transferAllNEO": "Перенести весь NEO самому себе.",
   "transferredNEOToYourself": "Перенесенный {amount} NEO самому себе.",
   "transferringNEOToYourself": "Передача {amount} NEO самому себе.",

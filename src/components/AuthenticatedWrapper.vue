@@ -9,6 +9,10 @@
           <aph-icon name="dashboard"></aph-icon>
           <p>{{ $t('Dashboard') }}</p>
         </router-link>
+        <router-link v-if="shouldShowDexLink" to="/authenticated/dex">
+          <aph-icon name="dex"></aph-icon>
+          <p>{{ $t('tradeDEX') }}</p>
+        </router-link>
         <router-link v-if="shouldShowCommitLink" to="/authenticated/commit">
           <aph-icon name="commit"></aph-icon>
           <p>{{ $t('commit') }}</p>
@@ -75,6 +79,10 @@ export default {
     },
 
     shouldShowCommitLink() {
+      return this.$store.state.currentNetwork.net !== 'MainNet';
+    },
+
+    shouldShowDexLink() {
       return this.$store.state.currentNetwork.net !== 'MainNet';
     },
   },

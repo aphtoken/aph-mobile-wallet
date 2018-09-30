@@ -113,6 +113,7 @@
   "tokenStats": "代币数据统计",
   "totalBalance": "总共的余额",
   "totalSupply": "总的提供量",
+  "tradeDEX": "交易 DEX",
   "transferAllNEO": "把所用 NEO to 转给您的账户。",
   "transferredNEOToYourself": "已经转账 {数量} 的 NEO 到您自己的账户。",
   "transferringNEOToYourself": "正在转账 {数量} 的 NEO 到您自己的账户中。",
@@ -130,4 +131,5 @@
   "youCurrentlyHave": "您目前有",
   "youMustSaveAndBackup": "您必须保存并备份下面的密钥。如果您丢失了它们，您将无法进入您的账号并查看您的资产详情。",
   "youWillUseThisPassphrase": "您将使用该密码解锁您的钱包。"
+
 }

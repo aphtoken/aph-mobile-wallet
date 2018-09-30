@@ -1,3 +1,5 @@
+import _ from 'lodash';
+
 export const activeTransaction = state => state.activeTransaction;
 export const contacts = state => state.contacts;
 export const currency = state => state.currency;
@@ -10,6 +12,8 @@ export const holdings = state => state.holdings;
 export const lastReceivedBlock = state => state.lastReceivedBlock;
 export const lastSuccessfulRequest = state => state.lastSuccessfulRequest;
 export const latestVersion = state => state.latestVersion;
+export const orderBookAsks = state => _.get(state.orderbook, 'asks', []);
+export const orderBookBids = state => _.get(state.orderbook, 'bids', []);
 export const portfolio = state => state.portfolio;
 export const recentTransactions = state => state.recentTransactions;
 export const requests = state => state.requests;

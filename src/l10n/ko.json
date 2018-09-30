@@ -113,6 +113,7 @@
   "tokenStats": "토큰 상태",
   "totalBalance": "총 잔액",
   "totalSupply": "총 공급",
+  "tradeDEX": "DEX 거래",
   "transferAllNEO": "모든 NEO를 본인에게 송금하기.",
   "transferredNEOToYourself": "본인에게 송금된 {amount} NEO.",
   "transferringNEOToYourself": "본인에게 {amount} NEO 송금중.",

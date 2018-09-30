@@ -91,9 +91,7 @@ export default {
     },
 
     handleMarketSelection({ asset }) {
-      this.$store.commit('setCurrentMarket', this.filteredMarkets().find((market) => {
-        return market.quoteCurrency === asset;
-      }));
+      this.$store.commit('setCurrentMarket', _.find(this.filteredMarkets(), { quoteCurrency: asset }));
     },
 
     injectRowStyling({ asset }) {

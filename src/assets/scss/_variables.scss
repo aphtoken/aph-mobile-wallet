@@ -1,6 +1,11 @@
 // Colors
+$background-night-light: #1f1d33;
+$background-night: #18162b;
 $background: #EEEEF9;
 $border-grey: #EEEEFA;
+$copy-night: #aeaeb8;
+$dark-grey: #60606b;
+$dark-purple: #171629;
 $dark: #1A193B;
 $darker-grey: #66688D;
 $green: #00E18A;
@@ -11,8 +16,9 @@ $light-red: #FFDBDF;
 $orange: #FF9800;
 $purple-hover: #8139FF;
 $purple: #752BF7;
-$dark-purple: #171629;
 $red: #FF2F54;
+$select-border: darken($background, 5%);
+$select-border-night: lighten($background-night-light, 7%);
 $softer-dark: #424258;
 
 $border-radius: 4px;
