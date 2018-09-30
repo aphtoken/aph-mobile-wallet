@@ -11,6 +11,9 @@
 
 import OrdersTable from './OrdersTable';
 
+const OPEN_ORDERS = 'open-orders';
+const COMPLETED_ORDERS = 'completed_orders';
+
 export default {
   components: {
     OrdersTable,

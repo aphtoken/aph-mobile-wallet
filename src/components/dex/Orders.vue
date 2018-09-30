@@ -3,6 +3,7 @@
     <orders-tabs v-bind="{ selectedTab }" v-on:updateSelectedTab="handleTabUpdate"></orders-tabs>
     <div class="body">
       <my-orders v-if="selectedTab === 'my-orders'"></my-orders>
+      <order-book v-if="selectedTab === 'order-book'"></order-book>
     </div>
   </section>
 </template>
@@ -11,6 +12,7 @@
 
 import OrdersTabs from './OrdersTabs';
 import MyOrders from './MyOrders';
+import OrderBook from './OrderBook';
 
 const MY_ORDERS = 'my-orders';
 const ORDER_BOOK = 'order-book';
@@ -20,6 +22,7 @@ export default {
   components: {
     MyOrders,
     OrdersTabs,
+    OrderBook,
   },
 
   computed: {
