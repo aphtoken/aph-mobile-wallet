@@ -9,30 +9,16 @@
 </template>
 
 <script>
-  
+
 export default {
-  components: {
-  },
-
-  computed: {
-  },
-
   data() {
     return {
       tabOptions: [
-        {key: 'my-orders', label: 'My orders'}
-      ,
-        {key: 'order-book', label: 'Order book'}
-      ,
-        {key: 'trade-history', label: 'Trade history'}
+        { key: 'my-orders', label: 'My orders' },
+        { key: 'order-book', label: 'Order book' },
+        { key: 'trade-history', label: 'Trade history' },
       ],
     };
-  },
-
-  methods: {
-  },
-
-  mounted() {
   },
 
   props: {
@@ -40,9 +26,6 @@ export default {
       default: '',
       type: String,
     },
-  },
-
-  watch: {
   },
 };
 

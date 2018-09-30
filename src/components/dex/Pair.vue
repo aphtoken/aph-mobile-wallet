@@ -4,7 +4,7 @@
       <market-pair-chart v-bind="{ percentChangeAbsolute }"></market-pair-chart>
       <base-selector v-model="baseCurrency" v-bind="{ baseCurrencies }"></base-selector>
       <aph-search-bar v-model="searchBy"></aph-search-bar>
-      <aph-simple-table v-bind="{ columns, data: tableData, formatEntry, injectStyling: getRelativeChange, handleRowClick: handleMarketSelection }">
+      <aph-simple-table v-bind="{ columns, data: tableData, formatEntry, injectCellStyling: getRelativeChange, injectRowStyling, handleRowClick: handleMarketSelection }">
         <div class="cell-price" slot="price" slot-scope="slotProps">
           <div>
             {{ slotProps.value }}
@@ -19,7 +19,6 @@
 </template>
 
 <script>
-
 import MarketPairChart from './MarketPairChart';
 import BaseSelector from './BaseSelector';
 
@@ -93,6 +92,15 @@ export default {
 
     handleMarketSelection({ asset }) {
       this.$store.commit('setCurrentMarket', _.find(this.filteredMarkets(), { quoteCurrency: asset }));
+    },
+
+    injectRowStyling({ asset }) {
+      if (asset === this.$store.state.currentMarket.quoteCurrency &&
+        this.baseCurrency === this.$store.state.currentMarket.baseCurrency) {
+        return 'active';
+      }
+
+      return '';
     },
 
     loadTrades() {
@@ -179,6 +187,14 @@ export default {
 
         &.decrease {
           color: $red;
+        }
+      }
+
+      .row.active {
+        background: lighten($dark-purple, 10%);
+
+        .cell {
+          border-color: transparent;
         }
       }
     }

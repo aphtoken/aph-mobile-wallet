@@ -11,7 +11,7 @@ $darker-grey: #66688D;
 $green: #00E18A;
 $grey: #B5B5CA;
 $light-green: #DDF7EC;
-$light-grey: #F4F4FC;
+$light-grey: lighten($grey, 10%);
 $light-red: #FFDBDF;
 $orange: #FF9800;
 $purple-hover: #8139FF;
