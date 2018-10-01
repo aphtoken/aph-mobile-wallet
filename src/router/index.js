@@ -138,6 +138,11 @@ export default new Router({
           name: 'settings.currencies',
         },
         {
+          path: 'settings/network-fee',
+          component: require('../components/settings/NetworkFee').default,
+          name: 'settings.network-fee',
+        },
+        {
           path: 'settings/networks',
           component: require('../components/settings/Networks').default,
           name: 'settings.networks',

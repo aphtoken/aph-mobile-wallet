@@ -58,6 +58,7 @@ const ROUTES_USING_BACK_BUTTON = [
   'settings.contacts',
   'settings.currencies',
   'settings.languages',
+  'settings.network-fee',
   'settings.networks',
   'settings.wallets',
 ];

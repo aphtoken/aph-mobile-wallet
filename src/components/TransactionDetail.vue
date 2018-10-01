@@ -66,7 +66,7 @@
       <div class="row">
         <div class="col">
           <div class="label">{{ $t('networkFee') }}</div>
-          <div class="value">{{ $t('feeInGas', { fee: formatNumber(transaction.details.net_fee) }) }}</div>
+          <div class="value">{{ $t('feeInGas', { fee: $formatNumber(transaction.details.net_fee) }) }}</div>
         </div>
         <div class="col">
           <div class="label">{{ $t('systemFee') }}</div>
