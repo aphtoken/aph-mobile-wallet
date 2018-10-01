@@ -39,6 +39,10 @@
             <div class="label">{{ $t('Network') }}</div>
             <div class="value">{{ selectedNetwork.net }}</div>
           </div>
+          <div class="row" @click="$router.push('/authenticated/settings/network-fee')">
+            <div class="label">{{ $t('networkFee') }}</div>
+            <div class="value">{{ $formatNumber(selectedNetworkFee) }}</div>
+          </div>
         </div>
         <div class="underlined">{{ $t('wallets') }}</div>
         <div class="tile">
@@ -66,9 +70,22 @@ export default {
     this.currencies = this.$services.settings.getCurrenciesAsArray();
     this.networks = this.$services.network.getNetworks();
     this.selectedCurrency = this.$services.settings.getCurrency();
-    this.selectedNetwork = _.find(this.networks, (network) => {
-      return network.value.net === this.$services.network.getSelectedNetwork().net;
+
+    const storedNetwork = this.$services.network.getSelectedNetwork();
+    this.selectedNetwork = _.find(this.networks, ({ value }) => {
+      return value.net === storedNetwork.net;
     }).value;
+
+    if (!this.selectedNetwork && this.networks && this.networks.length > 0) {
+      this.selectedNetwork = this.networks[0];
+    }
+
+    if (storedNetwork) {
+      this.selectedNetwork.fee = storedNetwork.fee;
+      this.selectedNetworkFee = storedNetwork.fee;
+    } else {
+      this.selectedNetworkFee = 0;
+    }
   },
 
   computed: {
@@ -79,8 +96,9 @@ export default {
       currencies: [],
       networks: [],
       selectedCurrency: null,
-      selectedNetwork: null,
       selectedLanguage: null,
+      selectedNetwork: null,
+      selectedNetworkFee: 0,
     };
   },
 
