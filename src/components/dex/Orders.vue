@@ -4,6 +4,7 @@
     <div class="body">
       <my-orders v-if="selectedTab === 'my-orders'"></my-orders>
       <order-book v-if="selectedTab === 'order-book'"></order-book>
+      <trade-history v-if="selectedTab === 'trade-history'"></trade-history>
     </div>
   </section>
 </template>
@@ -13,6 +14,7 @@
 import OrdersTabs from './OrdersTabs';
 import MyOrders from './MyOrders';
 import OrderBook from './OrderBook';
+import TradeHistory from './TradeHistory';
 
 const MY_ORDERS = 'my-orders';
 const ORDER_BOOK = 'order-book';
@@ -23,6 +25,7 @@ export default {
     MyOrders,
     OrdersTabs,
     OrderBook,
+    TradeHistory,
   },
 
   computed: {
