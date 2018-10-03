@@ -47,11 +47,11 @@ export default {
       document.body.removeChild(el);
     },
 
-    position({ xCoord, yCoord }) {
+    position({ clientX, clientY }) {
       const $confirmationText = this.$refs.confirmationText;
 
-      $confirmationText.style.left = `${xCoord}px`;
-      $confirmationText.style.top = `${yCoord}px`;
+      $confirmationText.style.left = `${clientX}px`;
+      $confirmationText.style.top = `${clientY}px`;
     },
   },
 
