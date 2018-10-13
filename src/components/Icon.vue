@@ -569,6 +569,20 @@
         transform="translate(63.94 -361.5)" />
     </svg>
 
+    <!-- qr -->
+    <svg class="qr" v-if="name === 'qr'" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10.93 11.25">
+      <path class="fill cls-1" d="M7.56,8.09H3.38A.38.38,0,0,1,3,7.72V3.53a.38.38,0,0,1,.38-.37H7.56a.38.38,0,0,1,.38.38V7.72A.38.38,0,0,1,7.56,8.09ZM3.75,7.34H7.18V3.91H3.75Z"
+        transform="translate(0)" />
+      <path class="fill cls-1" d="M10.56,11.18H7.06a.38.38,0,0,1,0-.75h3.13v-3a.38.38,0,0,1,.75,0v3.37A.38.38,0,0,1,10.56,11.18Z"
+        transform="translate(0)" />
+      <path class="fill cls-1" d="M3.74,11.25H.37A.38.38,0,0,1,0,10.88V7.38a.38.38,0,0,1,.75,0V10.5h3a.38.38,0,0,1,0,.75Z"
+        transform="translate(0)" />
+      <path class="fill cls-1" d="M.38,4.18A.38.38,0,0,1,0,3.81V.44A.38.38,0,0,1,.38.07h3.5a.37.37,0,1,1,0,.75H.75v3A.38.38,0,0,1,.38,4.18Z"
+        transform="translate(0)" />
+      <path class="fill cls-1" d="M10.56,4.25a.38.38,0,0,1-.37-.37V.75h-3a.38.38,0,0,1,0-.75h3.37a.38.38,0,0,1,.38.38v3.5A.38.38,0,0,1,10.56,4.25Z"
+        transform="translate(0)" />
+    </svg>
+
   </div>
 </template>
 

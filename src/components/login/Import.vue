@@ -17,18 +17,25 @@
         <aph-input :placeholder="$t('privateKey')" v-model="wif"></aph-input>
         <aph-input :placeholder="$t('Passphrase')" v-model="passphrase" type="password"></aph-input>
         <aph-input :placeholder="$t('confirmPassphrase')" v-model="passphraseConfirm" type="password"></aph-input>
+        <button class="qr-btn" @click="toggleQrScanner">
+          <aph-icon name="qr"></aph-icon>
+        </button>
         <button class="import-btn" @click="importWallet" :disabled="shouldDisableLButton">{{ buttonLabel }}</button>
       </login-form-wrapper>
     </div>
+    <scan-qr-code :on-close="toggleQrScanner" :on-decode="onDecode" :show="showQrScanner"></scan-qr-code>
   </section>
 </template>
 
 <script>
 import LoginFormWrapper from './LoginFormWrapper';
+import ScanQrCode from './ScanQrCode';
+
 
 export default {
   components: {
     LoginFormWrapper,
+    ScanQrCode,
   },
 
   computed: {
@@ -51,6 +58,7 @@ export default {
     return {
       passphrase: '',
       passphraseConfirm: '',
+      showQrScanner: false,
       walletName: '',
       wif: '',
     };
@@ -70,6 +78,16 @@ export default {
           this.$router.push('/authenticated');
         },
       });
+    },
+
+    onDecode(wif) {
+      console.log(wif);
+      this.wif = wif;
+      this.showQrScanner = false;
+    },
+
+    toggleQrScanner() {
+      this.showQrScanner = !this.showQrScanner;
     },
   },
 };
@@ -138,8 +156,27 @@ export default {
     justify-content: center;
     padding: 0 $space-lg;
 
+    .login-form-wrapper {
+      display: flex;
+      flex-direction: column;
+    }
+
     .aph-input + .aph-input {
       margin-top: $space;
+    }
+
+    .qr-btn {
+      @extend %btn-circle;
+
+      border: none;
+      align-self: center;
+      margin-top: $space-lg;
+
+      .aph-icon {
+        svg {
+          height: toRem(30px);
+        }
+      }
     }
 
     .import-btn {
