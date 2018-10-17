@@ -195,6 +195,21 @@ export default {
           })
           .catch((e) => {
             alerts.exception(`APH API Error: ${e}`);
+            const history = {
+              change24Hour: 0,
+              change24HourPercent: 0,
+              close24Hour: 0,
+              date: 0,
+              getBars: this.getTradeHistoryBars,
+              high24Hour: 0,
+              low24Hour: 0,
+              marketName,
+              open24Hour: 0,
+              trades: [],
+              volume24Hour: 0,
+            };
+            // resolve with default values in case api fails
+            resolve(history);
           });
       } catch (e) {
         reject(`Failed to fetch trade history. ${e.message}`);

@@ -217,6 +217,18 @@ async function fetchMarkets({ commit }, { done }) {
   try {
     markets = await dex.fetchMarkets();
     commit('setMarkets', markets);
+    let marketTradeHistories = [];
+    for (const market of markets) {
+      let tradeHistory = dex.fetchTradeHistory(market.marketName);
+      marketTradeHistories.push(tradeHistory);
+    }
+    await Promise.all(marketTradeHistories).then((tradeHistories) => {
+      marketTradeHistories = tradeHistories.reduce((tradeHistoriesObject, tradeHistory) => {
+        tradeHistoriesObject[tradeHistory.marketName] = tradeHistory;
+        return tradeHistoriesObject;
+      }, {});
+      console.log('marketTradeHistories', marketTradeHistories);
+    })
     done();
     commit('endRequest', { identifier: 'fetchMarkets' });
   } catch (message) {

@@ -391,16 +391,6 @@ export default {
       }
     },
 
-    loadTrades() {
-      if (!this.$store.state.currentMarket) {
-        return;
-      }
-
-      this.$store.dispatch('fetchTradeHistory', {
-        marketName: this.$store.state.currentMarket.marketName,
-      });
-    },
-
     removeChart() {
       const container = document.getElementById('chart-container');
       while (container && container.hasChildNodes()) {
@@ -424,7 +414,6 @@ export default {
   },
 
   mounted() {
-    this.loadTrades();
     this.loadChart();
   },
 };
