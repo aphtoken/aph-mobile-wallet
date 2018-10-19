@@ -326,14 +326,12 @@ export default {
     // TODO: Remove when confirm modal is built. This short circuits the order placing process.
     orderConfirmed() {
       if (this.$isPending('placeOrder')) {
-        console.log('there')
         return;
       }
 
       this.$store.dispatch('placeOrder', {
         order: this.$store.state.orderToConfirm,
         done: () => {
-          console.log('finished order');
           this.$store.commit('setOrderQuantity', '');
         },
       });
