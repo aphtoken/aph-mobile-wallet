@@ -1,7 +1,7 @@
 <template>
   <section id="dex--pair">
     <div class="body">
-      <market-pair-chart v-bind="{ percentChangeAbsolute }"></market-pair-chart>
+      <market-pair-chart v-bind="{ percentChangeAbsolute, tickerData, change24Hour }"></market-pair-chart>
       <base-selector v-model="baseCurrency" v-bind="{ baseCurrencies }"></base-selector>
       <aph-search-bar v-model="searchBy"></aph-search-bar>
       <aph-simple-table v-bind="{ columns, data: tableData, formatEntry, injectCellStyling: getRelativeChange, injectRowStyling, handleRowClick: handleMarketSelection }">
@@ -19,6 +19,7 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex';
 import MarketPairChart from './MarketPairChart';
 import BaseSelector from './BaseSelector';
 
@@ -31,8 +32,8 @@ export default {
   },
 
   components: {
-    MarketPairChart,
     BaseSelector,
+    MarketPairChart,
   },
 
   computed: {
@@ -41,8 +42,15 @@ export default {
     },
 
     percentChangeAbsolute() {
-      return this.$store.state.tradeHistory ?
-        Math.abs(this.$store.state.tradeHistory.change24HourPercent) : 0;
+      return Math.round(((this.change24Hour)
+        / this.tickerData.open24hr) * 10000) / 100;
+    },
+
+    change24Hour() {
+      const tradeHistory = this.$store.state.tradeHistory;
+      const marketName = this.$store.state.currentMarket.marketName
+      return tradeHistory[marketName] ?
+        (tradeHistory[marketName].close24Hour - this.tickerData.open24hr) : 0;
     },
 
     tableData() {
@@ -54,6 +62,10 @@ export default {
         return { asset: quoteCurrency, price, volume: vol, '24H change': change };
       });
     },
+
+    ...mapGetters([
+      'tickerData',
+    ]),
   },
 
   data() {

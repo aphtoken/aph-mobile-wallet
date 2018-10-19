@@ -14,19 +14,19 @@
         <div class="day-values">
           <div class="row">
             <div class="label">VOL.</div>
-            <div class="value">{{ $formatNumber($store.state.tradeHistory[currentMarket] ? $store.state.tradeHistory[currentMarket].volume24Hour : 0) }}</div>
+            <div class="value">{{ tickerData.quoteVolume }}</div>
           </div>
           <div class="row">
             <div class="label">OPEN</div>
-            <div class="value">{{ $formatNumber($store.state.tradeHistory[currentMarket] ? $store.state.tradeHistory[currentMarket].open24Hour : 0) }}</div>
+            <div class="value">{{ $formatNumber(tickerData.open24hr) }}</div>
           </div>
           <div class="row">
             <div class="label">HIGH</div>
-            <div class="value">{{ $formatNumber($store.state.tradeHistory[currentMarket] ? $store.state.tradeHistory[currentMarket].high24Hour : 0) }}</div>
+            <div class="value">{{ $formatNumber(tickerData.high24hr) }}</div>
           </div>
           <div class="row">
             <div class="label">LOW</div>
-            <div class="value">{{ $formatNumber($store.state.tradeHistory[currentMarket] ? $store.state.tradeHistory[currentMarket].low24Hour : 0) }}</div>
+            <div class="value">{{ $formatNumber(tickerData.low24hr) }}</div>
           </div>
         </div>
         <div class="token-details">
@@ -34,11 +34,12 @@
             {{ $formatTokenAmount($store.state.tradeHistory[currentMarket] ? $store.state.tradeHistory[currentMarket].close24Hour : 0) }}
           </div>
           <div class="base-price-converted">
+            <!-- TODO: The number below needs to be fixed. -->
             $11.41
           </div>
           <div class="label">24H CHANGE ({{ $store.state.currentMarket ? $store.state.currentMarket.quoteCurrency : '' }})</div>
-          <div :class="['change', {decrease: $store.state.tradeHistory[currentMarket] ? $store.state.tradeHistory[currentMarket].change24Hour < 0 : false, increase: $store.state.tradeHistory ? $store.state.tradeHistory.change24Hour > 0 : false}]">
-            {{ $formatNumber($store.state.tradeHistory[currentMarket] ? $store.state.tradeHistory[currentMarket].change24Hour : 0) }}
+          <div :class="['change', {decrease: change24Hour < 0, increase: change24Hour > 0 }]">
+            {{ $formatNumber(change24Hour) }}
             ({{ $formatNumber(percentChangeAbsolute) }}%)
           </div>
         </div>
@@ -57,9 +58,19 @@ export default {
   },
 
   props: {
+    change24Hour: {
+      default: 0,
+      type: Number,
+    },
+
     percentChangeAbsolute: {
       default: '',
       type: Number,
+    },
+
+    tickerData: {
+      default: {},
+      type: Object,
     },
   },
 };

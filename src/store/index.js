@@ -48,6 +48,7 @@ const state = {
     reconnectError: false,
   },
   statsToken: null,
+  tickerDataByMarket: {},
   tradeHistory: null,
   transactionDetails: {},
   version: pjson.version,

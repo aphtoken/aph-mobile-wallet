@@ -49,6 +49,7 @@ export {
   setSocketOrderMatchFailed,
   setSocketOrderMatched,
   setStatsToken,
+  setTickerDataByMarket,
   setTradeHistory,
   setWalletToBackup,
   setWallets,
@@ -323,6 +324,10 @@ function setStatsToken(state, token) {
   state.statsToken = token;
   state.showPriceTile = true;
   state.activeTransaction = null;
+}
+
+function setTickerDataByMarket(state, tickerDataByMarket) {
+  state.tickerDataByMarket = tickerDataByMarket;
 }
 
 function setWallets(state, wallets) {
