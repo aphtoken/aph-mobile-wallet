@@ -39,12 +39,11 @@
       </div>
       <div class="estimate">
         <div class="label">ESTIMATE ({{ $services.settings.getCurrency() }})</div>
-        <div class="value">$999999.99</div>
+        <div class="value">{{ $formatMoney(estimate) }}</div>
       </div>
       <div class="place-order">
         <button @click="confirmOrder" :disabled="shouldDisableOrderButton" :class="['order-btn', { 'buy-btn': side === 'Buy', 'sell-btn': side === 'Sell'}]">
           Place {{ side }} order
-          <!-- {{ orderButtonLabel }} -->
         </button>
       </div>
     </div>
@@ -269,7 +268,30 @@ export default {
 
   methods: {
     confirmOrder() {
-      // TODO: Fill this in with API request
+      this.validateQuantity();
+
+      if (this.orderType === 'Market') {
+        this.$store.commit('setOrderPrice', '');
+        if (this.canPlaceMarketOrder !== true) {
+          this.orderType = 'Limit';
+          this.$services.alerts.error('Unable to place Market order using a Ledger');
+          return;
+        }
+      }
+
+      this.$store.dispatch('formOrder', {
+        order: {
+          market: this.currentMarket,
+          side: this.side,
+          orderType: this.orderType,
+          quantity: new BigNumber(this.$store.state.orderQuantity),
+          price: this.$store.state.orderPrice !== '' ? new BigNumber(this.$store.state.orderPrice) : null,
+          postOnly: this.postOnly,
+        },
+        done: () => {
+          this.orderConfirmed();
+        },
+      });
     },
 
     loadHoldings() {
@@ -301,6 +323,20 @@ export default {
       return (totalMultiple / quantity).toString();
     },
 
+    // TODO: Remove when confirm modal is built. This short circuits the order placing process.
+    orderConfirmed() {
+      if (this.$isPending('placeOrder')) {
+        return;
+      }
+
+      this.$store.dispatch('placeOrder', {
+        order: this.$store.state.orderToConfirm,
+        done: () => {
+          this.$store.commit('setOrderQuantity', '');
+        },
+      });
+    },
+
     percent(value) {
       return this.side === 'Buy' ? this.percentForBuy(value) : this.percentForSell(value);
     },
@@ -327,6 +363,34 @@ export default {
     setSide(side) {
       this.side = side;
       this.$store.commit('setOrderQuantity', '');
+    },
+
+    // TODO: move this code into a codebase that's shared between mobile and desktop
+    validateQuantity() {
+      if (!this.$store.state.orderQuantity
+        || this.$store.state.orderQuantity === ''
+        || this.$store.state.orderQuantity[this.$store.state.orderQuantity - 1] === '.') {
+        return;
+      }
+
+      const minTickSizeFraction = this.currentMarket.minimumTickSize - Math.floor(this.currentMarket.minimumTickSize);
+      let allowedQuantityDecimals;
+      if (minTickSizeFraction <= 0.00000001) {
+        allowedQuantityDecimals = 0;
+      } else {
+        allowedQuantityDecimals = Math.log10(minTickSizeFraction * (10 ** 8));
+      }
+      const decimalFactor = 10 ** allowedQuantityDecimals;
+      const beforeRounded = new BigNumber(this.$store.state.orderQuantity);
+      const floored = beforeRounded.multipliedBy(decimalFactor).decimalPlaces(0, BigNumber.ROUND_DOWN);
+      const roundedQuantity = floored.dividedBy(decimalFactor);
+      if (roundedQuantity.isEqualTo(beforeRounded) === false) {
+        this.$store.commit('setOrderQuantity', roundedQuantity.toString());
+        this.$services.alerts.error(this.$t('orderQuantityLimited', {
+          marketName: this.currentMarket.marketName,
+          allowedQuantityDecimals,
+        }));
+      }
     },
   },
 
