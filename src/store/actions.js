@@ -417,7 +417,6 @@ async function pingSocket({ state, commit }) {
 }
 
 async function placeOrder({ commit }, { order, done }) {
-  console.log('herererere')
   commit('startRequest', { identifier: 'placeOrder' });
 
   try {
