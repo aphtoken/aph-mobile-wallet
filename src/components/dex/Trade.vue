@@ -365,6 +365,7 @@ export default {
       this.$store.commit('setOrderQuantity', '');
     },
 
+    // TODO: move this code into a codebase that's shared between mobile and desktop
     validateQuantity() {
       if (!this.$store.state.orderQuantity
         || this.$store.state.orderQuantity === ''
