@@ -46,9 +46,8 @@ export default {
     },
 
     tableData() {
-      return this.filteredMarkets().map(({ quoteCurrency }) => {
-        // TODO: This needs to be improved with real data.
-        const tradeHistory = this.$store.state.tradeHistory;
+      return this.filteredMarkets().map(({ quoteCurrency, marketName }) => {
+        const tradeHistory = this.$store.state.tradeHistory[marketName];
         const price = this.$formatTokenAmount(tradeHistory ? tradeHistory.close24Hour : 0);
         const vol = this.$formatNumber(tradeHistory ? tradeHistory.volume24Hour : 0);
         const change = this.$formatNumber(this.percentChangeAbsolute);
@@ -91,7 +90,9 @@ export default {
     },
 
     handleMarketSelection({ asset }) {
-      this.$store.commit('setCurrentMarket', _.find(this.filteredMarkets(), { quoteCurrency: asset }));
+      const market = _.find(this.filteredMarkets(), { quoteCurrency: asset });
+      this.$store.commit('setCurrentMarket', market);
+      this.$store.dispatch('fetchBucket', market);
     },
 
     injectRowStyling({ asset }) {
@@ -103,26 +104,26 @@ export default {
       return '';
     },
 
-    loadTrades() {
-      if (!this.$store.state.currentMarket) {
-        return;
-      }
+    // loadTrades() {
+    //   if (!this.$store.state.currentMarket) {
+    //     return;
+    //   }
 
-      this.$store.dispatch('fetchTradeHistory', {
-        marketName: this.$store.state.currentMarket.marketName,
-      });
-    },
+    //   this.$store.dispatch('fetchTradeHistory', {
+    //     marketName: this.$store.state.currentMarket.marketName,
+    //   });
+    // },
   },
 
   mounted() {
-    this.loadTrades();
+    // this.loadTrades();
     this.baseCurrency = _.first(this.baseCurrencies);
 
     storeUnwatch = this.$store.watch(
       () => {
         return this.$store.state.currentMarket;
       }, () => {
-        this.loadTrades();
+        // this.loadTrades();
       });
   },
 

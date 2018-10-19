@@ -11,6 +11,7 @@ export {
   createWallet,
   deleteWallet,
   fetchBlockHeaderByHash,
+  fetchBucket,
   fetchCommitState,
   fetchHoldings,
   fetchLatestVersion,
@@ -210,25 +211,14 @@ function fetchLatestVersion({ commit }) {
     });
 }
 
-async function fetchMarkets({ commit }, { done }) {
+async function fetchMarkets({ commit, dispatch }, { done }) {
   let markets;
   commit('startRequest', { identifier: 'fetchMarkets' });
 
   try {
     markets = await dex.fetchMarkets();
     commit('setMarkets', markets);
-    let marketTradeHistories = [];
-    for (const market of markets) {
-      let tradeHistory = dex.fetchTradeHistory(market.marketName);
-      marketTradeHistories.push(tradeHistory);
-    }
-    await Promise.all(marketTradeHistories).then((tradeHistories) => {
-      marketTradeHistories = tradeHistories.reduce((tradeHistoriesObject, tradeHistory) => {
-        tradeHistoriesObject[tradeHistory.marketName] = tradeHistory;
-        return tradeHistoriesObject;
-      }, {});
-      console.log('marketTradeHistories', marketTradeHistories);
-    })
+    dispatch('fetchTradeHistory', markets);
     done();
     commit('endRequest', { identifier: 'fetchMarkets' });
   } catch (message) {
@@ -254,23 +244,37 @@ async function fetchRecentTransactions({ commit }) {
   }
 }
 
-async function fetchTradeHistory({ state, commit }, { marketName, isRequestSilent }) {
-  let history;
-  commit(isRequestSilent ? 'startSilentRequest' : 'startRequest',
-    { identifier: 'fetchTradeHistory' });
+async function fetchTradeHistory({ state, commit }, markets) {
+  let marketTradeHistories = [];
+  commit('startRequest', { identifier: 'fetchTradeHistory' });
+  for (const market of markets) {
+    let tradeHistory = dex.fetchTradeHistory(market.marketName);
+    marketTradeHistories.push(tradeHistory);
+  }
+  await Promise.all(marketTradeHistories).then((tradeHistories) => {
+    marketTradeHistories = tradeHistories.reduce((tradeHistoriesObject, tradeHistory) => {
+      tradeHistoriesObject[tradeHistory.marketName] = tradeHistory;
+      return tradeHistoriesObject;
+  }, {});
+  commit('setTradeHistory', marketTradeHistories);
+  commit('endRequest', { identifier: 'fetchTradeHistory' });
+  });
+}
 
+async function fetchBucket( { state, commit }, { marketName }) {
+  commit('startRequest', { identifier: 'fetchBucket' });
   try {
-    history = await dex.fetchTradeHistory(marketName);
-    if (state.tradeHistory && state.tradeHistory.apiBuckets && state.tradeHistory.marketName === marketName) {
-      history.apiBuckets = state.tradeHistory.apiBuckets;
+    let bucket;
+    if (state.tradeHistory[marketName] && state.tradeHistory[marketName].apiBuckets && state.tradeHistory[marketName].marketName === marketName) {
+      return;
     } else {
-      history.apiBuckets = await dex.fetchTradesBucketed(marketName);
+      bucket = await dex.fetchTradesBucketed(marketName);
     }
-    commit('setTradeHistory', history);
-    commit('endRequest', { identifier: 'fetchTradeHistory' });
+    commit('setBucket', { bucket: bucket, marketName: marketName });
+    commit('endRequest', { identifier: 'fetchBucket' });
   } catch (message) {
     alerts.networkException(message);
-    commit('failRequest', { identifier: 'fetchTradeHistory', message });
+    commit('failRequest', { identifier: 'fetchBucket', message });
   }
 }
 

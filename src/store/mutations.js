@@ -19,6 +19,7 @@ export {
   putTransactionDetail,
   resetRequests,
   setActiveTransaction,
+  setBucket,
   setCommitState,
   setContacts,
   setCurrency,
@@ -149,6 +150,10 @@ function setActiveTransaction(state, transaction) {
   state.showPriceTile = false;
 }
 
+function setBucket(state, { bucket, marketName }) {
+  state.tradeHistory[marketName].apiBuckets = bucket;
+}
+
 async function setCommitState(state, commitState) {
   if (!state.currentWallet || !state.currentNetwork) {
     return;
@@ -183,22 +188,22 @@ function setCurrentWallet(state, currentWallet) {
 }
 
 function setCurrentMarket(state, market) {
-  // Add lines below when API is live
-  // if (state.currentMarket) {
-  //   if (!market || state.currentMarket.marketName !== market.marketName) {
-  //     this.dispatch('unsubscribeFromMarket', {
-  //       market: state.currentMarket,
-  //     });
-  //   }
-  // }
+  if (state.currentMarket) {
+    if (!market || state.currentMarket.marketName !== market.marketName) {
+      this.dispatch('unsubscribeFromMarket', {
+        market: state.currentMarket,
+      });
+    }
+  }
+  
   state.currentMarket = market;
   state.ordersToShow = market.marketName;
-  // Add lines below when API is live
-  // if (state.currentMarket) {
-  //   this.dispatch('subscribeToMarket', {
-  //     market: state.currentMarket,
-  //   });
-  // }
+
+  if (state.currentMarket) {
+    this.dispatch('subscribeToMarket', {
+      market: state.currentMarket,
+    });
+  }
 }
 
 function setCurrentNetwork(state, network) {
@@ -358,9 +363,8 @@ function SOCKET_ONOPEN(state, event) {
       });
 
       // Ensure trade history is up-to-date on reconnect. (may have dropped some trades during disconnect)
-      this.dispatch('fetchTradeHistory', {
-        marketName: state.currentMarket.marketName,
-        isRequestSilent: true,
+      this.dispatch('fetchMarkets', {
+        done: () => {},
       });
     }
   }
