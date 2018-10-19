@@ -154,8 +154,6 @@ export default {
     loadMarkets() {
       this.$store.dispatch('fetchMarkets', {
         done: () => {
-          console.log('done with fetch', );
-
           if (!this.$store.state.currentMarket) {
             this.$store.commit('setCurrentMarket', this.$store.state.markets[0]);
           }

@@ -2,7 +2,6 @@
   <section id="dex--market-pair-chart">
     <div class="header">
       {{ currentMarket }}
-      {{ debug() }}
     </div>
     <div class="body">
       <div class="chart-header">
@@ -54,13 +53,6 @@ export default {
   computed: {
     currentMarket() {
       return this.$store.state.currentMarket ? this.$store.state.currentMarket.marketName : '';
-    },
-  },
-
-  methods: {
-    debug() {
-      console.log('tradeHistory', this.$store.state.tradeHistory);
-      console.log('state', this.$store.state);
     },
   },
 

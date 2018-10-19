@@ -270,7 +270,7 @@ async function fetchBucket( { state, commit }, { marketName }) {
     } else {
       bucket = await dex.fetchTradesBucketed(marketName);
     }
-    commit('setBucket', { bucket: bucket, marketName: marketName });
+    commit('setBucket', { bucket, marketName });
     commit('endRequest', { identifier: 'fetchBucket' });
   } catch (message) {
     alerts.networkException(message);

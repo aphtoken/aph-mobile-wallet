@@ -103,27 +103,14 @@ export default {
 
       return '';
     },
-
-    // loadTrades() {
-    //   if (!this.$store.state.currentMarket) {
-    //     return;
-    //   }
-
-    //   this.$store.dispatch('fetchTradeHistory', {
-    //     marketName: this.$store.state.currentMarket.marketName,
-    //   });
-    // },
   },
 
   mounted() {
-    // this.loadTrades();
     this.baseCurrency = _.first(this.baseCurrencies);
 
     storeUnwatch = this.$store.watch(
       () => {
         return this.$store.state.currentMarket;
-      }, () => {
-        // this.loadTrades();
       });
   },
 
