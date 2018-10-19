@@ -28,6 +28,7 @@ const state = {
   latestVersion: null,
   nep5Balances: {},
   orderBook: null,
+  orderHistory: null,
   orderPrice: '',
   orderQuantity: '',
   portfolio: null,

@@ -32,6 +32,7 @@ export {
   setLastSuccessfulRequest,
   setLatestVersion,
   setMarkets,
+  setOrderHistory,
   setOrderPrice,
   setOrderQuantity,
   setPortfolio,
@@ -231,6 +232,15 @@ function setLastSuccessfulRequest(state) {
 
 function setMarkets(state, markets) {
   state.markets = markets;
+}
+
+function setOrderHistory(state, orders) {
+  state.orderHistory = orders;
+  
+  // NOTE: This code requires ipc-promise which isn't applicable for this app. Not sure what the alternative is.
+  // const orderHistoryStorageKey
+  //   = `orderhistory.${state.currentWallet.address}.${state.currentNetwork.net}.${assets.DEX_SCRIPT_HASH}`;
+  // db.upsert(orderHistoryStorageKey, JSON.stringify(state.orderHistory));
 }
 
 function setOrderPrice(state, price) {

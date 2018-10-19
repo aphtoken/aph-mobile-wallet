@@ -15,6 +15,7 @@ export {
   fetchHoldings,
   fetchLatestVersion,
   fetchMarkets,
+  fetchOrderHistory,
   fetchRecentTransactions,
   fetchTradeHistory,
   findTransactions,
@@ -222,6 +223,28 @@ async function fetchMarkets({ commit }, { done }) {
   } catch (message) {
     alerts.networkException(message);
     commit('failRequest', { identifier: 'fetchMarkets', message });
+  }
+}
+
+async function fetchOrderHistory({ state, commit }, { isRequestSilent }) {
+  const orderHistory = state.orderHistory;
+  commit(isRequestSilent ? 'startSilentRequest' : 'startRequest',
+    { identifier: 'fetchOrderHistory' });
+
+  try {
+    if (orderHistory && orderHistory.length > 0
+      && orderHistory[0].updated) {
+      const newOrders = await dex.fetchOrderHistory(0, orderHistory[0].updated, 'ASC');
+      commit('addToOrderHistory', newOrders);
+    } else {
+      const orders = await dex.fetchOrderHistory();
+      commit('setOrderHistory', orders);
+    }
+
+    commit('endRequest', { identifier: 'fetchOrderHistory' });
+  } catch (message) {
+    alerts.networkException(message);
+    commit('failRequest', { identifier: 'fetchOrderHistory', message });
   }
 }
 

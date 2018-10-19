@@ -88,6 +88,10 @@ const loadStates = {
   READY: 'READY',
 };
 
+const orders = {
+  ALL_SWITCH: 'All',
+};
+
 const requests = {
   FAILED: 'failed',
   PENDING: 'pending',
@@ -96,6 +100,7 @@ const requests = {
 
 const timeouts = {
   BALANCE_PERSIST_FOR: 5 * 60 * 1000,
+  CANCEL_ORDER: 5 * 60 * 1000,
   MONITOR_TRANSACTIONS: 10 * 60 * 1000,
   NEO_API_CALL: 500,
   RENDER_CHART: 100,

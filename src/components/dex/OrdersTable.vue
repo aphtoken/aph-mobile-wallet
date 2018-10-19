@@ -46,17 +46,47 @@
 </template>
 
 <script>
+let loadOrdersIntervalId;
+let cancelledOrders = {};
 
 const COMPLETED = 'completed';
 const OPEN = 'open';
 const OPEN_ORDER_COLUMNS = ['pairAndSide', 'details'];
 
 export default {
+  beforeDestroy() {
+    clearInterval(loadOrdersIntervalId);
+  },
+
   components: {
   },
 
   computed: {
-    ordersTableData() {
+    allOrders() {
+      if (!this.$store.state.orderHistory) {
+        return [];
+      }
+
+      const orders = this.$store.state.orderHistory.map((order) => {
+        // if the order comes back from the api as still open or partially filled,
+        // but we know we recently cancelled it, still show as cancelling
+        if (_.has(cancelledOrders, order.orderId)) {
+          if (_.includes(['Open', 'PartiallyFilled', 'Cancelling'], order.status)
+            && moment.utc().diff(_.get(cancelledOrders, order.orderId), 'milliseconds')
+              < this.$constants.timeouts.CANCEL_ORDER) {
+            order.status = 'Cancelling';
+          } else {
+            cancelledOrders = _.omit(cancelledOrders, order.orderId);
+          }
+        }
+
+        return order;
+      });
+
+      return orders;
+    },
+
+    openOrdersTableData() {
       return [
         {
           pairAndSide: {
@@ -98,9 +128,22 @@ export default {
     handleStatusChange(newStatus) {
       this.selectedStatus = newStatus;
     },
+
+    loadOrders() {
+      this.$store.dispatch('fetchOrderHistory', { isRequestSilent: false });
+    },
+
+    loadOrdersSilently() {
+      this.$store.dispatch('fetchOrderHistory', { isRequestSilent: true });
+    },
   },
 
   mounted() {
+    this.loadOrders();
+
+    loadOrdersIntervalId = setInterval(() => {
+      this.loadOrdersSilently();
+    }, this.$constants.intervals.TRANSACTIONS_POLLING);
   },
 
   watch: {
