@@ -152,6 +152,23 @@ async function fetchBlockHeaderByHash({ state, commit }, { blockHash, done, fail
   commit('endRequest', { identifier: 'fetchBlockHeaderByHash' });
 }
 
+async function fetchBucket( { state, commit }, { marketName }) {
+  commit('startRequest', { identifier: 'fetchBucket' });
+  try {
+    let bucket;
+    if (state.tradeHistory[marketName] && state.tradeHistory[marketName].apiBuckets && state.tradeHistory[marketName].marketName === marketName) {
+      return;
+    } else {
+      bucket = await dex.fetchTradesBucketed(marketName);
+    }
+    commit('setBucket', { bucket, marketName });
+    commit('endRequest', { identifier: 'fetchBucket' });
+  } catch (message) {
+    alerts.networkException(message);
+    commit('failRequest', { identifier: 'fetchBucket', message });
+  }
+}
+
 async function fetchCommitState({ commit }) {
   const currentWallet = wallets.getCurrentWallet();
   let commitState;
@@ -259,23 +276,6 @@ async function fetchTradeHistory({ state, commit }, markets) {
   commit('setTradeHistory', marketTradeHistories);
   commit('endRequest', { identifier: 'fetchTradeHistory' });
   });
-}
-
-async function fetchBucket( { state, commit }, { marketName }) {
-  commit('startRequest', { identifier: 'fetchBucket' });
-  try {
-    let bucket;
-    if (state.tradeHistory[marketName] && state.tradeHistory[marketName].apiBuckets && state.tradeHistory[marketName].marketName === marketName) {
-      return;
-    } else {
-      bucket = await dex.fetchTradesBucketed(marketName);
-    }
-    commit('setBucket', { bucket, marketName });
-    commit('endRequest', { identifier: 'fetchBucket' });
-  } catch (message) {
-    alerts.networkException(message);
-    commit('failRequest', { identifier: 'fetchBucket', message });
-  }
 }
 
 function findTransactions({ state, commit }) {

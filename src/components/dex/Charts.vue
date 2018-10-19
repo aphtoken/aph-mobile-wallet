@@ -279,10 +279,11 @@ export default {
           },
 
           getBars: (_symbolInfo, resolution, from, to, onDataCallback, onErrorCallback) => {
-            const bars = this.$store.state.tradeHistory && this.$store.state.tradeHistory.getBars ?
-              this.$store.state.tradeHistory.getBars(this.$store.state.tradeHistory, resolution, from, to, this.lastPrice) :
+            const marketName = this.$store.state.currentMarket.marketName;
+            const tradeHistory = this.$store.state.tradeHistory[marketName]
+            const bars = tradeHistory && tradeHistory.getBars ?
+              tradeHistory.getBars(tradeHistory, resolution, from, to, this.lastPrice) :
               [];
-
             if (bars.length === 0) {
               onDataCallback(bars, { noData: true })
             } else {
