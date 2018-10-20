@@ -1,13 +1,14 @@
 <template>
   <section id="dex--orders-table">
     <div class="header">
+      {{debug(filteredOrders)}}
       <div v-for="status in orderStatus"
         :class="[status, { active: selectedStatus === status }]"
         @click="handleStatusChange(status)">
-        {{ status }} ({{ openOrdersTableData.length }})
+        {{ status }} ({{ openOrders.length }})
       </div>
     </div>
-    <aph-simple-table v-if="selectedStatus === 'open'" v-bind="{ data: openOrdersTableData, columns: openOrderColumns, hasHeader: false }">
+    <aph-simple-table v-bind="{ data: formatTableData(filteredOrders), columns: openOrderColumns, hasHeader: false }">
       <div slot="pairAndSide" slot-scope="{value}" class="pair-and-side-cell">
         <div class="pair">
           {{ value.pair }}
@@ -39,8 +40,6 @@
           X
         </div>
       </div>
-    </aph-simple-table>
-    <aph-simple-table v-if="selectedStatus === 'completed'" v-bind="{}">
     </aph-simple-table>
   </section>
 </template>
@@ -86,33 +85,44 @@ export default {
       return orders;
     },
 
-    openOrdersTableData() {
-      return [
-        {
-          pairAndSide: {
-            pair: 'APH/NEO',
-            side: 'buy',
-          },
-          details: {
-            amount: '72,043.56',
-            base: 'APH',
-            price: '0.225',
-            cost: '$.25',
-          },
-        },
-        {
-          pairAndSide: {
-            pair: 'APH/ATI',
-            side: 'sell',
-          },
-          details: {
-            amount: '72,043.56',
-            base: 'APH',
-            price: '0.225',
-            cost: '$.25',
-          },
-        },
-      ];
+    completedOrders() {
+      return _.filter(this.allOrders, (order) => {
+        return order.status !== 'Open' && order.status !== 'PartiallyFilled';
+      });
+    },
+
+    baseCurrency() {
+      return this.$store.state.markets.find(({ marketName }) => {
+        return marketName === this.$store.state.ordersToShow
+      }).baseCurrency;
+    },
+
+    filteredOrders() {
+      // TODO: reinstate when we show all orders vs. orders of selected market only.
+      // if (this.$store.state.ordersToShow === this.$constants.orders.ALL_SWITCH) {
+      //   return this.ordersForTable;
+      // }
+
+      return this.ordersForTable.filter((order) => {
+        return order.marketName === this.$store.state.currentMarket.marketName;
+      });
+    },
+
+    openOrders() {
+      return _.filter(this.allOrders, (order) => {
+        return order.status === 'Open' || order.status === 'PartiallyFilled' || order.status === 'Cancelling';
+      });
+    },
+
+    ordersForTable() {
+      switch (this.tab) {
+        case 'Open':
+          return this.openOrders;
+        case 'Completed':
+          return this.completedOrders;
+        default:
+          return this.openOrders;
+      }
     },
   },
 
@@ -125,6 +135,30 @@ export default {
   },
 
   methods: {
+    debug(allOrders) {
+      console.log('state', this.$store.state)
+      console.log('filteredOrders', this.formatTableData(allOrders));
+    },
+
+    formatTableData(tableData) {
+      return tableData.reduce((formattedData, tableEntry) => {
+        const entry = {
+          pairAndSide: {
+            pair: tableEntry.marketName,
+            side: tableEntry.side.toLowerCase(),
+          },
+          details: {
+            amount: tableEntry.quantity,
+            base: this.baseCurrency,
+            price: tableEntry.price,
+            // TODO: Fix this. Supposed to be converted to USD.
+            cost: '$.25',
+          }
+        };
+        return formattedData.concat([entry]);
+      }, []);
+    },
+
     handleStatusChange(newStatus) {
       this.selectedStatus = newStatus;
     },
