@@ -35,6 +35,7 @@ export {
   setOrderHistory,
   setOrderPrice,
   setOrderQuantity,
+  setOrderToConfirm,
   setPortfolio,
   setRecentTransactions,
   setSearchTransactionFromDate,
@@ -249,6 +250,11 @@ function setOrderPrice(state, price) {
 
 function setOrderQuantity(state, quantity) {
   state.orderQuantity = quantity;
+}
+
+function setOrderToConfirm(state, order) {
+  state.orderToConfirm = order;
+  state.showOrderConfirmationModal = !!order;
 }
 
 function setPortfolio(state, portfolio) {
