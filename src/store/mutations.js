@@ -6,6 +6,7 @@ import { requests } from '../constants';
 import { alerts, dex, neo } from '../services';
 
 export {
+  addToOrderHistory,
   clearActiveTransaction,
   clearRecentTransactions,
   clearSearchTransactions,
@@ -63,6 +64,30 @@ export {
 
 // local constants
 const TRADE_MSG_LENGTH = 3;
+
+function addToOrderHistory(state, newOrders) {
+  if (!state.orderHistory) {
+    state.orderHistory = [];
+  }
+
+  for (let i = 0; i < newOrders.length; i += 1) {
+    const existingOrderIndex = _.findIndex(state.orderHistory, (order) => {
+      return order.orderId === newOrders[i].orderId;
+    });
+
+    if (existingOrderIndex > -1) {
+      // this order is already in our cache, must be an update
+      // remove the existing order and add the updated version to the top
+      state.orderHistory.splice(existingOrderIndex, 1);
+    }
+
+    state.orderHistory.unshift(newOrders[i]);
+  }
+  // TODO: Fix this last code. We don't have 'db'.
+  // const orderHistoryStorageKey
+  //   = `orderhistory.${state.currentWallet.address}.${state.currentNetwork.net}.${state.currentNetwork.dex_hash}`;
+  // db.upsert(orderHistoryStorageKey, JSON.stringify(state.orderHistory));
+}
 
 function clearActiveTransaction(state) {
   state.showPriceTile = true;
@@ -237,7 +262,7 @@ function setMarkets(state, markets) {
 
 function setOrderHistory(state, orders) {
   state.orderHistory = orders;
-  
+
   // NOTE: This code requires ipc-promise which isn't applicable for this app. Not sure what the alternative is.
   // const orderHistoryStorageKey
   //   = `orderhistory.${state.currentWallet.address}.${state.currentNetwork.net}.${assets.DEX_SCRIPT_HASH}`;

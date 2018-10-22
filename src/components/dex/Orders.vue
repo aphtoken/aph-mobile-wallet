@@ -17,8 +17,6 @@ import OrderBook from './OrderBook';
 import TradeHistory from './TradeHistory';
 
 const MY_ORDERS = 'my-orders';
-const ORDER_BOOK = 'order-book';
-const TRADE_HISTORY = 'trade-history';
 
 export default {
   components: {

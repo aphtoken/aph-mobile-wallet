@@ -314,7 +314,7 @@ async function formOrder({ commit }, { order, done }) {
     const res = await dex.formOrder(order);
     commit('setOrderToConfirm', res);
     commit('endRequest', { identifier: 'placeOrder' });
-    done()
+    done();
   } catch (message) {
     alerts.exception(message);
     commit('failRequest', { identifier: 'placeOrder', message });

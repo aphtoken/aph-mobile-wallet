@@ -1,11 +1,10 @@
 <template>
   <section id="dex--orders-table">
     <div class="header">
-      {{debug(filteredOrders)}}
       <div v-for="status in orderStatus"
         :class="[status, { active: selectedStatus === status }]"
         @click="handleStatusChange(status)">
-        {{ status }} ({{ openOrders.length }})
+        {{ status }} {{ orderVolumeByStatus(status) }}
       </div>
     </div>
     <aph-simple-table v-bind="{ data: formatTableData(filteredOrders), columns: openOrderColumns, hasHeader: false }">
@@ -85,16 +84,16 @@ export default {
       return orders;
     },
 
+    baseCurrency() {
+      return this.$store.state.markets.find(({ marketName }) => {
+        return marketName === this.$store.state.ordersToShow;
+      }).baseCurrency;
+    },
+
     completedOrders() {
       return _.filter(this.allOrders, (order) => {
         return order.status !== 'Open' && order.status !== 'PartiallyFilled';
       });
-    },
-
-    baseCurrency() {
-      return this.$store.state.markets.find(({ marketName }) => {
-        return marketName === this.$store.state.ordersToShow
-      }).baseCurrency;
     },
 
     filteredOrders() {
@@ -135,11 +134,6 @@ export default {
   },
 
   methods: {
-    debug(allOrders) {
-      console.log('state', this.$store.state)
-      console.log('filteredOrders', this.formatTableData(allOrders));
-    },
-
     formatTableData(tableData) {
       return tableData.reduce((formattedData, tableEntry) => {
         const entry = {
@@ -153,7 +147,7 @@ export default {
             price: tableEntry.price,
             // TODO: Fix this. Supposed to be converted to USD.
             cost: '$.25',
-          }
+          },
         };
         return formattedData.concat([entry]);
       }, []);
@@ -169,6 +163,11 @@ export default {
 
     loadOrdersSilently() {
       this.$store.dispatch('fetchOrderHistory', { isRequestSilent: true });
+    },
+
+    orderVolumeByStatus(status) {
+      const volume = this[`${status}Orders`].filter(order => order.marketName === this.$store.state.ordersToShow).length;
+      return volume ? `(${volume})` : '';
     },
   },
 
