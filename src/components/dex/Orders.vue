@@ -17,8 +17,8 @@ import OrderBook from './OrderBook';
 import TradeHistory from './TradeHistory';
 
 const MY_ORDERS = 'my-orders';
-const ORDER_BOOK = 'order-book';
-const TRADE_HISTORY = 'trade-history';
+// const ORDER_BOOK = 'order-book';
+// const TRADE_HISTORY = 'trade-history';
 
 export default {
   components: {
@@ -58,7 +58,7 @@ export default {
   display: flex;
   flex-direction: column;
   flex: 1;
-  
+
   .body {
     display: flex;
     flex-direction: column;
