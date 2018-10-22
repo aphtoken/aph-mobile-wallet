@@ -18,6 +18,7 @@ export {
   fetchRecentTransactions,
   fetchTradeHistory,
   findTransactions,
+  formOrder,
   importWallet,
   openEncryptedKey,
   openLedger,
@@ -28,6 +29,7 @@ export {
   formOrder,
   placeOrder,
   pingSocket,
+  placeOrder,
   subscribeToMarket,
   unsubscribeFromMarket,
   verifyLedgerConnection,
@@ -306,6 +308,20 @@ function findTransactions({ state, commit }) {
     });
 }
 
+async function formOrder({ commit }, { order, done }) {
+  commit('startRequest', { identifier: 'placeOrder' });
+
+  try {
+    const res = await dex.formOrder(order);
+    commit('setOrderToConfirm', res);
+    commit('endRequest', { identifier: 'placeOrder' });
+    done()
+  } catch (message) {
+    alerts.exception(message);
+    commit('failRequest', { identifier: 'placeOrder', message });
+  }
+}
+
 function importWallet({ commit }, { name, wif, passphrase, done }) {
   commit('startRequest', { identifier: 'importWallet' });
 
@@ -472,6 +488,21 @@ async function pingSocket({ state, commit }) {
   } catch (message) {
     alerts.networkException(message);
     commit('failRequest', { identifier: 'pingSocket', message });
+  }
+}
+
+async function placeOrder({ commit }, { order, done }) {
+  commit('startRequest', { identifier: 'placeOrder' });
+
+  try {
+    await dex.placeOrder(order);
+    done();
+    commit('setOrderToConfirm', null);
+    commit('endRequest', { identifier: 'placeOrder' });
+  } catch (message) {
+    alerts.exception(message);
+    commit('setOrderToConfirm', null);
+    commit('failRequest', { identifier: 'placeOrder', message });
   }
 }
 

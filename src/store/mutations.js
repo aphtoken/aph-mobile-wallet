@@ -263,6 +263,11 @@ function setOrderQuantity(state, quantity) {
   state.orderQuantity = quantity;
 }
 
+function setOrderToConfirm(state, order) {
+  state.orderToConfirm = order;
+  state.showOrderConfirmationModal = !!order;
+}
+
 function setPortfolio(state, portfolio) {
   if (portfolio) {
     state.portfolio = portfolio;
