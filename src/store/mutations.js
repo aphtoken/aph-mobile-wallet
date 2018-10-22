@@ -19,7 +19,6 @@ export {
   putTransactionDetail,
   resetRequests,
   setActiveTransaction,
-  setBucket,
   setCommitState,
   setContacts,
   setCurrency,
@@ -150,10 +149,6 @@ function resetRequests(state) {
 function setActiveTransaction(state, transaction) {
   state.activeTransaction = transaction;
   state.showPriceTile = false;
-}
-
-function setBucket(state, { bucket, marketName }) {
-  state.tradeHistory[marketName].apiBuckets = bucket;
 }
 
 async function setCommitState(state, commitState) {
@@ -374,9 +369,7 @@ function SOCKET_ONOPEN(state, event) {
       });
 
       // Ensure trade history is up-to-date on reconnect. (may have dropped some trades during disconnect)
-      this.dispatch('fetchMarkets', {
-        done: () => {},
-      });
+      this.dispatch('fetchMarkets');
     }
   }
 }

@@ -1066,7 +1066,7 @@ export default {
       try {
         const currentNetwork = network.getSelectedNetwork();
         axios.get(`${currentNetwork.aph}/trades/${marketName}?contractScriptHash=${assets.DEX_SCRIPT_HASH}`)
-          .then((res) => {
+          .then(async (res) => {
             if (!res || !res.data || !res.data.trades) {
               resolve({
                 date: moment().unix(),
@@ -1106,6 +1106,7 @@ export default {
               history.volume24Hour = 0;
               history.change24Hour = 0;
               history.change24HourPercent = 0;
+              history.apiBuckets = await this.fetchTradesBucketed(marketName)
             }
             resolve(history);
           })

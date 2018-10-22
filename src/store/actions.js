@@ -11,7 +11,6 @@ export {
   createWallet,
   deleteWallet,
   fetchBlockHeaderByHash,
-  fetchBucket,
   fetchCommitState,
   fetchHoldings,
   fetchLatestVersion,
@@ -154,23 +153,6 @@ async function fetchBlockHeaderByHash({ state, commit }, { blockHash, done, fail
   commit('endRequest', { identifier: 'fetchBlockHeaderByHash' });
 }
 
-async function fetchBucket( { state, commit }, { marketName }) {
-  commit('startRequest', { identifier: 'fetchBucket' });
-  try {
-    let bucket;
-    if (state.tradeHistory[marketName] && state.tradeHistory[marketName].apiBuckets && state.tradeHistory[marketName].marketName === marketName) {
-      return;
-    } else {
-      bucket = await dex.fetchTradesBucketed(marketName);
-    }
-    commit('setBucket', { bucket, marketName });
-    commit('endRequest', { identifier: 'fetchBucket' });
-  } catch (message) {
-    alerts.networkException(message);
-    commit('failRequest', { identifier: 'fetchBucket', message });
-  }
-}
-
 async function fetchCommitState({ commit }) {
   const currentWallet = wallets.getCurrentWallet();
   let commitState;
@@ -230,7 +212,7 @@ function fetchLatestVersion({ commit }) {
     });
 }
 
-async function fetchMarkets({ commit, dispatch }, { done }) {
+async function fetchMarkets({ commit, dispatch }, { done = () => {} }) {
   let markets;
   commit('startRequest', { identifier: 'fetchMarkets' });
 

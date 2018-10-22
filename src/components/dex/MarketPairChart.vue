@@ -34,8 +34,7 @@
             {{ $formatTokenAmount($store.state.tradeHistory[currentMarket] ? $store.state.tradeHistory[currentMarket].close24Hour : 0) }}
           </div>
           <div class="base-price-converted">
-            <!-- TODO: The number below needs to be fixed. -->
-            $11.41
+            {{ $formatMoney(close24Hour * baseCurrencyUnitPrice) }}
           </div>
           <div class="label">24H CHANGE ({{ $store.state.currentMarket ? $store.state.currentMarket.quoteCurrency : '' }})</div>
           <div :class="['change', {decrease: change24Hour < 0, increase: change24Hour > 0 }]">
@@ -55,12 +54,17 @@ export default {
     currentMarket() {
       return this.$store.state.currentMarket ? this.$store.state.currentMarket.marketName : '';
     },
+
+    baseCurrencyUnitPrice() {
+      return this.$store.state.currentMarket && this.$store.state.holdings.length ?
+        this.$services.neo.getHolding(this.$store.state.currentMarket.baseAssetId).unitValue : 0;
+    },
   },
 
   props: {
     change24Hour: {
       default: 0,
-      type: Number,
+      type: Object,
     },
 
     percentChangeAbsolute: {

@@ -19,6 +19,7 @@
 </template>
 
 <script>
+import { BigNumber } from 'bignumber.js';
 import { mapGetters } from 'vuex';
 import MarketPairChart from './MarketPairChart';
 import BaseSelector from './BaseSelector';
@@ -41,16 +42,23 @@ export default {
       return _.uniq(_.map(this.$store.state.markets, 'baseCurrency'));
     },
 
+    change24Hour() {
+      return new BigNumber(String(this.close24Hour))
+        .minus(new BigNumber(String(this.tickerData.open24hr)));
+    },
+
+    close24Hour() {
+      const tradeHistory = this.$store.state.tradeHistory;
+      const marketName = this.$store.state.currentMarket.marketName
+      return tradeHistory[marketName] &&
+        tradeHistory[marketName].trades &&
+        tradeHistory[marketName].trades.length ?
+        tradeHistory[marketName].trades[0].price : 0;
+    },
+
     percentChangeAbsolute() {
       return Math.round(((this.change24Hour)
         / this.tickerData.open24hr) * 10000) / 100;
-    },
-
-    change24Hour() {
-      const tradeHistory = this.$store.state.tradeHistory;
-      const marketName = this.$store.state.currentMarket.marketName
-      return tradeHistory[marketName] ?
-        (tradeHistory[marketName].close24Hour - this.tickerData.open24hr) : 0;
     },
 
     tableData() {
@@ -104,7 +112,6 @@ export default {
     handleMarketSelection({ asset }) {
       const market = _.find(this.filteredMarkets(), { quoteCurrency: asset });
       this.$store.commit('setCurrentMarket', market);
-      this.$store.dispatch('fetchBucket', market);
     },
 
     injectRowStyling({ asset }) {
