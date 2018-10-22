@@ -124,9 +124,12 @@ export default {
 
   computed: {
     isOutOfDate() {
-      return this.$store.state.latestVersion && this.$store.state.latestVersion.testExchangeScriptHash
-        && this.$store.state.latestVersion.testExchangeScriptHash.replace('0x', '')
-          !== this.$services.assets.DEX_SCRIPT_HASH;
+      if (!this.$store.state.latestVersion) {
+        return true;
+      }
+      const currentNetworkLatestDexScriptHash = this.$store.state.currentNetwork.net === 'MainNet' ?
+        this.$store.state.latestVersion.prodExchangeScriptHash : this.$store.state.latestVersion.testExchangeScriptHash;
+      return currentNetworkLatestDexScriptHash.replace('0x', '') !== this.$store.state.currentNetwork.dex_hash;
     },
   },
 

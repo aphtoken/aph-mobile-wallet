@@ -27,3 +27,4 @@ export const statsToken = state => state.statsToken;
 export const version = state => state.version;
 export const walletToBackup = state => state.walletToBackup;
 export const wallets = state => state.wallets;
+export const websocketUri = state => _.get(state.currentNetwork, 'websocketUri');

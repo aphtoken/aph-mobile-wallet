@@ -6,6 +6,7 @@ import { requests } from '../constants';
 import { alerts, dex, neo } from '../services';
 
 export {
+  addToOrderHistory,
   clearActiveTransaction,
   clearRecentTransactions,
   clearSearchTransactions,
@@ -26,15 +27,20 @@ export {
   setCurrentMarket,
   setCurrentNetwork,
   setCurrentWallet,
+  setCommitChangeInProgress,
   setGasClaim,
+  setGasFracture,
   setHoldings,
   setLastReceivedBlock,
   setLastSuccessfulRequest,
   setLatestVersion,
   setMarkets,
+  setFractureGasModalModel,
+  setOrderHistory,
   setOrderPrice,
   setOrderQuantity,
   setOrderToConfirm,
+  setOrdersToShow,
   setPortfolio,
   setRecentTransactions,
   setSearchTransactionFromDate,
@@ -48,9 +54,12 @@ export {
   setSocketOrderMatchFailed,
   setSocketOrderMatched,
   setStatsToken,
+  setSystemWithdraw,
+  setSystemWithdrawMergeState,
   setTradeHistory,
   setWalletToBackup,
   setWallets,
+  setWithdrawInProgressModalModel,
   startRequest,
   startSilentRequest,
   SOCKET_ONOPEN,
@@ -107,6 +116,7 @@ function handleNetworkChange(state) {
   state.recentTransactions = [];
   state.searchTransactions = [];
   state.nep5Balances = {};
+  state.orderHistory = null;
   state.sendInProgress = false;
   neo.fetchNEP5Tokens(() => {
     // Fetch holdings for user assets first for best UX
@@ -150,6 +160,10 @@ function setActiveTransaction(state, transaction) {
   state.showPriceTile = false;
 }
 
+function setCommitChangeInProgress(state, value) {
+  state.commitChangeInProgress = value;
+}
+
 async function setCommitState(state, commitState) {
   if (!state.currentWallet || !state.currentNetwork) {
     return;
@@ -184,22 +198,21 @@ function setCurrentWallet(state, currentWallet) {
 }
 
 function setCurrentMarket(state, market) {
-  // Add lines below when API is live
-  // if (state.currentMarket) {
-  //   if (!market || state.currentMarket.marketName !== market.marketName) {
-  //     this.dispatch('unsubscribeFromMarket', {
-  //       market: state.currentMarket,
-  //     });
-  //   }
-  // }
+  if (state.currentMarket) {
+    if (!market || state.currentMarket.marketName !== market.marketName) {
+      this.dispatch('unsubscribeFromMarket', {
+        market: state.currentMarket,
+      });
+    }
+  }
   state.currentMarket = market;
   state.ordersToShow = market.marketName;
-  // Add lines below when API is live
-  // if (state.currentMarket) {
-  //   this.dispatch('subscribeToMarket', {
-  //     market: state.currentMarket,
-  //   });
-  // }
+
+  if (state.currentMarket) {
+    this.dispatch('subscribeToMarket', {
+      market: state.currentMarket,
+    });
+  }
 }
 
 function setCurrentNetwork(state, network) {
@@ -208,6 +221,14 @@ function setCurrentNetwork(state, network) {
   }
 
   state.currentNetwork = network;
+}
+
+function setGasClaim(state, value) {
+  state.gasClaim = value;
+}
+
+function setGasFracture(state, facture) {
+  state.gasFracture = facture;
 }
 
 async function setHoldings(state, holdings) {
@@ -290,6 +311,15 @@ function setShowSendRequestLedgerSignature(state, value) {
   state.showSendRequestLedgerSignature = value;
 }
 
+function setSendInProgress(state, value) {
+  state.sendInProgress = value;
+}
+
+function setShowClaimGasStatus(state, value) {
+  state.showClaimGasStatus = value;
+}
+
+
 function setSocketOrderCreated(state, value) {
   state.socket.orderCreated = value;
 }
@@ -306,14 +336,6 @@ function setSocketOrderMatchFailed(state, value) {
   state.socket.orderMatchFailed = value;
 }
 
-function setSendInProgress(state, value) {
-  state.sendInProgress = value;
-}
-
-function setShowClaimGasStatus(state, value) {
-  state.showClaimGasStatus = value;
-}
-
 function setStatsToken(state, token) {
   state.statsToken = token;
   state.showPriceTile = true;
@@ -324,12 +346,26 @@ function setWallets(state, wallets) {
   state.wallets = wallets;
 }
 
-function setGasClaim(state, value) {
-  state.gasClaim = value;
+function setWithdrawInProgressModalModel(state, model) {
+  state.withdrawInProgressModalModel = model;
 }
 
-function setTradeHistory(state, tradeHistory) {
-  state.tradeHistory = tradeHistory;
+function setSystemWithdraw(state, value) {
+  state.systemWithdraw = value;
+}
+
+function setSystemWithdrawMergeState(state, value) {
+  if (state.systemWithdraw && typeof state.systemWithdraw === 'object') {
+    state.systemWithdraw = _.merge(_.cloneDeep(state.systemWithdraw), value);
+  }
+}
+
+function setOrderHistory(state, orders) {
+  state.orderHistory = orders;
+}
+
+function setFractureGasModalModel(state, model) {
+  state.fractureGasModalModel = model;
 }
 
 function startRequest(state, payload) {
@@ -340,12 +376,38 @@ function startSilentRequest(state, payload) {
   updateRequest(state, Object.assign(payload, { isSilent: true }), requests.PENDING);
 }
 
-function SOCKET_ONCLOSE(state) {
-  state.socket.client = null;
-  state.socket.isConnected = false;
-  if (!state.socket.connectionClosed) {
-    state.socket.connectionClosed = moment().utc();
+
+function setTradeHistory(state, tradeHistory) {
+  state.tradeHistory = tradeHistory;
+}
+
+function addToOrderHistory(state, newOrders) {
+  if (!state.orderHistory) {
+    state.orderHistory = [];
   }
+
+  for (let i = 0; i < newOrders.length; i += 1) {
+    const existingOrderIndex = _.findIndex(state.orderHistory, (order) => {
+      return order.orderId === newOrders[i].orderId;
+    });
+
+    if (existingOrderIndex > -1) {
+      // this order is already in our cache, must be an update
+      // remove the existing order and add the updated version to the top
+      state.orderHistory.splice(existingOrderIndex, 1);
+    }
+
+    state.orderHistory.unshift(newOrders[i]);
+  }
+}
+
+function setOrderToConfirm(state, order) {
+  state.orderToConfirm = order;
+  state.showOrderConfirmationModal = !!order;
+}
+
+function setOrdersToShow(state, value) {
+  state.ordersToShow = value;
 }
 
 function SOCKET_ONOPEN(state, event) {
@@ -369,6 +431,14 @@ function SOCKET_ONOPEN(state, event) {
         isRequestSilent: true,
       });
     }
+  }
+}
+
+function SOCKET_ONCLOSE(state) {
+  state.socket.client = null;
+  state.socket.isConnected = false;
+  if (!state.socket.connectionClosed) {
+    state.socket.connectionClosed = moment().utc();
   }
 }
 
@@ -437,7 +507,6 @@ function tradeUpdateReceived(state, tradeUpdateMsg) {
     });
   });
 }
-
 
 // Local functions
 

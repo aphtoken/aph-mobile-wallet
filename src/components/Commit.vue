@@ -185,7 +185,7 @@ export default {
     aphHolding() {
       if (this.$store.state.holdings) {
         const holding = _.find(this.$store.state.holdings, (holding) => {
-          return holding.assetId === this.$services.assets.APH;
+          return holding.assetId === this.currentNetwork.aph_hash;
         });
 
         if (holding) {
