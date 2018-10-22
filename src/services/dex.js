@@ -1078,41 +1078,42 @@ export default {
             }
 
             const history = {
+              apiBuckets: await this.fetchTradesBucketed(marketName),
               date: res.data.timestamp,
+              getBars: this.getTradeHistoryBars,
               marketName,
               trades: res.data.trades,
-              getBars: this.getTradeHistoryBars,
             };
             const todayCutoff = moment().startOf('day').unix();
             const todayTrades = _.filter(history.trades, (trade) => {
               return trade.tradeTime >= todayCutoff;
             });
             if (todayTrades.length > 0) {
-              history.close24Hour = todayTrades[0].price;
-              history.open24Hour = todayTrades[todayTrades.length - 1].price;
-              history.low24Hour = _.minBy(todayTrades, 'price').price;
-              history.high24Hour = _.maxBy(todayTrades, 'price').price;
-              history.volume24Hour = _.sumBy(todayTrades, 'quantity');
+              history.change24Hour = history.close24Hour - history.open24Hour;
               history.change24HourPercent = Math.round(((history.close24Hour - history.open24Hour)
                 / history.open24Hour) * 10000) / 100;
-              history.change24Hour = history.close24Hour - history.open24Hour;
+              history.close24Hour = todayTrades[0].price;
+              history.high24Hour = _.maxBy(todayTrades, 'price').price;
+              history.low24Hour = _.minBy(todayTrades, 'price').price;
+              history.open24Hour = todayTrades[todayTrades.length - 1].price;
+              history.volume24Hour = _.sumBy(todayTrades, 'quantity');
             } else {
               if (history.trades.length > 0) {
                 history.close24Hour = history.trades[0].price;
-                history.open24Hour = history.trades[0].price;
-                history.low24Hour = history.trades[0].price;
                 history.high24Hour = history.trades[0].price;
+                history.low24Hour = history.trades[0].price;
+                history.open24Hour = history.trades[0].price;
               }
-              history.volume24Hour = 0;
               history.change24Hour = 0;
               history.change24HourPercent = 0;
-              history.apiBuckets = await this.fetchTradesBucketed(marketName)
+              history.volume24Hour = 0;
             }
             resolve(history);
           })
           .catch((e) => {
             alerts.exception(`APH API Error: ${e}`);
             const history = {
+              apiBuckets: [],
               change24Hour: 0,
               change24HourPercent: 0,
               close24Hour: 0,
