@@ -15,7 +15,9 @@ export {
   fetchHoldings,
   fetchLatestVersion,
   fetchMarkets,
+  fetchOrderHistory,
   fetchRecentTransactions,
+  fetchSystemAssetBalances,
   fetchTradeHistory,
   findTransactions,
   formOrder,
@@ -24,10 +26,6 @@ export {
   openLedger,
   openPrivateKey,
   openSavedWallet,
-  fetchOrderHistory,
-  fetchSystemAssetBalances,
-  formOrder,
-  placeOrder,
   pingSocket,
   placeOrder,
   subscribeToMarket,
@@ -315,7 +313,7 @@ async function formOrder({ commit }, { order, done }) {
     const res = await dex.formOrder(order);
     commit('setOrderToConfirm', res);
     commit('endRequest', { identifier: 'placeOrder' });
-    done()
+    done();
   } catch (message) {
     alerts.exception(message);
     commit('failRequest', { identifier: 'placeOrder', message });
@@ -446,19 +444,6 @@ async function fetchOrderHistory({ state, commit }, { isRequestSilent }) {
   }
 }
 
-async function formOrder({ commit }, { order }) {
-  commit('startRequest', { identifier: 'placeOrder' });
-
-  try {
-    const res = await dex.formOrder(order);
-    commit('setOrderToConfirm', res);
-    commit('endRequest', { identifier: 'placeOrder' });
-  } catch (message) {
-    alerts.exception(message);
-    commit('failRequest', { identifier: 'placeOrder', message });
-  }
-}
-
 async function placeOrder({ commit }, { order, done }) {
   commit('startRequest', { identifier: 'placeOrder' });
 
@@ -488,21 +473,6 @@ async function pingSocket({ state, commit }) {
   } catch (message) {
     alerts.networkException(message);
     commit('failRequest', { identifier: 'pingSocket', message });
-  }
-}
-
-async function placeOrder({ commit }, { order, done }) {
-  commit('startRequest', { identifier: 'placeOrder' });
-
-  try {
-    await dex.placeOrder(order);
-    done();
-    commit('setOrderToConfirm', null);
-    commit('endRequest', { identifier: 'placeOrder' });
-  } catch (message) {
-    alerts.exception(message);
-    commit('setOrderToConfirm', null);
-    commit('failRequest', { identifier: 'placeOrder', message });
   }
 }
 

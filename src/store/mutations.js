@@ -401,11 +401,6 @@ function addToOrderHistory(state, newOrders) {
   }
 }
 
-function setOrderToConfirm(state, order) {
-  state.orderToConfirm = order;
-  state.showOrderConfirmationModal = !!order;
-}
-
 function setOrdersToShow(state, value) {
   state.ordersToShow = value;
 }
