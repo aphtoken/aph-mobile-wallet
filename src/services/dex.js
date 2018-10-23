@@ -371,7 +371,10 @@ export default {
                 pickedInputs.splice(i, 1);
                 pickedUnspents.splice(i, 1);
                 quantitySumOfPickedInputs = quantitySumOfPickedInputs.minus(pickedUnspent.value);
-                if (DBG_LOG) console.log(`-$ removed input to use for withdraw total: ${quantitySumOfPickedInputs} unspent: ${JSON.stringify(pickedUnspent)}`);
+                if (DBG_LOG) {
+                  console.log(`-$ removed input to use for withdraw total: ${quantitySumOfPickedInputs} `
+                    + `unspent: ${JSON.stringify(pickedUnspent)}`);
+                }
                 isDonePicking = false;
                 return true;
               }
@@ -388,7 +391,10 @@ export default {
             prevHash: currentUnspent.txid,
             prevIndex: currentUnspent.index,
           });
-          if (DBG_LOG) console.log(`$ added input to use for withdraw total: ${quantitySumOfPickedInputs} unspent: ${JSON.stringify(currentUnspent)}`);
+          if (DBG_LOG) {
+            console.log(`$ added input to use for withdraw total: ${quantitySumOfPickedInputs} `
+              + `unspent: ${JSON.stringify(currentUnspent)}`);
+          }
           return false;
         });
 
