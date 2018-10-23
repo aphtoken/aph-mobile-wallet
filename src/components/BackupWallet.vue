@@ -64,6 +64,7 @@ export default {
 #backup-wallet {
   display: flex;
   flex-direction: column;
+  overflow: auto;
   height: 100%;
   position: fixed;
   z-index: 100000;
