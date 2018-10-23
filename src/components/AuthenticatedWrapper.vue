@@ -13,7 +13,7 @@
           <aph-icon name="dex"></aph-icon>
           <p>{{ $t('tradeDEX') }}</p>
         </router-link>
-        <router-link v-if="shouldShowCommitLink" to="/authenticated/commit">
+        <router-link to="/authenticated/commit">
           <aph-icon name="commit"></aph-icon>
           <p>{{ $t('commit') }}</p>
         </router-link>
@@ -77,10 +77,6 @@ export default {
   computed: {
     shouldShowBackButton() {
       return _.includes(ROUTES_USING_BACK_BUTTON, this.$route.name);
-    },
-
-    shouldShowCommitLink() {
-      return this.$store.state.currentNetwork.net !== 'MainNet';
     },
 
     shouldShowDexLink() {

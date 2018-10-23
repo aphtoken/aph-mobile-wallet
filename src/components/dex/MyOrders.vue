@@ -11,8 +11,8 @@
 
 import OrdersTable from './OrdersTable';
 
-const OPEN_ORDERS = 'open-orders';
-const COMPLETED_ORDERS = 'completed_orders';
+// const OPEN_ORDERS = 'open-orders';
+// const COMPLETED_ORDERS = 'completed_orders';
 
 export default {
   components: {
@@ -45,7 +45,7 @@ export default {
   display: flex;
   flex-direction: column;
   flex: 1;
-  
+
   .refine {
     background: $dark-purple;
     border-radius: $border-radius;

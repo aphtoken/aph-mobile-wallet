@@ -24,6 +24,10 @@ export {
   openLedger,
   openPrivateKey,
   openSavedWallet,
+  fetchOrderHistory,
+  fetchSystemAssetBalances,
+  formOrder,
+  placeOrder,
   pingSocket,
   placeOrder,
   subscribeToMarket,
@@ -203,6 +207,7 @@ function fetchLatestVersion({ commit }) {
 
   return axios.get(`${network.getSelectedNetwork().aph}/LatestWalletInfo`)
     .then(({ data }) => {
+      network.setExplorer(data.useAphExplorer);
       commit('setLatestVersion', data);
       commit('endRequest', { identifier: 'fetchLatestVersion' });
     })
@@ -260,6 +265,19 @@ async function fetchTradeHistory({ state, commit }, markets) {
   commit('setTradeHistory', marketTradeHistories);
   commit('endRequest', { identifier: 'fetchTradeHistory' });
   });
+}
+
+async function fetchSystemAssetBalances({ commit }, { forAddress, intents }) {
+  commit('startRequest', { identifier: 'fetchSystemAssetBalances' });
+  let balances;
+  try {
+    balances = await neo.fetchSystemAssetBalance(forAddress, intents);
+  } catch (message) {
+    commit('failRequest', { identifier: 'fetchSystemAssetBalances', message });
+    throw message;
+  }
+
+  return balances;
 }
 
 function findTransactions({ state, commit }) {
@@ -397,6 +415,57 @@ function openSavedWallet({ commit }, { walletToOpen, passphrase, done }) {
       });
   }, timeouts.NEO_API_CALL);
 }
+
+async function fetchOrderHistory({ state, commit }, { isRequestSilent }) {
+  const orderHistory = state.orderHistory;
+  commit(isRequestSilent ? 'startSilentRequest' : 'startRequest',
+    { identifier: 'fetchOrderHistory' });
+
+  try {
+    if (orderHistory && orderHistory.length > 0
+      && orderHistory[0].updated) {
+      const newOrders = await dex.fetchOrderHistory(0, orderHistory[0].updated, 'ASC');
+      commit('addToOrderHistory', newOrders);
+    } else {
+      const orders = await dex.fetchOrderHistory();
+      commit('setOrderHistory', orders);
+    }
+
+    commit('endRequest', { identifier: 'fetchOrderHistory' });
+  } catch (message) {
+    alerts.networkException(message);
+    commit('failRequest', { identifier: 'fetchOrderHistory', message });
+  }
+}
+
+async function formOrder({ commit }, { order }) {
+  commit('startRequest', { identifier: 'placeOrder' });
+
+  try {
+    const res = await dex.formOrder(order);
+    commit('setOrderToConfirm', res);
+    commit('endRequest', { identifier: 'placeOrder' });
+  } catch (message) {
+    alerts.exception(message);
+    commit('failRequest', { identifier: 'placeOrder', message });
+  }
+}
+
+async function placeOrder({ commit }, { order, done }) {
+  commit('startRequest', { identifier: 'placeOrder' });
+
+  try {
+    await dex.placeOrder(order);
+    done();
+    commit('setOrderToConfirm', null);
+    commit('endRequest', { identifier: 'placeOrder' });
+  } catch (message) {
+    alerts.exception(message);
+    commit('setOrderToConfirm', null);
+    commit('failRequest', { identifier: 'placeOrder', message });
+  }
+}
+
 
 async function pingSocket({ state, commit }) {
   commit('startRequest', { identifier: 'pingSocket' });
