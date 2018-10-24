@@ -215,7 +215,7 @@ function fetchLatestVersion({ commit }) {
     });
 }
 
-async function fetchMarkets({ commit, dispatch }, { done = () => {} }) {
+async function fetchMarkets({ commit, dispatch }, { done } = { done: () => {} }) {
   let markets;
   commit('startRequest', { identifier: 'fetchMarkets' });
 
