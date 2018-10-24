@@ -12,18 +12,25 @@ const NETWORKS = [
     label: 'MainNet',
     value: {
       aph: 'https://mainnet.aphelion-neo.com:62443/api',
+      aph_hash: 'a0777c3ce2b169d4a23bcba4565e3225a0122d95',
+      dex_hash: '52d15c9e6a71e6094d735bac06c7c0b701aa2ab5',
       net: 'MainNet',
       rpc: 'https://mainneo.aphelion-neo.com:10331',
       fee: 0,
+      websocketUri: 'wss://mainnet.aphelion-neo.com:62443/ws',
     },
   },
   {
     label: 'TestNet',
     value: {
       aph: 'https://testnet.aphelion-neo.com:62443/api',
+      aph_hash: '591eedcd379a8981edeefe04ef26207e1391904a',
+      ati_hash: '155153854ed377549a72cc1643e481bf25b48390',
+      dex_hash: 'b05656684396d38ba9a8cb567704f06f5008e552',
       net: 'TestNet',
       rpc: 'https://testneo.aphelion-neo.com:20331',
       fee: 0,
+      websocketUri: 'wss://testnet.aphelion-neo.com:62443/ws',
     },
   },
 ];
@@ -57,10 +64,7 @@ export default {
 
   getSelectedNetwork() {
     const network = storage.get(NETWORK_STORAGE_KEY, _.first(NETWORKS).value);
-
-    if (!network.fee) {
-      network.fee = 0;
-    }
+    this.normalize(network);
     return network;
   },
 
@@ -96,8 +100,13 @@ export default {
 
         store.dispatch('fetchBlockHeaderByHash', { blockHash,
           done: ((data) => {
+            // Make sure network didn't change and that we aren't operating off a state copy of network.
+            if (network.net !== this.getSelectedNetwork().net) {
+              return;
+            }
             store.commit('setLastReceivedBlock');
             store.commit('setLastSuccessfulRequest');
+
             this.normalizeAndStore(_.set(network, 'bestBlock', data)).sync();
           }),
           failed: ((e) => {
@@ -109,7 +118,30 @@ export default {
       });
   },
 
+  normalize(network) {
+    let defaultForNetwork = _.find(NETWORKS, ({ value }) => {
+      return value.net === network.net;
+    });
+
+    if (!defaultForNetwork) return this;
+    defaultForNetwork = defaultForNetwork.value;
+
+    if (!network.fee) {
+      network.fee = defaultForNetwork.fee;
+    }
+
+    // Force the dex and aph hash to match the network setting even if what is saved doesn't match.
+    // TODO: Not really sure what's the value saving the settings instead of just the network name in persistent store
+    // TODO: I guess if we are going to allow them to enter custom values in the future it makes sense.
+    network.dex_hash = defaultForNetwork.dex_hash;
+    network.aph_hash = defaultForNetwork.aph_hash;
+    network.websocketUri = defaultForNetwork.websocketUri;
+
+    return this;
+  },
+
   normalizeAndStore(network) {
+    this.normalize(network);
     storage.set(NETWORK_STORAGE_KEY, network);
 
     return this;
@@ -123,8 +155,6 @@ export default {
     if (loadNetworkStatusIntervalId) {
       clearInterval(loadNetworkStatusIntervalId);
     }
-
-    this.setExplorer(false);
 
     this.loadStatus();
     loadNetworkStatusIntervalId = setInterval(() => {

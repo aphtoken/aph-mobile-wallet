@@ -56,7 +56,7 @@ export default {
   },
 
   computed: {
-    ordersTableData() {
+    openOrdersTableData() {
       return [
         {
           pairAndSide: {

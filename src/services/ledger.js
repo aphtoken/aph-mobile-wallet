@@ -182,19 +182,19 @@ export default {
     // Now we read each field off
     // Each field is encoded with a type byte, length byte followed by the data itself
     stringStream.read(1); // Read and drop the type
-    const stringStreamR = stringStream.readVarBytes();
+    const fieldInt1 = stringStream.readVarBytes();
     stringStream.read(1);
-    const stringStreamS = stringStream.readVarBytes();
+    const fieldInt2 = stringStream.readVarBytes();
 
     // We will need to ensure both integers are 32 bytes long
-    const integers = [stringStreamR, stringStreamS].map((stringStream) => {
-      if (stringStream.length < 64) {
-        stringStream = stringStream.padStart(64, '0');
+    const integers = [fieldInt1, fieldInt2].map((fieldInt) => {
+      if (fieldInt.length < 64) {
+        fieldInt = fieldInt.padStart(64, '0');
       }
-      if (stringStream.length > 64) {
-        stringStream = stringStream.substr(-64);
+      if (fieldInt.length > 64) {
+        fieldInt = fieldInt.substr(-64);
       }
-      return stringStream;
+      return fieldInt;
     });
 
     return integers.join('');
@@ -205,8 +205,8 @@ export default {
       throw new Error('params requires 4 bytes');
     }
 
-    const [cla, ins, param1, param2] = params.match(/.{1,2}/g).map(i => parseInt(i, 16));
-    return currentDevice.send(cla, ins, param1, param2, Buffer.from(msg, 'hex'), statusList);
+    const [cla, ins, p1, p2] = params.match(/.{1,2}/g).map(i => parseInt(i, 16));
+    return currentDevice.send(cla, ins, p1, p2, Buffer.from(msg, 'hex'), statusList);
   },
 
   sendChunk(i, chunks) {
@@ -214,7 +214,6 @@ export default {
       try {
         const chunk = chunks[i];
         const params = `8002${i === chunks.length - 1 ? '80' : '00'}00`;
-
         this.send(params, chunk, [VALID_STATUS])
           .then((res) => {
             i += 1;

@@ -99,7 +99,7 @@ export default {
 
     aphHolding() {
       if (this.currentMarket && this.$store.state.holdings) {
-        const holding = _.find(this.$store.state.holdings, { assetId: this.$services.assets.APH });
+        const holding = _.find(this.$store.state.holdings, { assetId: this.$store.state.currentNetwork.aph_hash });
 
         if (holding) {
           return holding;
@@ -164,9 +164,12 @@ export default {
     },
 
     isOutOfDate() {
-      return this.$store.state.latestVersion && this.$store.state.latestVersion.testExchangeScriptHash
-        && this.$store.state.latestVersion.testExchangeScriptHash.replace('0x', '')
-          !== this.$services.assets.DEX_SCRIPT_HASH;
+      if (!this.$store.state.latestVersion) {
+        return true;
+      }
+      const currentNetworkLatestDexScriptHash = this.$store.state.currentNetwork.net === 'MainNet' ?
+        this.$store.state.latestVersion.prodExchangeScriptHash : this.$store.state.latestVersion.testExchangeScriptHash;
+      return currentNetworkLatestDexScriptHash.replace('0x', '') !== this.$store.state.currentNetwork.dex_hash;
     },
 
     isTradingDisabled() {
