@@ -35,7 +35,7 @@
             </div>
           </div>
         </div>
-        <div class="cancel-btn" @click="cancelOrder(value)">
+        <div v-if="selectedStatus === 'open'" class="cancel-btn" @click="cancelOrder(value)">
           X
         </div>
       </div>
@@ -114,10 +114,10 @@ export default {
     },
 
     ordersForTable() {
-      switch (this.tab) {
-        case 'Open':
+      switch (this.selectedStatus) {
+        case OPEN:
           return this.openOrders;
-        case 'Completed':
+        case COMPLETED:
           return this.completedOrders;
         default:
           return this.openOrders;
@@ -135,7 +135,6 @@ export default {
 
   methods: {
     cancelOrder(order) {
-      console.log('santa', order)
       this.$services.dex.cancelOrder(order)
         .then((res) => {
           this.$services.alerts.success(res);
