@@ -161,7 +161,7 @@ export default {
             cost: '$.25',
             // These last two are needed here for order cancellation.
             offerId: tableEntry.offerId,
-            marketName: tableEntry.marketName
+            marketName: tableEntry.marketName,
           },
         };
         return formattedData.concat([entry]);

@@ -37,7 +37,7 @@ export default {
     fetchLatestVersion() {
       this.$store.dispatch('fetchLatestVersion');
     },
-    
+
     onAllLoaded() {
       this.$router.push('/login');
     },

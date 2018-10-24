@@ -392,10 +392,6 @@ function setWithdrawInProgressModalModel(state, model) {
   state.withdrawInProgressModalModel = model;
 }
 
-function setOrderHistory(state, orders) {
-  state.orderHistory = orders;
-}
-
 function setOrdersToShow(state, value) {
   state.ordersToShow = value;
 }
