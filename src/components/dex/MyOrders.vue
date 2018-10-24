@@ -8,7 +8,6 @@
 </template>
 
 <script>
-
 import OrdersTable from './OrdersTable';
 
 export default {
@@ -42,7 +41,7 @@ export default {
   display: flex;
   flex-direction: column;
   flex: 1;
-  
+
   .refine {
     background: $dark-purple;
     border-radius: $border-radius;

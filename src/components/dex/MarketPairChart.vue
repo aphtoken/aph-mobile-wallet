@@ -1,7 +1,7 @@
 <template>
   <section id="dex--market-pair-chart">
     <div class="header">
-      {{ $store.state.currentMarket ? $store.state.currentMarket.marketName : '' }}
+      {{ currentMarket }}
     </div>
     <div class="body">
       <div class="chart-header">
@@ -14,31 +14,31 @@
         <div class="day-values">
           <div class="row">
             <div class="label">VOL.</div>
-            <div class="value">{{ $formatNumber($store.state.tradeHistory ? $store.state.tradeHistory.volume24Hour : 0) }}</div>
+            <div class="value">{{ tickerData.quoteVolume }}</div>
           </div>
           <div class="row">
             <div class="label">OPEN</div>
-            <div class="value">{{ $formatNumber($store.state.tradeHistory ? $store.state.tradeHistory.open24Hour : 0) }}</div>
+            <div class="value">{{ $formatNumber(tickerData.open24hr) }}</div>
           </div>
           <div class="row">
             <div class="label">HIGH</div>
-            <div class="value">{{ $formatNumber($store.state.tradeHistory ? $store.state.tradeHistory.high24Hour : 0) }}</div>
+            <div class="value">{{ $formatNumber(tickerData.high24hr) }}</div>
           </div>
           <div class="row">
             <div class="label">LOW</div>
-            <div class="value">{{ $formatNumber($store.state.tradeHistory ? $store.state.tradeHistory.low24Hour : 0) }}</div>
+            <div class="value">{{ $formatNumber(tickerData.low24hr) }}</div>
           </div>
         </div>
         <div class="token-details">
           <div class="base-price">
-            {{ $formatTokenAmount($store.state.tradeHistory ? $store.state.tradeHistory.close24Hour : 0) }}
+            {{ basePrice() }}
           </div>
           <div class="base-price-converted">
-            $11.41
+            {{ $formatMoney(close24Hour * baseCurrencyUnitPrice) }}
           </div>
           <div class="label">24H CHANGE ({{ $store.state.currentMarket ? $store.state.currentMarket.quoteCurrency : '' }})</div>
-          <div :class="['change', {decrease: $store.state.tradeHistory ? $store.state.tradeHistory.change24Hour < 0 : false, increase: $store.state.tradeHistory ? $store.state.tradeHistory.change24Hour > 0 : false}]">
-            {{ $formatNumber($store.state.tradeHistory ? $store.state.tradeHistory.change24Hour : 0) }}
+          <div :class="['change', {decrease: change24Hour < 0, increase: change24Hour > 0 }]">
+            {{ $formatNumber(change24Hour) }}
             ({{ $formatNumber(percentChangeAbsolute) }}%)
           </div>
         </div>
@@ -51,12 +51,36 @@
 
 export default {
   computed: {
+    currentMarket() {
+      return this.$store.state.currentMarket ? this.$store.state.currentMarket.marketName : '';
+    },
+
+    basePrice() {
+      const tradeHistory = this.$store.state.tradeHistory[this.currentMarket()];
+      const hasTradeHistory = tradeHistory && tradeHistory.trades && tradeHistory.trades.length > 0;
+      return this.$formatTokenAmount(hasTradeHistory ? tradeHistory.close24Hour : 0);
+    },
+
+    baseCurrencyUnitPrice() {
+      return this.$store.state.currentMarket && this.$store.state.holdings.length ?
+        this.$services.neo.getHolding(this.$store.state.currentMarket.baseAssetId).unitValue : 0;
+    },
   },
 
   props: {
+    change24Hour: {
+      default: 0,
+      type: Object,
+    },
+
     percentChangeAbsolute: {
       default: '',
       type: Number,
+    },
+
+    tickerData: {
+      default: {},
+      type: Object,
     },
   },
 };

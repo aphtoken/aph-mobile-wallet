@@ -24,6 +24,10 @@ export const sendInProgress = state => state.sendInProgress;
 export const showClaimGasStatus = state => state.showClaimGasStatus;
 export const showPortfolioHeader = state => state.showPortfolioHeader;
 export const statsToken = state => state.statsToken;
+export const tickerData = (state) => {
+  return state.currentMarket ? state.tickerDataByMarket[state.currentMarket.marketName] : {};
+};
 export const version = state => state.version;
 export const walletToBackup = state => state.walletToBackup;
 export const wallets = state => state.wallets;
+export const websocketUri = state => _.get(state.currentNetwork, 'websocketUri');

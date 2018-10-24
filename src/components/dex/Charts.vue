@@ -182,9 +182,12 @@ export default {
     },
 
     isOutOfDate() {
-      return this.$store.state.latestVersion && this.$store.state.latestVersion.testExchangeScriptHash
-        && this.$store.state.latestVersion.testExchangeScriptHash.replace('0x', '')
-          !== this.$services.assets.DEX_SCRIPT_HASH;
+      if (!this.$store.state.latestVersion) {
+        return true;
+      }
+      const currentNetworkLatestDexScriptHash = this.$store.state.currentNetwork.net === 'MainNet' ?
+        this.$store.state.latestVersion.prodExchangeScriptHash : this.$store.state.latestVersion.testExchangeScriptHash;
+      return currentNetworkLatestDexScriptHash.replace('0x', '') !== this.$store.state.currentNetwork.dex_hash;
     },
 
     isTradingDisabled() {
@@ -279,10 +282,11 @@ export default {
           },
 
           getBars: (_symbolInfo, resolution, from, to, onDataCallback, onErrorCallback) => {
-            const bars = this.$store.state.tradeHistory && this.$store.state.tradeHistory.getBars ?
-              this.$store.state.tradeHistory.getBars(this.$store.state.tradeHistory, resolution, from, to, this.lastPrice) :
+            const marketName = this.$store.state.currentMarket.marketName;
+            const tradeHistory = this.$store.state.tradeHistory[marketName]
+            const bars = tradeHistory && tradeHistory.getBars ?
+              tradeHistory.getBars(tradeHistory, resolution, from, to, this.lastPrice) :
               [];
-
             if (bars.length === 0) {
               onDataCallback(bars, { noData: true })
             } else {
@@ -391,16 +395,6 @@ export default {
       }
     },
 
-    loadTrades() {
-      if (!this.$store.state.currentMarket) {
-        return;
-      }
-
-      this.$store.dispatch('fetchTradeHistory', {
-        marketName: this.$store.state.currentMarket.marketName,
-      });
-    },
-
     removeChart() {
       const container = document.getElementById('chart-container');
       while (container && container.hasChildNodes()) {
@@ -424,7 +418,6 @@ export default {
   },
 
   mounted() {
-    this.loadTrades();
     this.loadChart();
   },
 };

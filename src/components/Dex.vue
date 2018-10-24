@@ -43,6 +43,7 @@ export default {
     clearInterval(this.connectionStatusInterval);
     clearInterval(this.marketsRefreshInterval);
     clearInterval(this.completeSystemAssetWithdrawalsInterval);
+    clearInterval(this.tickerRefreshInterval);
   },
 
   data() {
@@ -55,6 +56,7 @@ export default {
   mounted() {
     this.$store.state.showPortfolioHeader = false;
     this.loadMarkets();
+    this.loadTickerData();
 
     this.$services.dex.completeSystemAssetWithdrawals();
 
@@ -120,13 +122,19 @@ export default {
     this.completeSystemAssetWithdrawalsInterval = setInterval(() => {
       this.$services.dex.completeSystemAssetWithdrawals();
     }, this.$constants.intervals.COMPLETE_SYSTEM_WITHDRAWALS);
+    this.tickerRefreshInterval = setInterval(() => {
+      this.loadTickerData();
+    }, this.$constants.intervals.TICKER_POLLING);
   },
 
   computed: {
     isOutOfDate() {
-      return this.$store.state.latestVersion && this.$store.state.latestVersion.testExchangeScriptHash
-        && this.$store.state.latestVersion.testExchangeScriptHash.replace('0x', '')
-          !== this.$services.assets.DEX_SCRIPT_HASH;
+      if (!this.$store.state.latestVersion) {
+        return true;
+      }
+      const currentNetworkLatestDexScriptHash = this.$store.state.currentNetwork.net === 'MainNet' ?
+        this.$store.state.latestVersion.prodExchangeScriptHash : this.$store.state.latestVersion.testExchangeScriptHash;
+      return currentNetworkLatestDexScriptHash.replace('0x', '') !== this.$store.state.currentNetwork.dex_hash;
     },
   },
 
@@ -151,6 +159,7 @@ export default {
 
       this.connected = true;
     },
+
     loadMarkets() {
       this.$store.dispatch('fetchMarkets', {
         done: () => {
@@ -159,6 +168,13 @@ export default {
           }
         },
       });
+    },
+
+    loadTickerData() {
+      this.$services.dex.fetchTickerData()
+        .then((tickerData) => {
+          this.$store.commit('setTickerDataByMarket', tickerData);
+        });
     },
 
     setTab(event) {

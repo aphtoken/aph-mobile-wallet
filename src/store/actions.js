@@ -17,6 +17,7 @@ export {
   fetchMarkets,
   fetchOrderHistory,
   fetchRecentTransactions,
+  fetchSystemAssetBalances,
   fetchTradeHistory,
   findTransactions,
   formOrder,
@@ -204,6 +205,7 @@ function fetchLatestVersion({ commit }) {
 
   return axios.get(`${network.getSelectedNetwork().aph}/LatestWalletInfo`)
     .then(({ data }) => {
+      network.setExplorer(data.useAphExplorer);
       commit('setLatestVersion', data);
       commit('endRequest', { identifier: 'fetchLatestVersion' });
     })
@@ -213,13 +215,15 @@ function fetchLatestVersion({ commit }) {
     });
 }
 
-async function fetchMarkets({ commit }, { done }) {
+async function fetchMarkets({ commit, dispatch }, { done } = { done: () => {} }) {
   let markets;
   commit('startRequest', { identifier: 'fetchMarkets' });
 
   try {
     markets = await dex.fetchMarkets();
     commit('setMarkets', markets);
+    // TODO: do we want really want fetching markets to kick this off?
+    dispatch('fetchTradeHistory', markets);
     done();
     commit('endRequest', { identifier: 'fetchMarkets' });
   } catch (message) {
@@ -267,24 +271,36 @@ async function fetchRecentTransactions({ commit }) {
   }
 }
 
-async function fetchTradeHistory({ state, commit }, { marketName, isRequestSilent }) {
-  let history;
-  commit(isRequestSilent ? 'startSilentRequest' : 'startRequest',
-    { identifier: 'fetchTradeHistory' });
+async function fetchTradeHistory({ commit }, markets) {
+  let marketTradeHistories = [];
+  commit('startRequest', { identifier: 'fetchTradeHistory' });
+  markets.forEach(market => marketTradeHistories.push(dex.fetchTradeHistory(market.marketName)));
+  // TODO: some code needs to fetch the API buckets when a market is selected
+  // dex.fetchTradesBucketed(marketName);
+  // state.tradeHistory.apiBuckets
 
-  try {
-    history = await dex.fetchTradeHistory(marketName);
-    if (state.tradeHistory && state.tradeHistory.apiBuckets && state.tradeHistory.marketName === marketName) {
-      history.apiBuckets = state.tradeHistory.apiBuckets;
-    } else {
-      history.apiBuckets = await dex.fetchTradesBucketed(marketName);
-    }
-    commit('setTradeHistory', history);
+  // TODO: if there are a large number of markets; probalby can't do all in parallel
+  await Promise.all(marketTradeHistories).then((tradeHistories) => {
+    marketTradeHistories = tradeHistories.reduce((tradeHistoriesObject, tradeHistory) => {
+      tradeHistoriesObject[tradeHistory.marketName] = tradeHistory;
+      return tradeHistoriesObject;
+    }, {});
+    commit('setTradeHistory', marketTradeHistories);
     commit('endRequest', { identifier: 'fetchTradeHistory' });
+  });
+}
+
+async function fetchSystemAssetBalances({ commit }, { forAddress, intents }) {
+  commit('startRequest', { identifier: 'fetchSystemAssetBalances' });
+  let balances;
+  try {
+    balances = await neo.fetchSystemAssetBalance(forAddress, intents);
   } catch (message) {
-    alerts.networkException(message);
-    commit('failRequest', { identifier: 'fetchTradeHistory', message });
+    commit('failRequest', { identifier: 'fetchSystemAssetBalances', message });
+    throw message;
   }
+
+  return balances;
 }
 
 function findTransactions({ state, commit }) {
