@@ -64,8 +64,9 @@ export default {
     tableData() {
       return this.filteredMarkets().map(({ quoteCurrency, marketName }) => {
         const tradeHistory = this.$store.state.tradeHistory[marketName];
-        const price = this.$formatTokenAmount(tradeHistory ? tradeHistory.close24Hour : 0);
-        const vol = this.$formatNumber(tradeHistory ? tradeHistory.volume24Hour : 0);
+        const hasTradeHistory = tradeHistory && tradeHistory.trades && tradeHistory.trades.length > 0;
+        const price = this.$formatTokenAmount(hasTradeHistory ? tradeHistory.close24Hour : 0);
+        const vol = this.$formatNumber(hasTradeHistory ? tradeHistory.volume24Hour : 0);
         const change = this.$formatNumber(this.percentChangeAbsolute);
         return { asset: quoteCurrency, price, volume: vol, '24H change': change };
       });
