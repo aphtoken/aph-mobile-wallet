@@ -56,6 +56,7 @@ const state = {
   },
   statsToken: null,
   systemWithdraw: null,
+  tickerDataByMarket: {},
   tradeHistory: null,
   transactionDetails: {},
   version: pjson.version,

@@ -56,6 +56,7 @@ export {
   setStatsToken,
   setSystemWithdraw,
   setSystemWithdrawMergeState,
+  setTickerDataByMarket,
   setTradeHistory,
   setWalletToBackup,
   setWallets,
@@ -71,6 +72,26 @@ export {
 
 // local constants
 const TRADE_MSG_LENGTH = 3;
+
+function addToOrderHistory(state, newOrders) {
+  if (!state.orderHistory) {
+    state.orderHistory = [];
+  }
+
+  for (let i = 0; i < newOrders.length; i += 1) {
+    const existingOrderIndex = _.findIndex(state.orderHistory, (order) => {
+      return order.orderId === newOrders[i].orderId;
+    });
+
+    if (existingOrderIndex > -1) {
+      // this order is already in our cache, must be an update
+      // remove the existing order and add the updated version to the top
+      state.orderHistory.splice(existingOrderIndex, 1);
+    }
+
+    state.orderHistory.unshift(newOrders[i]);
+  }
+}
 
 function clearActiveTransaction(state) {
   state.showPriceTile = true;
@@ -342,12 +363,28 @@ function setStatsToken(state, token) {
   state.activeTransaction = null;
 }
 
+function setTickerDataByMarket(state, tickerDataByMarket) {
+  state.tickerDataByMarket = tickerDataByMarket;
+}
+
 function setWallets(state, wallets) {
   state.wallets = wallets;
 }
 
 function setWithdrawInProgressModalModel(state, model) {
   state.withdrawInProgressModalModel = model;
+}
+
+function setFractureGasModalModel(state, model) {
+  state.fractureGasModalModel = model;
+}
+
+function setOrderHistory(state, orders) {
+  state.orderHistory = orders;
+}
+
+function setOrdersToShow(state, value) {
+  state.ordersToShow = value;
 }
 
 function setSystemWithdraw(state, value) {
@@ -360,14 +397,6 @@ function setSystemWithdrawMergeState(state, value) {
   }
 }
 
-function setOrderHistory(state, orders) {
-  state.orderHistory = orders;
-}
-
-function setFractureGasModalModel(state, model) {
-  state.fractureGasModalModel = model;
-}
-
 function startRequest(state, payload) {
   updateRequest(state, payload, requests.PENDING);
 }
@@ -376,33 +405,16 @@ function startSilentRequest(state, payload) {
   updateRequest(state, Object.assign(payload, { isSilent: true }), requests.PENDING);
 }
 
-
 function setTradeHistory(state, tradeHistory) {
   state.tradeHistory = tradeHistory;
 }
 
-function addToOrderHistory(state, newOrders) {
-  if (!state.orderHistory) {
-    state.orderHistory = [];
+function SOCKET_ONCLOSE(state) {
+  state.socket.client = null;
+  state.socket.isConnected = false;
+  if (!state.socket.connectionClosed) {
+    state.socket.connectionClosed = moment().utc();
   }
-
-  for (let i = 0; i < newOrders.length; i += 1) {
-    const existingOrderIndex = _.findIndex(state.orderHistory, (order) => {
-      return order.orderId === newOrders[i].orderId;
-    });
-
-    if (existingOrderIndex > -1) {
-      // this order is already in our cache, must be an update
-      // remove the existing order and add the updated version to the top
-      state.orderHistory.splice(existingOrderIndex, 1);
-    }
-
-    state.orderHistory.unshift(newOrders[i]);
-  }
-}
-
-function setOrdersToShow(state, value) {
-  state.ordersToShow = value;
 }
 
 function SOCKET_ONOPEN(state, event) {
@@ -421,19 +433,8 @@ function SOCKET_ONOPEN(state, event) {
       });
 
       // Ensure trade history is up-to-date on reconnect. (may have dropped some trades during disconnect)
-      this.dispatch('fetchTradeHistory', {
-        marketName: state.currentMarket.marketName,
-        isRequestSilent: true,
-      });
+      this.dispatch('fetchMarkets');
     }
-  }
-}
-
-function SOCKET_ONCLOSE(state) {
-  state.socket.client = null;
-  state.socket.isConnected = false;
-  if (!state.socket.connectionClosed) {
-    state.socket.connectionClosed = moment().utc();
   }
 }
 

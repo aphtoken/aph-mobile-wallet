@@ -291,6 +291,19 @@ export default {
     });
   },
 
+  calculateFeeAmount(quoteQuantity, minimumTradeSize, baseFee) {
+    if (quoteQuantity < minimumTradeSize) {
+      return baseFee;
+    }
+    // Earlier checks guarantee that quoteQuantity > 0
+    return this.flooredLogBase2(
+      quoteQuantity
+        .multipliedBy(2)
+        .dividedBy(minimumTradeSize)
+        .decimalPlaces(0, BigNumber.ROUND_DOWN))
+      .multipliedBy(baseFee);
+  },
+
   calculateWithdrawInputsAndOutputs(config, assetId, quantity) {
     return new Promise(async (resolve, reject) => {
       try {
@@ -667,23 +680,6 @@ export default {
     });
   },
 
-  fetchMarkets() {
-    return new Promise((resolve, reject) => {
-      try {
-        const currentNetwork = network.getSelectedNetwork();
-        axios.get(`${currentNetwork.aph}/markets?contractScriptHash=${store.state.currentNetwork.dex_hash}`)
-          .then((res) => {
-            resolve(res.data.markets);
-          })
-          .catch((e) => {
-            alerts.exception(`APH API Error: ${e}`);
-          });
-      } catch (e) {
-        reject(`Failed to fetch markets. ${e.message}`);
-      }
-    });
-  },
-
   executeContractTransaction(operation, parameters, neoToSend, gasToSend) {
     return new Promise((resolve, reject) => {
       try {
@@ -924,6 +920,23 @@ export default {
     });
   },
 
+  fetchMarkets() {
+    return new Promise((resolve, reject) => {
+      try {
+        const currentNetwork = network.getSelectedNetwork();
+        axios.get(`${currentNetwork.aph}/markets?contractScriptHash=${store.state.currentNetwork.dex_hash}`)
+          .then((res) => {
+            resolve(res.data.markets);
+          })
+          .catch((e) => {
+            alerts.exception(`APH API Error: ${e}`);
+          });
+      } catch (e) {
+        reject(`Failed to fetch markets. ${e.message}`);
+      }
+    });
+  },
+
   fetchOpenOrderBalance(assetId) {
     return new Promise((resolve, reject) => {
       try {
@@ -1137,19 +1150,6 @@ export default {
       power = power.plus(1);
     }
     return power.minus(1);
-  },
-
-  calculateFeeAmount(quoteQuantity, minimumTradeSize, baseFee) {
-    if (quoteQuantity < minimumTradeSize) {
-      return baseFee;
-    }
-    // Earlier checks guarantee that quoteQuantity > 0
-    return this.flooredLogBase2(
-      quoteQuantity
-        .multipliedBy(2)
-        .dividedBy(minimumTradeSize)
-        .decimalPlaces(0, BigNumber.ROUND_DOWN))
-      .multipliedBy(baseFee);
   },
 
   formDepositsForOrder(order) {

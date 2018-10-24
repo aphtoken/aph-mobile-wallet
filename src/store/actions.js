@@ -215,18 +215,42 @@ function fetchLatestVersion({ commit }) {
     });
 }
 
-async function fetchMarkets({ commit }, { done }) {
+async function fetchMarkets({ commit, dispatch }, { done } = { done: () => {} }) {
   let markets;
   commit('startRequest', { identifier: 'fetchMarkets' });
 
   try {
     markets = await dex.fetchMarkets();
     commit('setMarkets', markets);
+    // TODO: do we want really want fetching markets to kick this off?
+    dispatch('fetchTradeHistory', markets);
     done();
     commit('endRequest', { identifier: 'fetchMarkets' });
   } catch (message) {
     alerts.networkException(message);
     commit('failRequest', { identifier: 'fetchMarkets', message });
+  }
+}
+
+async function fetchOrderHistory({ state, commit }, { isRequestSilent }) {
+  const orderHistory = state.orderHistory;
+  commit(isRequestSilent ? 'startSilentRequest' : 'startRequest',
+    { identifier: 'fetchOrderHistory' });
+
+  try {
+    if (orderHistory && orderHistory.length > 0
+      && orderHistory[0].updated) {
+      const newOrders = await dex.fetchOrderHistory(0, orderHistory[0].updated, 'ASC');
+      commit('addToOrderHistory', newOrders);
+    } else {
+      const orders = await dex.fetchOrderHistory();
+      commit('setOrderHistory', orders);
+    }
+
+    commit('endRequest', { identifier: 'fetchOrderHistory' });
+  } catch (message) {
+    alerts.networkException(message);
+    commit('failRequest', { identifier: 'fetchOrderHistory', message });
   }
 }
 
@@ -247,30 +271,23 @@ async function fetchRecentTransactions({ commit }) {
   }
 }
 
-async function fetchTradeHistory({ state, commit }, { marketName, isRequestSilent }) {
-  let history;
-  commit(isRequestSilent ? 'startSilentRequest' : 'startRequest',
-    { identifier: 'fetchTradeHistory' });
+async function fetchTradeHistory({ commit }, markets) {
+  let marketTradeHistories = [];
+  commit('startRequest', { identifier: 'fetchTradeHistory' });
+  markets.forEach(market => marketTradeHistories.push(dex.fetchTradeHistory(market.marketName)));
+  // TODO: some code needs to fetch the API buckets when a market is selected
+  // dex.fetchTradesBucketed(marketName);
+  // state.tradeHistory.apiBuckets
 
-  try {
-    let apiBuckets;
-    let promiseFetchTradesBucketed;
-    if (state.tradeHistory && state.tradeHistory.apiBuckets && state.tradeHistory.marketName === marketName) {
-      apiBuckets = state.tradeHistory.apiBuckets;
-    } else {
-      promiseFetchTradesBucketed = dex.fetchTradesBucketed(marketName);
-    }
-    history = await dex.fetchTradeHistory(marketName);
-    if (promiseFetchTradesBucketed) {
-      apiBuckets = await promiseFetchTradesBucketed;
-    }
-    history.apiBuckets = apiBuckets;
-    commit('setTradeHistory', history);
+  // TODO: if there are a large number of markets; probalby can't do all in parallel
+  await Promise.all(marketTradeHistories).then((tradeHistories) => {
+    marketTradeHistories = tradeHistories.reduce((tradeHistoriesObject, tradeHistory) => {
+      tradeHistoriesObject[tradeHistory.marketName] = tradeHistory;
+      return tradeHistoriesObject;
+    }, {});
+    commit('setTradeHistory', marketTradeHistories);
     commit('endRequest', { identifier: 'fetchTradeHistory' });
-  } catch (message) {
-    alerts.networkException(message);
-    commit('failRequest', { identifier: 'fetchTradeHistory', message });
-  }
+  });
 }
 
 async function fetchSystemAssetBalances({ commit }, { forAddress, intents }) {
@@ -422,25 +439,19 @@ function openSavedWallet({ commit }, { walletToOpen, passphrase, done }) {
   }, timeouts.NEO_API_CALL);
 }
 
-async function fetchOrderHistory({ state, commit }, { isRequestSilent }) {
-  const orderHistory = state.orderHistory;
-  commit(isRequestSilent ? 'startSilentRequest' : 'startRequest',
-    { identifier: 'fetchOrderHistory' });
+async function pingSocket({ state, commit }) {
+  commit('startRequest', { identifier: 'pingSocket' });
 
   try {
-    if (orderHistory && orderHistory.length > 0
-      && orderHistory[0].updated) {
-      const newOrders = await dex.fetchOrderHistory(0, orderHistory[0].updated, 'ASC');
-      commit('addToOrderHistory', newOrders);
-    } else {
-      const orders = await dex.fetchOrderHistory();
-      commit('setOrderHistory', orders);
+    if (!state.socket || state.socket.isConnected !== true) {
+      return;
     }
 
-    commit('endRequest', { identifier: 'fetchOrderHistory' });
+    state.socket.client.sendObj({ op: 'ping' });
+    commit('endRequest', { identifier: 'pingSocket' });
   } catch (message) {
     alerts.networkException(message);
-    commit('failRequest', { identifier: 'fetchOrderHistory', message });
+    commit('failRequest', { identifier: 'pingSocket', message });
   }
 }
 
@@ -456,23 +467,6 @@ async function placeOrder({ commit }, { order, done }) {
     alerts.exception(message);
     commit('setOrderToConfirm', null);
     commit('failRequest', { identifier: 'placeOrder', message });
-  }
-}
-
-
-async function pingSocket({ state, commit }) {
-  commit('startRequest', { identifier: 'pingSocket' });
-
-  try {
-    if (!state.socket || state.socket.isConnected !== true) {
-      return;
-    }
-
-    state.socket.client.sendObj({ op: 'ping' });
-    commit('endRequest', { identifier: 'pingSocket' });
-  } catch (message) {
-    alerts.networkException(message);
-    commit('failRequest', { identifier: 'pingSocket', message });
   }
 }
 
