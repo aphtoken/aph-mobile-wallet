@@ -13,14 +13,31 @@
 <script>
 import imagesLoaded from 'vue-images-loaded';
 
+let fetchLatestVersionIntervalId;
+
 export default {
   name: 'aph-mobile-wallet',
+
+  beforeDestroy() {
+    clearInterval(fetchLatestVersionIntervalId);
+  },
+
+  beforeMount() {
+    this.fetchLatestVersion();
+    fetchLatestVersionIntervalId = setInterval(() => {
+      this.fetchLatestVersion();
+    }, this.$constants.intervals.WALLET_VERSION_CHECK);
+  },
 
   directives: {
     imagesLoaded,
   },
 
   methods: {
+    fetchLatestVersion() {
+      this.$store.dispatch('fetchLatestVersion');
+    },
+    
     onAllLoaded() {
       this.$router.push('/login');
     },
