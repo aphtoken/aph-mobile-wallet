@@ -35,7 +35,7 @@
             </div>
           </div>
         </div>
-        <div class="cancel-btn">
+        <div class="cancel-btn" @click="cancelOrder(value)">
           X
         </div>
       </div>
@@ -134,6 +134,19 @@ export default {
   },
 
   methods: {
+    cancelOrder(order) {
+      console.log('santa', order)
+      this.$services.dex.cancelOrder(order)
+        .then((res) => {
+          this.$services.alerts.success(res);
+          order.status = 'Cancelling';
+          _.set(cancelledOrders, order.orderId, moment.utc());
+        })
+        .catch((e) => {
+          this.$services.alerts.exception(e);
+        });
+    },
+
     formatTableData(tableData) {
       return tableData.reduce((formattedData, tableEntry) => {
         const entry = {
@@ -147,6 +160,9 @@ export default {
             price: tableEntry.price,
             // TODO: Fix this. Supposed to be converted to USD.
             cost: '$.25',
+            // These last two are needed here for order cancellation.
+            offerId: tableEntry.offerId,
+            marketName: tableEntry.marketName
           },
         };
         return formattedData.concat([entry]);

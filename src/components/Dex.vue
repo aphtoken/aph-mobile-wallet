@@ -64,7 +64,8 @@ export default {
       /* eslint-disable max-len */
       this.$services.alerts.success(`${(message.side === 'bid' ? 'Buy' : 'Sell')} Order Created. x${message.data.quantity} @${message.data.price}`);
       this.$store.dispatch('fetchHoldings');
-      this.$services.neo.resetSystemAssetBalanceCache();
+      // resetSystemAssetBalanceCache is disabled for some reason.
+      // this.$services.neo.resetSystemAssetBalanceCache();
     });
 
     const services = this.$services;
@@ -95,17 +96,17 @@ export default {
       if (!addedToken) {
         this.$store.dispatch('fetchHoldings');
       }
-      this.$services.neo.resetSystemAssetBalanceCache();
+      // this.$services.neo.resetSystemAssetBalanceCache();
     });
 
     store.commit('setSocketOrderCreationFailed', (message) => {
       services.alerts.error(`Failed to Create ${(message.side === 'bid' ? 'Buy' : 'Sell')} Order. ${message.data.errorMessage}`);
-      services.neo.resetSystemAssetBalanceCache();
+      // services.neo.resetSystemAssetBalanceCache();
     });
 
     store.commit('setSocketOrderMatchFailed', (message) => {
       services.alerts.error(`Failed to Match ${(message.side === 'bid' ? 'Buy' : 'Sell')} x${message.data.quantity}. ${message.data.errorMessage}`);
-      services.neo.resetSystemAssetBalanceCache();
+      // services.neo.resetSystemAssetBalanceCache();
     });
 
     services.neo.promptGASFractureIfNecessary();

@@ -14,7 +14,8 @@
       </thead>
       <tbody class="table-body-wrapper" v-if="data.length > 0">
         <tr :class="['row', injectRowStyling(entry)]" v-for="entry in filteredData" @click="handleRowClick(entry)">
-          <td class="cell" :class="[key, injectCellStyling(entry[key], entry, key)]" v-for="key in columns">
+          <td class="cell" :class="[key, injectCellStyling(entry[key], entry, key)]" v-for="key in columns"
+            @click="handleCellClick(entry, key)">
             <slot :name=key :value=entry[key]>
               {{ formatEntry !== null ? formatEntry(entry[key], entry, key) : entry[key] }}
             </slot>
@@ -48,6 +49,14 @@ export default {
       default: null,
       type: Function,
     },
+    handleCellClick: {
+      default: () => {},
+      type: Function,
+    },
+    handleRowClick: {
+      default: () => {},
+      type: Function,
+    },
     hasHeader: {
       default: true,
       type: Boolean,
@@ -57,10 +66,6 @@ export default {
       type: Function,
     },
     injectRowStyling: {
-      default: () => {},
-      type: Function,
-    },
-    handleRowClick: {
       default: () => {},
       type: Function,
     },
