@@ -24,14 +24,23 @@ const formatNumberBase = (value, wholeNumberFormat) => {
   let wholeNumber = bigNumber.integerValue(BigNumber.ROUND_FLOOR);
   const fractionalNumber = bigNumber.minus(wholeNumber);
 
+  let fractionalString;
+  if (fractionalNumber.isZero()) {
+    fractionalString = '';
+  } else {
+    const afterDecimal = fractionalNumber.decimalPlaces(8, BigNumber.ROUND_FLOOR).multipliedBy(100000000).toString()
+      .padStart(8, '0')
+      .replace(/0+$/g, '');
+    fractionalString = `.${afterDecimal}`;
+  }
+
   if (!wholeNumber.isZero()) {
     wholeNumber = isNegative ? wholeNumber.multipliedBy(-1) : wholeNumber;
 
-    return `${numeral(wholeNumber).format(wholeNumberFormat)}`
-      + `${numeral(fractionalNumber).format(formats.FRACTIONAL_NUMBER)}`;
+    return `${numeral(wholeNumber).format(wholeNumberFormat)}${fractionalString}`;
   }
 
-  return (isNegative ? '-0' : '0') + numeral(fractionalNumber).format(formats.FRACTIONAL_NUMBER);
+  return (isNegative ? '-0' : '0') + fractionalString;
 };
 
 export default {

@@ -129,7 +129,7 @@
           </div>
         </template>
         <div class="btn-group">
-          <button class="commit-btn" v-if="shouldShowCommitButton" @click="showCommitModal = true">
+          <button class="commit-btn" v-if="shouldShowCommitButton" @click="showCommitModal = true" :disabled="shouldDisableCommitButton">
             <aph-icon name="commit"></aph-icon>
             <p>{{ $t('commit') }}</p>
           </button>
@@ -214,13 +214,17 @@ export default {
       return this.currentNetwork && this.currentNetwork.bestBlock ? this.currentNetwork.bestBlock.index : 0;
     },
 
+    shouldDisableCommitButton() {
+      return this.$store.state.commitChangeInProgress;
+    },
+
     shouldDisableClaimButton() {
-      return this.$store.state.commitState.quantityCommitted <= 0;
+      return this.$store.state.commitState.quantityCommitted <= 0 || this.$store.state.commitChangeInProgress;
     },
 
     shouldDisableCompoundButton() {
       return this.$store.state.commitState.quantityCommitted <= 0
-        || this.$store.state.commitState.ableToCompoundHeight > this.currentBlock;
+        || this.$store.state.commitState.ableToCompoundHeight > this.currentBlock || this.$store.state.commitChangeInProgress;
     },
 
     shouldShowCommitButton() {
