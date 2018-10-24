@@ -49,7 +49,7 @@ export default {
 
     close24Hour() {
       const tradeHistory = this.$store.state.tradeHistory;
-      const marketName = this.$store.state.currentMarket.marketName
+      const marketName = this.$store.state.currentMarket.marketName;
       return tradeHistory[marketName] &&
         tradeHistory[marketName].trades &&
         tradeHistory[marketName].trades.length ?
@@ -86,7 +86,7 @@ export default {
 
   methods: {
     filteredMarkets() {
-      console.log('this', this.$store.state)
+      console.log('this', this.$store.state);
       return this.$store.state.markets.filter((market) => {
         if (this.searchBy.length > 0) {
           const isSearchMatch = _.includes(market.quoteCurrency, this.searchBy.toUpperCase());

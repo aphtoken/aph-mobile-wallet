@@ -222,7 +222,7 @@ async function fetchMarkets({ commit, dispatch }, { done = () => {} }) {
   try {
     markets = await dex.fetchMarkets();
     commit('setMarkets', markets);
-   // TODO: do we want really want fetching markets to kick this off?
+    // TODO: do we want really want fetching markets to kick this off?
     dispatch('fetchTradeHistory', markets);
     done();
     commit('endRequest', { identifier: 'fetchMarkets' });
@@ -271,24 +271,22 @@ async function fetchRecentTransactions({ commit }) {
   }
 }
 
-async function fetchTradeHistory({ state, commit }, markets) {
+async function fetchTradeHistory({ commit }, markets) {
   let marketTradeHistories = [];
   commit('startRequest', { identifier: 'fetchTradeHistory' });
-  for (const market of markets) {
-    let tradeHistory = dex.fetchTradeHistory(market.marketName);
-    marketTradeHistories.push(tradeHistory);
-    // TODO: some code needs to fetch the API buckets when a market is selected
-    // dex.fetchTradesBucketed(marketName);
-    // state.tradeHistory.apiBuckets
-  }
+  markets.forEach(market => marketTradeHistories.push(dex.fetchTradeHistory(market.marketName)));
+  // TODO: some code needs to fetch the API buckets when a market is selected
+  // dex.fetchTradesBucketed(marketName);
+  // state.tradeHistory.apiBuckets
+
   // TODO: if there are a large number of markets; probalby can't do all in parallel
   await Promise.all(marketTradeHistories).then((tradeHistories) => {
     marketTradeHistories = tradeHistories.reduce((tradeHistoriesObject, tradeHistory) => {
       tradeHistoriesObject[tradeHistory.marketName] = tradeHistory;
       return tradeHistoriesObject;
-  }, {});
-  commit('setTradeHistory', marketTradeHistories);
-  commit('endRequest', { identifier: 'fetchTradeHistory' });
+    }, {});
+    commit('setTradeHistory', marketTradeHistories);
+    commit('endRequest', { identifier: 'fetchTradeHistory' });
   });
 }
 

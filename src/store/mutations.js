@@ -357,14 +357,6 @@ function setSocketOrderMatchFailed(state, value) {
   state.socket.orderMatchFailed = value;
 }
 
-function setSendInProgress(state, value) {
-  state.sendInProgress = value;
-}
-
-function setShowClaimGasStatus(state, value) {
-  state.showClaimGasStatus = value;
-}
-
 function setStatsToken(state, token) {
   state.statsToken = token;
   state.showPriceTile = true;
