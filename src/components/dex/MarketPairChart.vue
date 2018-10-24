@@ -31,7 +31,7 @@
         </div>
         <div class="token-details">
           <div class="base-price">
-            {{ $formatTokenAmount($store.state.tradeHistory[currentMarket] ? $store.state.tradeHistory[currentMarket].close24Hour : 0) }}
+            {{ basePrice() }}
           </div>
           <div class="base-price-converted">
             {{ $formatMoney(close24Hour * baseCurrencyUnitPrice) }}
@@ -53,6 +53,12 @@ export default {
   computed: {
     currentMarket() {
       return this.$store.state.currentMarket ? this.$store.state.currentMarket.marketName : '';
+    },
+
+    basePrice() {
+      const tradeHistory = this.$store.state.tradeHistory[this.currentMarket()];
+      const hasTradeHistory = tradeHistory && tradeHistory.trades && tradeHistory.trades.length > 0;
+      return this.$formatTokenAmount(hasTradeHistory ? tradeHistory.close24Hour : 0);
     },
 
     baseCurrencyUnitPrice() {

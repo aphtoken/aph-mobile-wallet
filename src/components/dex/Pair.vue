@@ -87,7 +87,6 @@ export default {
 
   methods: {
     filteredMarkets() {
-      console.log('this', this.$store.state);
       return this.$store.state.markets.filter((market) => {
         if (this.searchBy.length > 0) {
           const isSearchMatch = _.includes(market.quoteCurrency, this.searchBy.toUpperCase());
