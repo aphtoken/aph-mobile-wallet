@@ -5,29 +5,14 @@
     </div>
     <div class="header">
       <div class="title">
-        {{ currentTab }}
+        {{ currentTab }} ({{ currentMarketName }})
       </div>
     </div>
     <router-view></router-view>
     <div class="footer">
-      <router-link to="/authenticated/dex/pair">
+      <router-link v-for="tab in tabs" :to="`/authenticated/dex/${tab}`">
         <div @click="setTab">
-          Pair
-        </div>
-      </router-link>
-      <router-link to="/authenticated/dex/trade">
-        <div @click="setTab">
-          Trade
-        </div>
-      </router-link>
-      <router-link to="/authenticated/dex/orders">
-        <div @click="setTab">
-          Orders
-        </div>
-      </router-link>
-      <router-link to="/authenticated/dex/charts">
-        <div @click="setTab">
-          Charts
+          {{ tab }}
         </div>
       </router-link>
     </div>
@@ -35,6 +20,7 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex';
 import assets from '../services/assets';
 
 export default {
@@ -50,6 +36,7 @@ export default {
     return {
       connected: false,
       currentTab: 'Pairs',
+      tabs: ['pair', 'trade', 'orders', 'charts'],
     };
   },
 
@@ -137,6 +124,10 @@ export default {
         this.$store.state.latestVersion.prodExchangeScriptHash : this.$store.state.latestVersion.testExchangeScriptHash;
       return currentNetworkLatestDexScriptHash.replace('0x', '') !== this.$store.state.currentNetwork.dex_hash;
     },
+
+    ...mapGetters([
+      'currentMarketName',
+    ]),
   },
 
   methods: {
@@ -216,6 +207,7 @@ export default {
      .title {
       color: white;
       font-size: toRem(18px);
+      text-transform: capitalize;
     }
   }
 
@@ -235,8 +227,13 @@ export default {
       height: toRem(60px);
       justify-content: center;
 
+      div {
+        text-transform: capitalize;
+      }
+      
       &.router-link-active {
         border-bottom-color: $purple;
+
       }
     }
   }
