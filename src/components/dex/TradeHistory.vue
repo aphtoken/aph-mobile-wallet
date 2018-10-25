@@ -26,24 +26,15 @@ export default {
 
   computed: {
     trades() {
-      return this.$store.state.tradeHistory && this.$store.state.tradeHistory.trades
-        && this.$store.state.tradeHistory.trades.length ? this.$store.state.tradeHistory.trades : [];
+      const marketName = this.$store.state.currentMarket.marketName;
+      return this.$store.state.tradeHistory[marketName] && this.$store.state.tradeHistory[marketName].trades
+        && this.$store.state.tradeHistory[marketName].trades.length ? this.$store.state.tradeHistory[marketName].trades : [];
     },
   },
 
   data() {
     return {
     };
-  },
-
-  methods: {
-
-  },
-
-  mounted() {
-  },
-
-  watch: {
   },
 };
 
