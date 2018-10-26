@@ -582,7 +582,7 @@ export default {
     }
   }
 
-  .footer {
+  > .footer {
     margin: 0 $space;
     overflow: scroll;
     white-space: nowrap;

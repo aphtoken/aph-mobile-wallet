@@ -1,114 +1,116 @@
 <template>
-  <section class="aph-order-confirmation-modal">>
-    <div class="title">
-      Confirm Your Order:
-    </div>
-    <div class="content">
-      <p class="description">
-        Are you sure that you would like to place a
-        <span class="type">{{ $store.state.orderToConfirm.orderType }}</span>
-        <span :class="['side', $store.state.orderToConfirm.side]">{{ $store.state.orderToConfirm.side }}</span>
-        <span class="postOnly" v-if="$store.state.orderToConfirm.postOnly === true">post only</span>
-        order for
-        <span class="quantity">{{ $formatNumber($store.state.orderToConfirm.quantity) }}</span>
-        <span class="currency">{{ $store.state.orderToConfirm.market.quoteCurrency }}</span>
-        <span v-if="$store.state.orderToConfirm.orderType === 'Limit'">
-          at a unit price of
-          <span class="price">
-            {{ $formatNumber($store.state.orderToConfirm.price) }}
-            {{ $store.state.orderToConfirm.market.baseCurrency }}
+  <section class="aph-order-confirmation-modal">
+    <div class="wrapper">
+      <h2 class="title">
+        Confirm Your Order:
+      </h2>
+      <div class="content">
+        <p class="description">
+          Are you sure that you would like to place a
+          <span class="type">{{ $store.state.orderToConfirm.orderType }}</span>
+          <span :class="['side', $store.state.orderToConfirm.side]">{{ $store.state.orderToConfirm.side }}</span>
+          <span class="postOnly" v-if="$store.state.orderToConfirm.postOnly === true">post only</span>
+          order for
+          <span class="quantity">{{ $formatNumber($store.state.orderToConfirm.quantity) }}</span>
+          <span class="currency">{{ $store.state.orderToConfirm.market.quoteCurrency }}</span>
+          <span v-if="$store.state.orderToConfirm.orderType === 'Limit'">
+            at a unit price of
+            <span class="price">
+              {{ $formatNumber($store.state.orderToConfirm.price) }}
+              {{ $store.state.orderToConfirm.market.baseCurrency }}
+            </span>
+            <span class="price" v-if="$store.state.orderToConfirm.side == 'Buy'">
+              for a total of
+              {{ $formatNumber($store.state.orderToConfirm.expectedQuantityToGive) }}
+              {{ $store.state.orderToConfirm.market.baseCurrency }}
+            </span>
+            <span class="price" v-else>
+              to receive a total of
+              {{ $formatNumber($store.state.orderToConfirm.expectedQuantityToReceive) }}
+              {{ $store.state.orderToConfirm.market.baseCurrency }}
+            </span>
           </span>
-          <span class="price" v-if="$store.state.orderToConfirm.side == 'Buy'">
-            for a total of
-            {{ $formatNumber($store.state.orderToConfirm.expectedQuantityToGive) }}
-            {{ $store.state.orderToConfirm.market.baseCurrency }}
+          <span v-else>
+            <span class="price" v-if="$store.state.orderToConfirm.side == 'Buy'">
+              for an estimated total of
+              {{ $formatNumber($store.state.orderToConfirm.expectedQuantityToGive) }}
+              {{ $store.state.orderToConfirm.market.baseCurrency }}
+            </span>
+            <span class="price" v-else>
+              to receive an estimated total of
+              {{ $formatNumber($store.state.orderToConfirm.expectedQuantityToReceive) }}
+              {{ $store.state.orderToConfirm.market.baseCurrency }}
+            </span>
           </span>
-          <span class="price" v-else>
-            to receive a total of
-            {{ $formatNumber($store.state.orderToConfirm.expectedQuantityToReceive) }}
-            {{ $store.state.orderToConfirm.market.baseCurrency }}
-          </span>
-        </span>
-        <span v-else>
-          <span class="price" v-if="$store.state.orderToConfirm.side == 'Buy'">
-            for an estimated total of
-            {{ $formatNumber($store.state.orderToConfirm.expectedQuantityToGive) }}
-            {{ $store.state.orderToConfirm.market.baseCurrency }}
-          </span>
-          <span class="price" v-else>
-            to receive an estimated total of
-            {{ $formatNumber($store.state.orderToConfirm.expectedQuantityToReceive) }}
-            {{ $store.state.orderToConfirm.market.baseCurrency }}
-          </span>
-        </span>
-        ?
-      </p>
-      <!-- <div v-if="offersToTake.length === 0">
-        {{$t('thisWillBeAMakerOrder')}}
-      </div>
-      <div class="taking" v-if="offersToTake.length > 0 && $store.state.orderToConfirm.postOnly === true">
-        {{$t('thisOrderWouldTakeTheFollowing')}}
-        <div>
-          <div class="offer" v-for="(offer, index) in offersToTake" :key="index">
-            x{{ $formatNumber(offer.quantity) }} @{{ $formatNumber(offer.price) }}
-          </div>
-          <br />{{$t('thisMeansThatItIsIneligible')}}
-        </div>
-      </div>
-      <div class="taking" v-if="offersToTake.length > 0 && $store.state.orderToConfirm.postOnly === false">
-        {{$t('youWillBeImmediatelyTaking', { count: offersToTake.length })}}
-        <div>
-          <div class="offer" v-for="(offer, index) in offersToTake" :key="index">
-            x{{ $formatNumber(offer.quantity) }} @{{ $formatNumber(offer.price) }}
-          </div>
-        </div>
-        <div v-if="backupOffersToTake.length > 0">
-          {{$t('weveAlsoMatchedBackupOrders', { count: backupOffersToTake.length })}}
-        </div>
-        <div v-if="$formatNumber($store.state.orderToConfirm.minTakerFees) !== $formatNumber($store.state.orderToConfirm.maxTakerFees)">
-          {{$t('theFeeForCompletingYourTradeWillDepend', { min: $formatNumber($store.state.orderToConfirm.minTakerFees), max: $formatNumber($store.state.orderToConfirm.maxTakerFees)})}}
-        </div>
-        <div v-else>
-          {{$t('theFeeForCompletingYourTradeWillBe', { amount: $formatNumber($store.state.orderToConfirm.maxTakerFees)})}}
-        </div>
-      </div>
-      <div v-if="$store.state.orderToConfirm.assetIdToSell">
-        <p v-if="quantityToPullFromWallet > 0">
-          {{$t('thisOrderRequires', {
-              quantity: $formatNumber(expectedQuantityToGive),
-              symbol: holdingForAssetToGive.symbol,
-              balance: $formatNumber(holdingForAssetToGive.contractBalance),
-              deposit: $formatNumber(quantityToPullFromWallet),
-            })
-          }}
+          ?
         </p>
-        <p v-if="$store.state.orderToConfirm.feeDeposit && $store.state.orderToConfirm.feeDeposit.quantityToDeposit > 0">
-          {{$t('thisOrderRequires', {
-              quantity: $formatNumber(this.$store.state.orderToConfirm.feeDeposit.quantityRequired),
-              symbol: this.$store.state.orderToConfirm.feeDeposit.symbol,
-              balance: $formatNumber(this.$store.state.orderToConfirm.feeDeposit.currentQuantity),
-              deposit: $formatNumber(this.$store.state.orderToConfirm.feeDeposit.quantityToDeposit),
-            })
-          }}
-        </p>
-      </div>
-      <div v-if="offersToTake.length > 0 && $store.state.orderToConfirm.quantityToTake < $store.state.orderToConfirm.quantity && $store.state.orderToConfirm.postOnly === false">
-        <div v-if="offersToTake.length > 0">
-          {{$t('youWillBeCreatingTheFollowingMakerOrder')}}
-          <div class="offer">
-            {{ $store.state.orderToConfirm.side }} x{{ $formatNumber($store.state.orderToConfirm.quantity.minus($store.state.orderToConfirm.quantityToTake))}} @{{ $formatNumber($store.state.orderToConfirm.price) }}
+        <!-- <div v-if="offersToTake.length === 0">
+          {{$t('thisWillBeAMakerOrder')}}
+        </div>
+        <div class="taking" v-if="offersToTake.length > 0 && $store.state.orderToConfirm.postOnly === true">
+          {{$t('thisOrderWouldTakeTheFollowing')}}
+          <div>
+            <div class="offer" v-for="(offer, index) in offersToTake" :key="index">
+              x{{ $formatNumber(offer.quantity) }} @{{ $formatNumber(offer.price) }}
+            </div>
+            <br />{{$t('thisMeansThatItIsIneligible')}}
           </div>
         </div>
-        <div v-else>
-          {{$t('thisWillBeAMakerOrderLeftOnTheBook')}}
+        <div class="taking" v-if="offersToTake.length > 0 && $store.state.orderToConfirm.postOnly === false">
+          {{$t('youWillBeImmediatelyTaking', { count: offersToTake.length })}}
+          <div>
+            <div class="offer" v-for="(offer, index) in offersToTake" :key="index">
+              x{{ $formatNumber(offer.quantity) }} @{{ $formatNumber(offer.price) }}
+            </div>
+          </div>
+          <div v-if="backupOffersToTake.length > 0">
+            {{$t('weveAlsoMatchedBackupOrders', { count: backupOffersToTake.length })}}
+          </div>
+          <div v-if="$formatNumber($store.state.orderToConfirm.minTakerFees) !== $formatNumber($store.state.orderToConfirm.maxTakerFees)">
+            {{$t('theFeeForCompletingYourTradeWillDepend', { min: $formatNumber($store.state.orderToConfirm.minTakerFees), max: $formatNumber($store.state.orderToConfirm.maxTakerFees)})}}
+          </div>
+          <div v-else>
+            {{$t('theFeeForCompletingYourTradeWillBe', { amount: $formatNumber($store.state.orderToConfirm.maxTakerFees)})}}
+          </div>
         </div>
-      </div> -->
-    </div>
-    <div class="footer">
-      <div class="cancel-btn" @click="onClose">Cancel</div>
-      <button class="confirm-btn" @click="onConfirmed" :disabled="shouldDisableConfirmButton">
-        {{ buttonLabel }}
-      </button>
+        <div v-if="$store.state.orderToConfirm.assetIdToSell">
+          <p v-if="quantityToPullFromWallet > 0">
+            {{$t('thisOrderRequires', {
+                quantity: $formatNumber(expectedQuantityToGive),
+                symbol: holdingForAssetToGive.symbol,
+                balance: $formatNumber(holdingForAssetToGive.contractBalance),
+                deposit: $formatNumber(quantityToPullFromWallet),
+              })
+            }}
+          </p>
+          <p v-if="$store.state.orderToConfirm.feeDeposit && $store.state.orderToConfirm.feeDeposit.quantityToDeposit > 0">
+            {{$t('thisOrderRequires', {
+                quantity: $formatNumber(this.$store.state.orderToConfirm.feeDeposit.quantityRequired),
+                symbol: this.$store.state.orderToConfirm.feeDeposit.symbol,
+                balance: $formatNumber(this.$store.state.orderToConfirm.feeDeposit.currentQuantity),
+                deposit: $formatNumber(this.$store.state.orderToConfirm.feeDeposit.quantityToDeposit),
+              })
+            }}
+          </p>
+        </div>
+        <div v-if="offersToTake.length > 0 && $store.state.orderToConfirm.quantityToTake < $store.state.orderToConfirm.quantity && $store.state.orderToConfirm.postOnly === false">
+          <div v-if="offersToTake.length > 0">
+            {{$t('youWillBeCreatingTheFollowingMakerOrder')}}
+            <div class="offer">
+              {{ $store.state.orderToConfirm.side }} x{{ $formatNumber($store.state.orderToConfirm.quantity.minus($store.state.orderToConfirm.quantityToTake))}} @{{ $formatNumber($store.state.orderToConfirm.price) }}
+            </div>
+          </div>
+          <div v-else>
+            {{$t('thisWillBeAMakerOrderLeftOnTheBook')}}
+          </div>
+        </div> -->
+      </div>
+      <div class="footer">
+        <div class="cancel-btn" @click="onClose">Cancel</div>
+        <button class="confirm-btn" @click="onConfirmed" :disabled="shouldDisableConfirmButton">
+          {{ buttonLabel }}
+        </button>
+      </div>
     </div>
   </section>
 </template>
@@ -190,6 +192,7 @@ export default {
 
 <style lang="scss">
 .aph-order-confirmation-modal {
+  justify-content: center;
   background: rgba($dark, .7);
   bottom: 0;
   display: flex;
@@ -200,5 +203,79 @@ export default {
   right: 0;
   top: 0;
   width: 100%;
+
+  > .wrapper {
+    @extend %tile-light;
+
+    display: flex;
+    flex-direction: column;
+    flex: none;
+    justify-content: center;
+    overflow: hidden;
+    padding: $space;
+    margin: $space-xl;
+
+    > div {
+      color: $dark;
+    }
+
+    .title {
+      text-align: center;
+      color: $dark;
+    }
+
+    p {
+      text-align: center;
+
+      .type, .side, .quantity, .currency, .price, .postOnly {
+        font-family: GilroySemibold;
+        font-size: toRem(16px);
+      }
+
+      .side {
+        font-size: toRem(18px);
+        text-decoration: underline;
+
+        &.Buy {
+          color: $green;
+        }
+        &.Sell {
+          color: $red;
+        }
+      }
+
+      .postOnly {
+        font-style: italic;
+        color: $grey;
+      }
+    }
+
+    .offer {
+      margin-bottom: $space-xs;
+    }
+
+    .taking > div:first-child {
+      overflow-y:auto;
+      max-height: toRem(400px);
+    }
+
+    .footer {
+      display: flex;
+
+      .cancel-btn {
+        @extend %btn-footer-light;
+
+        flex: 1;
+        border-bottom-left-radius: $border-radius;
+      }
+
+      .confirm-btn {
+        @extend %btn-footer;
+
+        flex: 1;
+        border-bottom-right-radius: $border-radius;
+      }
+    }
+  }
 }
 </style>
