@@ -159,6 +159,10 @@ export default {
       }
     },
 
+    iconName() {
+      return this.isOpen ? 'arrow-up' : 'arrow-down';
+    },
+
     isMarketClosed() {
       return this.$store.state.currentMarket && !this.$store.state.currentMarket.isOpen;
     },
@@ -460,9 +464,17 @@ export default {
     .order-type {
       margin: $space $space 0;
 
-      .aph-select--label {
-        background: $dark-purple*1.25;
-        color: white;
+      .aph-select {
+        .aph-select--label {
+          background: $dark-purple*1.25;
+          color: white;
+        }
+
+        .aph-select--dropdown {
+          li {
+            color: $dark;
+          }
+        }
       }
 
       .aph-icon .fill {
