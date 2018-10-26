@@ -323,14 +323,13 @@ function findTransactions({ state, commit }) {
     });
 }
 
-async function formOrder({ commit }, { order, done }) {
+async function formOrder({ commit }, { order }) {
   commit('startRequest', { identifier: 'placeOrder' });
 
   try {
     const res = await dex.formOrder(order);
     commit('setOrderToConfirm', res);
     commit('endRequest', { identifier: 'placeOrder' });
-    done();
   } catch (message) {
     alerts.exception(message);
     commit('failRequest', { identifier: 'placeOrder', message });

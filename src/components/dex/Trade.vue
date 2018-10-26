@@ -70,11 +70,13 @@
         <div class="wallet-value">3.21</div>
       </div>
     </div>
+    <order-confirmation-modal v-if="$store.state.showOrderConfirmationModal" :onClose="closeConfirmModal" :onConfirmed="orderConfirmed"></order-confirmation-modal>
   </section>
 </template>
 
 <script>
 import { BigNumber } from 'bignumber.js';
+import OrderConfirmationModal from '../modals/OrderConfirmationModal';
 
 const ORDER_TYPES_LIST = [
   {
@@ -84,6 +86,10 @@ const ORDER_TYPES_LIST = [
 ];
 
 export default {
+  components: {
+    OrderConfirmationModal,
+  },
+
   computed: {
     amountLabel() {
       if (!this.currentMarket) {
@@ -274,6 +280,10 @@ export default {
   },
 
   methods: {
+    closeConfirmModal() {
+      this.$store.commit('setShowOrderconfirmationModal', false)
+    },
+
     confirmOrder() {
       this.validateQuantity();
 
@@ -295,9 +305,9 @@ export default {
           price: this.$store.state.orderPrice !== '' ? new BigNumber(this.$store.state.orderPrice) : null,
           postOnly: this.postOnly,
         },
-        done: () => {
-          this.orderConfirmed();
-        },
+        // done: () => {
+        //   this.orderConfirmed();
+        // },
       });
     },
 
@@ -330,7 +340,6 @@ export default {
       return (totalMultiple / quantity).toString();
     },
 
-    // TODO: Remove when confirm modal is built. This short circuits the order placing process.
     orderConfirmed() {
       if (this.$isPending('placeOrder')) {
         return;

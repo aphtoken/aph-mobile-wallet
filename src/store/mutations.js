@@ -48,6 +48,7 @@ export {
   setSearchTransactions,
   setSendInProgress,
   setShowClaimGasStatus,
+  setShowOrderconfirmationModal,
   setShowSendRequestLedgerSignature,
   setSocketOrderCreated,
   setSocketOrderCreationFailed,
@@ -304,6 +305,10 @@ function setOrderQuantity(state, quantity) {
 function setOrderToConfirm(state, order) {
   state.orderToConfirm = order;
   state.showOrderConfirmationModal = !!order;
+}
+
+function setShowOrderconfirmationModal(state, value) {
+  state.showOrderConfirmationModal = value;
 }
 
 function setPortfolio(state, portfolio) {
