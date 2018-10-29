@@ -116,6 +116,8 @@
 </template>
 
 <script>
+import { BigNumber } from 'bignumber.js';
+
 export default {
   computed: {
     backupOffersToTake() {
@@ -126,7 +128,7 @@ export default {
 
     buttonLabel() {
       // return this.$isPending('placeOrder') ? `${this.orderStatus}...` : this.$t('submit');
-      return 'Submit'
+      return 'Submit';
     },
 
     expectedQuantityToGive() {

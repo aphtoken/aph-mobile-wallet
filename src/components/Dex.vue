@@ -10,7 +10,7 @@
     </div>
     <router-view></router-view>
     <div class="footer">
-      <router-link v-for="tab in tabs" :to="`/authenticated/dex/${tab}`">
+      <router-link v-for="tab in tabs" :key="tab" :to="`/authenticated/dex/${tab}`">
         <div @click="setTab">
           {{ tab }}
         </div>
