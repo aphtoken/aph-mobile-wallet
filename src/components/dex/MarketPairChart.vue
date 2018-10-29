@@ -14,19 +14,19 @@
         <div class="day-values">
           <div class="row">
             <div class="label">VOL.</div>
-            <div class="value">{{ tickerData.quoteVolume }}</div>
+            <div class="value">{{ tickerData[currentMarket].quoteVolume }}</div>
           </div>
           <div class="row">
             <div class="label">OPEN</div>
-            <div class="value">{{ $formatNumber(tickerData.open24hr) }}</div>
+            <div class="value">{{ $formatNumber(tickerData[currentMarket].open24hr) }}</div>
           </div>
           <div class="row">
             <div class="label">HIGH</div>
-            <div class="value">{{ $formatNumber(tickerData.high24hr) }}</div>
+            <div class="value">{{ $formatNumber(tickerData[currentMarket].high24hr) }}</div>
           </div>
           <div class="row">
             <div class="label">LOW</div>
-            <div class="value">{{ $formatNumber(tickerData.low24hr) }}</div>
+            <div class="value">{{ $formatNumber(tickerData[currentMarket].low24hr) }}</div>
           </div>
         </div>
         <div class="token-details">
@@ -34,12 +34,12 @@
             {{ basePrice }}
           </div>
           <div class="base-price-converted">
-            {{ $formatMoney(close24Hour * baseCurrencyUnitPrice) }}
+            {{ $formatMoney(marketData[currentMarket].close24Hour * baseCurrencyUnitPrice) }}
           </div>
           <div class="label">24H CHANGE ({{ $store.state.currentMarket ? $store.state.currentMarket.quoteCurrency : '' }})</div>
-          <div :class="['change', {decrease: change24Hour < 0, increase: change24Hour > 0 }]">
-            {{ $formatNumber(change24Hour) }}
-            ({{ $formatNumber(percentChangeAbsolute) }}%)
+          <div :class="['change', {decrease: marketData[currentMarket].change24Hour < 0, increase: marketData[currentMarket].change24Hour > 0 }]">
+            {{ $formatNumber(marketData[currentMarket].change24Hour) }}
+            ({{ $formatNumber(marketData[currentMarket].percentChangeAbsolute) }}%)
           </div>
         </div>
       </div>
@@ -68,19 +68,9 @@ export default {
       type: Number,
     },
 
-    change24Hour: {
-      default: 0,
+    marketData: {
+      default: {},
       type: Object,
-    },
-
-    close24Hour: {
-      default: 0,
-      type: Number,
-    },
-
-    percentChangeAbsolute: {
-      default: '',
-      type: Number,
     },
 
     tickerData: {
