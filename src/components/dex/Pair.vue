@@ -1,7 +1,7 @@
 <template>
   <section id="dex--pair">
     <div class="body">
-      <market-pair-chart v-bind="{ percentChangeAbsolute, tickerData, change24Hour }"></market-pair-chart>
+      <market-pair-chart v-bind="{ percentChangeAbsolute, tickerData, change24Hour, close24Hour, baseCurrencyUnitPrice }"></market-pair-chart>
       <base-selector v-model="baseCurrency" v-bind="{ baseCurrencies }"></base-selector>
       <aph-search-bar v-model="searchBy"></aph-search-bar>
       <aph-simple-table v-bind="{ columns, data: tableData, formatEntry, injectCellStyling: getRelativeChange, injectRowStyling, handleRowClick: handleMarketSelection }">
@@ -10,7 +10,7 @@
             {{ slotProps.value }}
           </div>
           <div class="price-conversion">
-            $137.99
+            {{ $formatMoney(close24Hour * baseCurrencyUnitPrice) }}
           </div>
         </div>
       </aph-simple-table>
@@ -40,6 +40,11 @@ export default {
   computed: {
     baseCurrencies() {
       return _.uniq(_.map(this.$store.state.markets, 'baseCurrency'));
+    },
+
+    baseCurrencyUnitPrice() {
+      return this.$store.state.currentMarket && this.$store.state.holdings.length ?
+        this.$services.neo.getHolding(this.$store.state.currentMarket.baseAssetId).unitValue : 0;
     },
 
     change24Hour() {

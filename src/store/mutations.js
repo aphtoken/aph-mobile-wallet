@@ -28,6 +28,7 @@ export {
   setCurrentNetwork,
   setCurrentWallet,
   setCommitChangeInProgress,
+  setFractureGasModalModel,
   setGasClaim,
   setGasFracture,
   setHoldings,
@@ -35,7 +36,6 @@ export {
   setLastSuccessfulRequest,
   setLatestVersion,
   setMarkets,
-  setFractureGasModalModel,
   setOrderHistory,
   setOrderPrice,
   setOrderQuantity,
@@ -48,6 +48,7 @@ export {
   setSearchTransactions,
   setSendInProgress,
   setShowClaimGasStatus,
+  setShowOrderconfirmationModal,
   setShowSendRequestLedgerSignature,
   setSocketOrderCreated,
   setSocketOrderCreationFailed,
@@ -91,6 +92,10 @@ function addToOrderHistory(state, newOrders) {
 
     state.orderHistory.unshift(newOrders[i]);
   }
+  // TODO: Fix this last code. We don't have 'db'.
+  // const orderHistoryStorageKey
+  //   = `orderhistory.${state.currentWallet.address}.${state.currentNetwork.net}.${state.currentNetwork.dex_hash}`;
+  // db.upsert(orderHistoryStorageKey, JSON.stringify(state.orderHistory));
 }
 
 function clearActiveTransaction(state) {
@@ -244,6 +249,10 @@ function setCurrentNetwork(state, network) {
   state.currentNetwork = network;
 }
 
+function setFractureGasModalModel(state, model) {
+  state.fractureGasModalModel = model;
+}
+
 function setGasClaim(state, value) {
   state.gasClaim = value;
 }
@@ -276,6 +285,15 @@ function setMarkets(state, markets) {
   state.markets = markets;
 }
 
+function setOrderHistory(state, orders) {
+  state.orderHistory = orders;
+
+  // NOTE: This code requires ipc-promise which isn't applicable for this app. Not sure what the alternative is.
+  // const orderHistoryStorageKey
+  //   = `orderhistory.${state.currentWallet.address}.${state.currentNetwork.net}.${assets.DEX_SCRIPT_HASH}`;
+  // db.upsert(orderHistoryStorageKey, JSON.stringify(state.orderHistory));
+}
+
 function setOrderPrice(state, price) {
   state.orderPrice = price;
 }
@@ -287,6 +305,10 @@ function setOrderQuantity(state, quantity) {
 function setOrderToConfirm(state, order) {
   state.orderToConfirm = order;
   state.showOrderConfirmationModal = !!order;
+}
+
+function setShowOrderconfirmationModal(state, value) {
+  state.showOrderConfirmationModal = value;
 }
 
 function setPortfolio(state, portfolio) {
@@ -373,14 +395,6 @@ function setWallets(state, wallets) {
 
 function setWithdrawInProgressModalModel(state, model) {
   state.withdrawInProgressModalModel = model;
-}
-
-function setFractureGasModalModel(state, model) {
-  state.fractureGasModalModel = model;
-}
-
-function setOrderHistory(state, orders) {
-  state.orderHistory = orders;
 }
 
 function setOrdersToShow(state, value) {

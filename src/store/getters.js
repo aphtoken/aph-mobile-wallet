@@ -6,6 +6,7 @@ export const currency = state => state.currency;
 export const currencySymbol = state => state.currencySymbol;
 export const currentEditContact = state => state.currentEditContact;
 export const currentLoginToWallet = state => state.currentLoginToWallet;
+export const currentMarketName = state => state.currentMarket.marketName;
 export const currentNetwork = state => state.currentNetwork;
 export const currentWallet = state => state.currentWallet;
 export const holdings = state => state.holdings;

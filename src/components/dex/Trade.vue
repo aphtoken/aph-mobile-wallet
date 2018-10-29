@@ -70,11 +70,13 @@
         <div class="wallet-value">3.21</div>
       </div>
     </div>
+    <order-confirmation-modal v-if="$store.state.showOrderConfirmationModal" :onClose="closeConfirmModal" :onConfirmed="orderConfirmed"></order-confirmation-modal>
   </section>
 </template>
 
 <script>
 import { BigNumber } from 'bignumber.js';
+import OrderConfirmationModal from '../modals/OrderConfirmationModal';
 
 const ORDER_TYPES_LIST = [
   {
@@ -84,6 +86,10 @@ const ORDER_TYPES_LIST = [
 ];
 
 export default {
+  components: {
+    OrderConfirmationModal,
+  },
+
   computed: {
     amountLabel() {
       if (!this.currentMarket) {
@@ -157,6 +163,10 @@ export default {
         console.log(e);
         return 0;
       }
+    },
+
+    iconName() {
+      return this.isOpen ? 'arrow-up' : 'arrow-down';
     },
 
     isMarketClosed() {
@@ -270,6 +280,10 @@ export default {
   },
 
   methods: {
+    closeConfirmModal() {
+      this.$store.commit('setShowOrderconfirmationModal', false);
+    },
+
     confirmOrder() {
       this.validateQuantity();
 
@@ -291,9 +305,9 @@ export default {
           price: this.$store.state.orderPrice !== '' ? new BigNumber(this.$store.state.orderPrice) : null,
           postOnly: this.postOnly,
         },
-        done: () => {
-          this.orderConfirmed();
-        },
+        // done: () => {
+        //   this.orderConfirmed();
+        // },
       });
     },
 
@@ -326,7 +340,6 @@ export default {
       return (totalMultiple / quantity).toString();
     },
 
-    // TODO: Remove when confirm modal is built. This short circuits the order placing process.
     orderConfirmed() {
       if (this.$isPending('placeOrder')) {
         return;
@@ -460,9 +473,17 @@ export default {
     .order-type {
       margin: $space $space 0;
 
-      .aph-select--label {
-        background: $dark-purple*1.25;
-        color: white;
+      .aph-select {
+        .aph-select--label {
+          background: $dark-purple*1.25;
+          color: white;
+        }
+
+        .aph-select--dropdown {
+          li {
+            color: $dark;
+          }
+        }
       }
 
       .aph-icon .fill {
@@ -561,7 +582,7 @@ export default {
     }
   }
 
-  .footer {
+  > .footer {
     margin: 0 $space;
     overflow: scroll;
     white-space: nowrap;

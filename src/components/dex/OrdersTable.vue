@@ -4,10 +4,10 @@
       <div v-for="status in orderStatus"
         :class="[status, { active: selectedStatus === status }]"
         @click="handleStatusChange(status)">
-        {{ status }} ({{ openOrdersTableData.length }})
+        {{ status }} {{ orderVolumeByStatus(status) }}
       </div>
     </div>
-    <aph-simple-table v-if="selectedStatus === 'open'" v-bind="{ data: openOrdersTableData, columns: openOrderColumns, hasHeader: false }">
+    <aph-simple-table v-bind="{ data: formatTableData(filteredOrders), columns: openOrderColumns, hasHeader: false }">
       <div slot="pairAndSide" slot-scope="{value}" class="pair-and-side-cell">
         <div class="pair">
           {{ value.pair }}
@@ -35,54 +35,93 @@
             </div>
           </div>
         </div>
-        <div class="cancel-btn">
+        <div v-if="selectedStatus === 'open'" class="cancel-btn" @click="cancelOrder(value)">
           X
         </div>
       </div>
-    </aph-simple-table>
-    <aph-simple-table v-if="selectedStatus === 'completed'" v-bind="{}">
     </aph-simple-table>
   </section>
 </template>
 
 <script>
+let loadOrdersIntervalId;
+let cancelledOrders = {};
 
 const COMPLETED = 'completed';
 const OPEN = 'open';
 const OPEN_ORDER_COLUMNS = ['pairAndSide', 'details'];
 
 export default {
+  beforeDestroy() {
+    clearInterval(loadOrdersIntervalId);
+  },
+
   components: {
   },
 
   computed: {
-    openOrdersTableData() {
-      return [
-        {
-          pairAndSide: {
-            pair: 'APH/NEO',
-            side: 'buy',
-          },
-          details: {
-            amount: '72,043.56',
-            base: 'APH',
-            price: '0.225',
-            cost: '$.25',
-          },
-        },
-        {
-          pairAndSide: {
-            pair: 'APH/ATI',
-            side: 'sell',
-          },
-          details: {
-            amount: '72,043.56',
-            base: 'APH',
-            price: '0.225',
-            cost: '$.25',
-          },
-        },
-      ];
+    allOrders() {
+      if (!this.$store.state.orderHistory) {
+        return [];
+      }
+
+      const orders = this.$store.state.orderHistory.map((order) => {
+        // if the order comes back from the api as still open or partially filled,
+        // but we know we recently cancelled it, still show as cancelling
+        if (_.has(cancelledOrders, order.orderId)) {
+          if (_.includes(['Open', 'PartiallyFilled', 'Cancelling'], order.status)
+            && moment.utc().diff(_.get(cancelledOrders, order.orderId), 'milliseconds')
+              < this.$constants.timeouts.CANCEL_ORDER) {
+            order.status = 'Cancelling';
+          } else {
+            cancelledOrders = _.omit(cancelledOrders, order.orderId);
+          }
+        }
+
+        return order;
+      });
+
+      return orders;
+    },
+
+    baseCurrency() {
+      return this.$store.state.markets.find(({ marketName }) => {
+        return marketName === this.$store.state.ordersToShow;
+      }).baseCurrency;
+    },
+
+    completedOrders() {
+      return _.filter(this.allOrders, (order) => {
+        return order.status !== 'Open' && order.status !== 'PartiallyFilled';
+      });
+    },
+
+    filteredOrders() {
+      // TODO: reinstate when we show all orders vs. orders of selected market only.
+      // if (this.$store.state.ordersToShow === this.$constants.orders.ALL_SWITCH) {
+      //   return this.ordersForTable;
+      // }
+
+      return this.ordersForTable.filter((order) => {
+        return order.marketName === this.$store.state.currentMarket.marketName;
+      });
+    },
+
+    openOrders() {
+      return _.filter(this.allOrders, (order) => {
+        return order.status === 'Open' || order.status === 'PartiallyFilled' || order.status === 'Cancelling';
+      });
+    },
+
+    ordersForTable() {
+      switch (this.selectedStatus) {
+        case OPEN:
+          return this.openOrders;
+        case COMPLETED:
+          return this.completedOrders;
+        default:
+          return this.openOrders;
+      }
     },
   },
 
@@ -95,12 +134,64 @@ export default {
   },
 
   methods: {
+    cancelOrder(order) {
+      this.$services.dex.cancelOrder(order)
+        .then((res) => {
+          this.$services.alerts.success(res);
+          order.status = 'Cancelling';
+          _.set(cancelledOrders, order.orderId, moment.utc());
+        })
+        .catch((e) => {
+          this.$services.alerts.exception(e);
+        });
+    },
+
+    formatTableData(tableData) {
+      return tableData.reduce((formattedData, tableEntry) => {
+        const entry = {
+          pairAndSide: {
+            pair: tableEntry.marketName,
+            side: tableEntry.side.toLowerCase(),
+          },
+          details: {
+            amount: tableEntry.quantity,
+            base: this.baseCurrency,
+            price: tableEntry.price,
+            // TODO: Fix this. Supposed to be converted to USD.
+            cost: '$.25',
+            // These last two are needed here for order cancellation.
+            offerId: tableEntry.offerId,
+            marketName: tableEntry.marketName,
+          },
+        };
+        return formattedData.concat([entry]);
+      }, []);
+    },
+
     handleStatusChange(newStatus) {
       this.selectedStatus = newStatus;
+    },
+
+    loadOrders() {
+      this.$store.dispatch('fetchOrderHistory', { isRequestSilent: false });
+    },
+
+    loadOrdersSilently() {
+      this.$store.dispatch('fetchOrderHistory', { isRequestSilent: true });
+    },
+
+    orderVolumeByStatus(status) {
+      const volume = this[`${status}Orders`].filter(order => order.marketName === this.$store.state.ordersToShow).length;
+      return volume ? `(${volume})` : '';
     },
   },
 
   mounted() {
+    this.loadOrders();
+
+    loadOrdersIntervalId = setInterval(() => {
+      this.loadOrdersSilently();
+    }, this.$constants.intervals.TRANSACTIONS_POLLING);
   },
 
   watch: {
