@@ -152,7 +152,6 @@ export default {
     },
 
     formatTableData(tableData) {
-      const marketName = this.$store.state.currentMarket.marketName;
       return tableData.reduce((formattedData, tableEntry) => {
         const entry = {
           pairAndSide: {
