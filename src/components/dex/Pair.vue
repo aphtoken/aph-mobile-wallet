@@ -142,7 +142,7 @@ export default {
     },
 
     getPercentChangeAbsolute(change24Hour, open24hr) {
-      return Math.round(((change24Hour) / open24hr) * 10000) / 100;
+      return Math.round(((change24Hour) / open24hr) * 10000) / 100 || 0;
     },
   },
 
