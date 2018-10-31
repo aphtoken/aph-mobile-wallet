@@ -305,9 +305,6 @@ export default {
           price: this.$store.state.orderPrice !== '' ? new BigNumber(this.$store.state.orderPrice) : null,
           postOnly: this.postOnly,
         },
-        // done: () => {
-        //   this.orderConfirmed();
-        // },
       });
     },
 
@@ -357,14 +354,125 @@ export default {
       return this.side === 'Buy' ? this.percentForBuy(value) : this.percentForSell(value);
     },
 
-    percentForBuy() {
-      // TODO: fix this
-      console.log('return');
+    percentForBuy(value) {
+      if (!this.baseHolding || !this.baseHolding.availableBalance
+        || this.baseHolding.availableBalance.isLessThanOrEqualTo(0)) {
+        // TODO: Translate this
+        this.$services.alerts.error(`No balance of ${this.currentMarket.baseCurrency} available to Buy with`);
+        return '';
+      }
+
+      const baseAssetQuantity = this.baseHolding.availableBalance;
+
+      let newQuantity = new BigNumber(0);
+      const book = this.$store.state.orderBook.asks;
+      let orderPrice = null;
+      if (this.orderType !== 'Market' && this.$store.state.orderPrice !== '') {
+        orderPrice = new BigNumber(this.$store.state.orderPrice);
+      }
+
+      let willTakeOffers = false;
+      if (!orderPrice || orderPrice.isGreaterThanOrEqualTo(book[0].price)) {
+        willTakeOffers = !this.postOnly;
+      }
+
+      let leftToSpend = baseAssetQuantity;
+
+      if (willTakeOffers) {
+        book.forEach((level) => {
+          if (orderPrice && level.price.isGreaterThan(orderPrice)) {
+            return;
+          }
+
+          if (leftToSpend.isLessThanOrEqualTo(0)) {
+            return;
+          }
+
+          const levelCost = level.quantity.multipliedBy(level.price);
+
+          let spendAtThisLevel = levelCost.isGreaterThan(leftToSpend) ? leftToSpend : levelCost;
+          if (this.baseHolding.assetId === this.$store.state.currentNetwork.aph_hash) {
+            const maxLots = spendAtThisLevel.dividedBy(level.price).dividedBy(this.currentMarket.minimumSize);
+            leftToSpend = leftToSpend.minus(maxLots.multipliedBy(this.currentMarket.buyFee));
+          }
+
+          spendAtThisLevel = levelCost.isGreaterThan(leftToSpend) ? leftToSpend : levelCost;
+          newQuantity = newQuantity.plus(spendAtThisLevel.dividedBy(level.price));
+          leftToSpend = leftToSpend.minus(spendAtThisLevel);
+        });
+      }
+
+      if (leftToSpend.isGreaterThan(0) && orderPrice) {
+        newQuantity = newQuantity.plus(leftToSpend.dividedBy(orderPrice));
+      }
+
+      newQuantity = newQuantity.multipliedBy(value);
+      newQuantity = newQuantity
+        .multipliedBy(100000000)
+        .decimalPlaces(0, BigNumber.ROUND_DOWN)
+        .dividedBy(100000000.0);
+      return newQuantity.toString();
     },
 
-    percentForSell() {
-      // TODO: fix this
-      console.log('return');
+    percentForSell(value) {
+      if (!this.quoteHolding || !this.quoteHolding.availableBalance
+        || this.quoteHolding.availableBalance.isLessThanOrEqualTo(0)) {
+        // TODO: Fix this translation
+        this.$services.alerts.error(`No balance of ${this.currentMarket.baseCurrency} available to Sell with`);
+        return '';
+      }
+
+      const quoteAssetQuantity = this.quoteHolding.availableBalance;
+
+
+      let orderPrice = null;
+      if (this.orderType !== 'Market' && this.$store.state.orderPrice !== '') {
+        orderPrice = new BigNumber(this.$store.state.orderPrice);
+      }
+
+      const book = this.$store.state.orderBook.bids;
+      let willTakeOffers = false;
+      if (!orderPrice || orderPrice.isLessThanOrEqualTo(book[0].price)) {
+        willTakeOffers = !this.postOnly;
+      }
+
+      let leftToSpend = quoteAssetQuantity;
+      let newQuantity = new BigNumber(0);
+
+      if (willTakeOffers) {
+        book.forEach((level) => {
+          if (orderPrice && level.price.isLessThan(orderPrice)) {
+            return;
+          }
+
+          if (leftToSpend.isLessThanOrEqualTo(0)) {
+            return;
+          }
+
+          const levelCost = level.quantity;
+
+          let spendAtThisLevel = levelCost.isGreaterThan(leftToSpend) ? leftToSpend : levelCost;
+          if (this.quoteHolding.assetId === this.$store.state.currentNetwork.aph_hash) {
+            const maxLots = spendAtThisLevel.dividedBy(this.currentMarket.minimumSize);
+            leftToSpend = leftToSpend.minus(maxLots.multipliedBy(this.currentMarket.sellFee));
+          }
+
+          spendAtThisLevel = levelCost.isGreaterThan(leftToSpend) ? leftToSpend : levelCost;
+          newQuantity = newQuantity.plus(spendAtThisLevel);
+          leftToSpend = leftToSpend.minus(spendAtThisLevel);
+        });
+      }
+
+      if (leftToSpend.isGreaterThan(0) && orderPrice) {
+        newQuantity = newQuantity.plus(leftToSpend);
+      }
+
+      newQuantity = newQuantity.multipliedBy(value);
+      newQuantity = newQuantity
+        .multipliedBy(100000000)
+        .decimalPlaces(0, BigNumber.ROUND_DOWN)
+        .dividedBy(100000000.0);
+      return newQuantity.toString();
     },
 
     setPercent(value) {
