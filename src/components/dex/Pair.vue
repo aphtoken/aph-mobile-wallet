@@ -38,6 +38,11 @@ export default {
   },
 
   computed: {
+    ...mapGetters([
+      'currentMarketName',
+      'tickerData',
+    ]),
+
     baseCurrencies() {
       return _.uniq(_.map(this.$store.state.markets, 'baseCurrency'));
     },
@@ -53,12 +58,9 @@ export default {
     },
 
     close24Hour() {
-      const tradeHistory = this.$store.state.tradeHistory;
-      const marketName = this.$store.state.currentMarket.marketName;
-      return tradeHistory[marketName] &&
-        tradeHistory[marketName].trades &&
-        tradeHistory[marketName].trades.length ?
-        tradeHistory[marketName].trades[0].price : 0;
+      const trades = _.get(this.$store.state, `tradeHistory.${this.currentMarketName}.trades`, []);
+
+      return trades.length ? trades[0].price : 0;
     },
 
     percentChangeAbsolute() {
@@ -76,10 +78,6 @@ export default {
         return { asset: quoteCurrency, price, volume: vol, '24H change': change };
       });
     },
-
-    ...mapGetters([
-      'tickerData',
-    ]),
   },
 
   data() {

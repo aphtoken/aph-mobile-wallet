@@ -49,11 +49,12 @@ export {
   setSendInProgress,
   setShowClaimGasStatus,
   setShowOrderconfirmationModal,
+  setShowPortfolioHeader,
   setShowSendRequestLedgerSignature,
   setSocketOrderCreated,
   setSocketOrderCreationFailed,
-  setSocketOrderMatchFailed,
   setSocketOrderMatched,
+  setSocketOrderMatchFailed,
   setStatsToken,
   setSystemWithdraw,
   setSystemWithdrawMergeState,
@@ -134,6 +135,7 @@ function handleLogout(state) {
   state.recentTransactions = [];
   state.searchTransactions = [];
   state.nep5Balances = {};
+  state.orderHistory = null;
   state.sendInProgress = false;
 }
 
@@ -224,6 +226,7 @@ function setCurrentWallet(state, currentWallet) {
 }
 
 function setCurrentMarket(state, market) {
+  debugger;
   if (state.currentMarket) {
     if (!market || state.currentMarket.marketName !== market.marketName) {
       this.dispatch('unsubscribeFromMarket', {
@@ -348,6 +351,10 @@ function setSearchTransactionToDate(state, toDate) {
 
 function setSearchTransactions(state, transactions) {
   state.searchTransactions = transactions;
+}
+
+function setShowPortfolioHeader(state, value) {
+  state.showPortfolioHeader = value;
 }
 
 function setShowSendRequestLedgerSignature(state, value) {

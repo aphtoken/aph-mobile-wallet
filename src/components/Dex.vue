@@ -25,7 +25,7 @@ import assets from '../services/assets';
 
 export default {
   beforeDestroy() {
-    this.$store.state.showPortfolioHeader = true;
+    this.$store.commit('setShowPortfolioHeader', true);
     clearInterval(this.connectionStatusInterval);
     clearInterval(this.marketsRefreshInterval);
     clearInterval(this.completeSystemAssetWithdrawalsInterval);
@@ -41,10 +41,12 @@ export default {
   },
 
   mounted() {
-    this.$store.state.showPortfolioHeader = false;
+    const services = this.$services;
+    const store = this.$store;
+
+    this.$store.commit('setShowPortfolioHeader', false);
     this.loadMarkets();
     this.loadTickerData();
-
     this.$services.dex.completeSystemAssetWithdrawals();
 
     this.$store.commit('setSocketOrderCreated', (message) => {
@@ -55,9 +57,7 @@ export default {
       // this.$services.neo.resetSystemAssetBalanceCache();
     });
 
-    const services = this.$services;
-    const store = this.$store;
-    store.commit('setSocketOrderMatched', (message) => {
+    this.$store.commit('setSocketOrderMatched', (message) => {
       /* eslint-disable max-len */
       services.alerts.success(`${(message.side === 'bid' ? 'Buy' : 'Sell')} Order Filled. x${message.data.quantity} @${message.data.price}`);
       // If the asset purchased is not a user asset, we must add it as one.
@@ -86,45 +86,40 @@ export default {
       // this.$services.neo.resetSystemAssetBalanceCache();
     });
 
-    store.commit('setSocketOrderCreationFailed', (message) => {
+    this.$store.commit('setSocketOrderCreationFailed', (message) => {
       services.alerts.error(`Failed to Create ${(message.side === 'bid' ? 'Buy' : 'Sell')} Order. ${message.data.errorMessage}`);
       // services.neo.resetSystemAssetBalanceCache();
     });
 
-    store.commit('setSocketOrderMatchFailed', (message) => {
+    this.$store.commit('setSocketOrderMatchFailed', (message) => {
       services.alerts.error(`Failed to Match ${(message.side === 'bid' ? 'Buy' : 'Sell')} x${message.data.quantity}. ${message.data.errorMessage}`);
       // services.neo.resetSystemAssetBalanceCache();
     });
 
-    services.neo.promptGASFractureIfNecessary();
+    this.$services.neo.promptGASFractureIfNecessary();
   },
 
   created() {
     this.setConnected();
+
     this.connectionStatusInterval = setInterval(() => {
       this.setConnected();
     }, 1000);
+
     this.marketsRefreshInterval = setInterval(() => {
       this.loadMarkets();
     }, this.$constants.intervals.MARKETS_POLLING);
+
     this.completeSystemAssetWithdrawalsInterval = setInterval(() => {
       this.$services.dex.completeSystemAssetWithdrawals();
     }, this.$constants.intervals.COMPLETE_SYSTEM_WITHDRAWALS);
+
     this.tickerRefreshInterval = setInterval(() => {
       this.loadTickerData();
     }, this.$constants.intervals.TICKER_POLLING);
   },
 
   computed: {
-    isOutOfDate() {
-      if (!this.$store.state.latestVersion) {
-        return true;
-      }
-      const currentNetworkLatestDexScriptHash = this.$store.state.currentNetwork.net === 'MainNet' ?
-        this.$store.state.latestVersion.prodExchangeScriptHash : this.$store.state.latestVersion.testExchangeScriptHash;
-      return currentNetworkLatestDexScriptHash.replace('0x', '') !== this.$store.state.currentNetwork.dex_hash;
-    },
-
     ...mapGetters([
       'currentMarketName',
     ]),
@@ -153,10 +148,12 @@ export default {
     },
 
     loadMarkets() {
+      const store = this.$store;
+
       this.$store.dispatch('fetchMarkets', {
         done: () => {
-          if (!this.$store.state.currentMarket) {
-            this.$store.commit('setCurrentMarket', this.$store.state.markets[0]);
+          if (!store.state.currentMarket) {
+            store.commit('setCurrentMarket', store.state.markets[0]);
           }
         },
       });
@@ -230,7 +227,7 @@ export default {
       div {
         text-transform: capitalize;
       }
-      
+
       &.router-link-active {
         border-bottom-color: $purple;
 
