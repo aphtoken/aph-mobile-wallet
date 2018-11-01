@@ -76,6 +76,7 @@
 
 <script>
 import { BigNumber } from 'bignumber.js';
+import { mapGetters } from 'vuex';
 import OrderConfirmationModal from '../modals/OrderConfirmationModal';
 
 const ORDER_TYPES_LIST = [
@@ -145,10 +146,6 @@ export default {
     canPlaceMarketOrder() {
       const currentWallet = this.$services.wallets.getCurrentWallet();
       return currentWallet && !currentWallet.isLedger;
-    },
-
-    currentMarket() {
-      return this.$store.state.currentMarket;
     },
 
     estimate() {
@@ -261,6 +258,10 @@ export default {
         return 0;
       }
     },
+
+    ...mapGetters([
+      'currentMarket',
+    ])
   },
 
   created() {
@@ -319,10 +320,10 @@ export default {
     marketPriceForQuantity(side, quantity) {
       let quantityRemaining = new BigNumber(quantity);
       let totalMultiple = new BigNumber(0);
-      let book = this.$store.state.orderBook.asks;
+      let book = this.$store.state.orderBookAsks;
 
       if (side === 'Sell') {
-        book = this.$store.state.orderBook.bids;
+        book = this.$store.state.orderBookBids;
       }
 
       book.forEach((level) => {
@@ -365,7 +366,7 @@ export default {
       const baseAssetQuantity = this.baseHolding.availableBalance;
 
       let newQuantity = new BigNumber(0);
-      const book = this.$store.state.orderBook.asks;
+      const book = this.$store.state.orderBookAsks;
       let orderPrice = null;
       if (this.orderType !== 'Market' && this.$store.state.orderPrice !== '') {
         orderPrice = new BigNumber(this.$store.state.orderPrice);
@@ -430,7 +431,7 @@ export default {
         orderPrice = new BigNumber(this.$store.state.orderPrice);
       }
 
-      const book = this.$store.state.orderBook.bids;
+      const book = this.$store.state.orderBookBids;
       let willTakeOffers = false;
       if (!orderPrice || orderPrice.isLessThanOrEqualTo(book[0].price)) {
         willTakeOffers = !this.postOnly;

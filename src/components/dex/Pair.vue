@@ -51,9 +51,10 @@ export default {
       return this.filteredMarkets().map(({ quoteCurrency, marketName }) => {
         const tradeHistory = this.$store.state.tradeHistory[marketName];
         const hasTradeHistory = tradeHistory && tradeHistory.trades && tradeHistory.trades.length > 0;
+        const close24Hour = this.marketData[marketName].close24Hour || 0;
         const price = {
           price: this.$formatTokenAmount(hasTradeHistory ? tradeHistory.close24Hour : 0),
-          priceConverted: this.$formatMoney(this.marketData[marketName].close24Hour * this.baseCurrencyUnitPrice),
+          priceConverted: this.$formatMoney((hasTradeHistory ? tradeHistory.close24Hour : 0) * this.baseCurrencyUnitPrice),
         };
         const vol = this.$formatNumber(this.tickerData[marketName].quoteVolume);
         const change = this.$formatNumber(this.marketData[marketName].percentChangeAbsolute * this.baseCurrencyUnitPrice);
