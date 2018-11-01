@@ -1,7 +1,7 @@
 <template>
   <section id="dex--pair">
     <div class="body">
-      <market-pair-chart v-bind="{ marketData, tickerData, baseCurrencyUnitPrice }"></market-pair-chart>
+      <market-pair-chart v-bind="{ marketData, baseCurrencyUnitPrice }"></market-pair-chart>
       <base-selector v-model="baseCurrency" v-bind="{ baseCurrencies }"></base-selector>
       <aph-search-bar v-model="searchBy"></aph-search-bar>
       <aph-simple-table v-bind="{ columns, data: tableData, formatEntry, injectCellStyling: getRelativeChange, injectRowStyling, handleRowClick: handleMarketSelection }">

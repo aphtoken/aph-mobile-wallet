@@ -86,8 +86,11 @@ export default {
   computed: {
     filteredData() {
       const sortKey = this.sortKey;
+      console.log('sortKey', sortKey);
       const filterKey = this.filterKey && this.filterKey.toLowerCase();
+      console.log('filterKey', filterKey);
       const order = this.sortOrders[sortKey] || 1;
+      console.log('order', order);
       let data = this.data;
       if (filterKey) {
         data = data.filter((row) => {
