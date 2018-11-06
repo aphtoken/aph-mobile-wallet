@@ -441,16 +441,18 @@ export default {
     .btn-group {
       display: flex;
       flex: none;
-      padding: $space-lg $space;
+      padding: $space;
 
-      > * {
+      > button {
         @extend %btn;
-
-        margin: 0 $space;
 
         &:not(.active) {
           background-color: $dark-purple;
           border-color: $dark-purple;
+        }
+
+        & + button {
+          margin-left: $space;
         }
       }
     }
