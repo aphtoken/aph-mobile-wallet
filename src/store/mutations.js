@@ -192,7 +192,7 @@ function setCommitChangeInProgress(state, value) {
   state.commitChangeInProgress = value;
 }
 
-async function setCommitState(state, commitState) {
+function setCommitState(state, commitState) {
   if (!state.currentWallet || !state.currentNetwork) {
     return;
   }
@@ -226,7 +226,6 @@ function setCurrentWallet(state, currentWallet) {
 }
 
 function setCurrentMarket(state, market) {
-  debugger;
   if (state.currentMarket) {
     if (!market || state.currentMarket.marketName !== market.marketName) {
       this.dispatch('unsubscribeFromMarket', {
@@ -234,6 +233,7 @@ function setCurrentMarket(state, market) {
       });
     }
   }
+
   state.currentMarket = market;
   state.ordersToShow = market.marketName;
 
@@ -264,7 +264,7 @@ function setGasFracture(state, facture) {
   state.gasFracture = facture;
 }
 
-async function setHoldings(state, holdings) {
+function setHoldings(state, holdings) {
   if (!_.isEmpty(holdings)) {
     state.holdings = holdings;
   }

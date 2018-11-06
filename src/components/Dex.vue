@@ -148,15 +148,7 @@ export default {
     },
 
     loadMarkets() {
-      const store = this.$store;
-
-      this.$store.dispatch('fetchMarkets', {
-        done: () => {
-          if (!store.state.currentMarket) {
-            store.commit('setCurrentMarket', store.state.markets[0]);
-          }
-        },
-      });
+      this.$store.dispatch('fetchMarkets');
     },
 
     loadTickerData() {

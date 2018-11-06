@@ -25,13 +25,8 @@ import MarketPairChart from './MarketPairChart';
 import BaseSelector from './BaseSelector';
 
 const TABLE_COLUMNS = ['asset', 'price', 'volume', '24H change'];
-let storeUnwatch;
 
 export default {
-  beforeDestroy() {
-    storeUnwatch();
-  },
-
   components: {
     BaseSelector,
     MarketPairChart,
@@ -70,7 +65,7 @@ export default {
 
     tableData() {
       return this.filteredMarkets().map(({ quoteCurrency, marketName }) => {
-        const tradeHistory = this.$store.state.tradeHistory[marketName];
+        const tradeHistory = _.get(this.$store.state.tradeHistory, marketName, {});
         const hasTradeHistory = tradeHistory && tradeHistory.trades && tradeHistory.trades.length > 0;
         const price = this.$formatTokenAmount(hasTradeHistory ? tradeHistory.close24Hour : 0);
         const vol = this.$formatNumber(hasTradeHistory ? tradeHistory.volume24Hour : 0);
@@ -128,17 +123,12 @@ export default {
     },
   },
 
-  mounted() {
-    this.baseCurrency = _.first(this.baseCurrencies);
-
-    storeUnwatch = this.$store.watch(
-      () => {
-        return this.$store.state.currentMarket;
-      });
-  },
-
   watch: {
-    //
+    currentMarket(newVal, oldVal) {
+      if (newVal && !oldVal) {
+        this.baseCurrency = newVal.baseCurrency;
+      }
+    },
   },
 };
 </script>
