@@ -1,5 +1,5 @@
 <template>
-  <commit-modal-wrapper id="commit--claim-modal">
+  <modal-wrapper id="commit--claim-modal" icon="commit">
     <template v-if="$store.state.commitState.ableToClaimHeight <= this.currentBlock">
       <p>
         {{$t('areYouSureYouWantToClaim')}}
@@ -29,16 +29,16 @@
     <template slot="footer">
       <button class="cancel-btn" @click="onClose">{{ $t('cancel') }}</button>
     </template>
-  </commit-modal-wrapper>
+  </modal-wrapper>
 </template>
 
 <script>
 import { mapGetters } from 'vuex';
-import CommitModalWrapper from './CommitModalWrapper';
+import ModalWrapper from './ModalWrapper';
 
 export default {
   components: {
-    CommitModalWrapper,
+    ModalWrapper,
   },
 
   computed: {

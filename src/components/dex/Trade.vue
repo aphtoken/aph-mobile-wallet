@@ -70,7 +70,7 @@
         <div class="wallet-value">3.21</div>
       </div>
     </div>
-    <order-confirmation-modal v-if="$store.state.showOrderConfirmationModal" :onClose="closeConfirmModal" :onConfirmed="orderConfirmed"></order-confirmation-modal>
+    <order-confirmation-modal v-if="$store.state.showOrderConfirmationModal" :onClose="closeConfirmModal" :onConfirm="orderConfirmed"></order-confirmation-modal>
   </section>
 </template>
 
