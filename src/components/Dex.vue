@@ -8,7 +8,9 @@
         {{ currentTab }} ({{ currentMarketName }})
       </div>
     </div>
-    <router-view></router-view>
+    <div class="body">
+      <router-view></router-view>
+    </div>
     <div class="footer">
       <router-link v-for="tab in tabs" :key="tab" :to="`/authenticated/dex/${tab}`">
         <div @click="setTab">
@@ -211,6 +213,13 @@ export default {
     }
   }
 
+  > .body {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    overflow: auto;
+  }
+
   > .footer {
     background: $dark-purple;
     display: flex;
@@ -230,7 +239,7 @@ export default {
       div {
         text-transform: capitalize;
       }
-      
+
       &.router-link-active {
         border-bottom-color: $purple;
 
