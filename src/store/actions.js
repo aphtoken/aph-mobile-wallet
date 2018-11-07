@@ -215,17 +215,20 @@ function fetchLatestVersion({ commit }) {
     });
 }
 
-async function fetchMarkets({ commit, dispatch }, { done } = { done: () => {} }) {
-  let markets;
+async function fetchMarkets({ commit, dispatch, state }) {
   commit('startRequest', { identifier: 'fetchMarkets' });
 
   try {
-    markets = await dex.fetchMarkets();
+    const markets = await dex.fetchMarkets();
+    commit('endRequest', { identifier: 'fetchMarkets' });
+
     commit('setMarkets', markets);
+    if (!state.currentMarket) {
+      commit('setCurrentMarket', markets[0]);
+    }
+
     // TODO: do we want really want fetching markets to kick this off?
     dispatch('fetchTradeHistory', markets);
-    done();
-    commit('endRequest', { identifier: 'fetchMarkets' });
   } catch (message) {
     alerts.networkException(message);
     commit('failRequest', { identifier: 'fetchMarkets', message });

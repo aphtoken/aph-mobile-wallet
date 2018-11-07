@@ -2,7 +2,7 @@
   <section id="dex--market-pair-chart">
     <div class="header">
       <aph-token-icon class="icon" v-if="$store.state.currentMarket && $store.state.currentMarket.quoteCurrency" :symbol="$store.state.currentMarket.quoteCurrency"></aph-token-icon>
-      <span>{{ currentMarket }}</span>
+      <span>{{ currentMarketName }}</span>
     </div>
     <div class="body">
       <div class="chart">
@@ -43,18 +43,19 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex';
 
 export default {
   computed: {
-    currentMarket() {
-      return this.$store.state.currentMarket ? this.$store.state.currentMarket.marketName : '';
-    },
-
     basePrice() {
-      const tradeHistory = this.$store.state.tradeHistory[this.currentMarket];
-      const hasTradeHistory = tradeHistory && tradeHistory.trades && tradeHistory.trades.length > 0;
+      const tradeHistory = _.get(this.$store.state, `tradeHistory.${this.currentMarketName}`, {});
+      const hasTradeHistory = tradeHistory.trades && tradeHistory.trades.length > 0;
       return this.$formatTokenAmount(hasTradeHistory ? tradeHistory.close24Hour : 0);
     },
+
+    ...mapGetters([
+      'currentMarketName',
+    ]),
   },
 
   props: {

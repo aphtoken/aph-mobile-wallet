@@ -28,6 +28,7 @@ const state = {
   lastReceivedBlock: null,
   lastSuccessfulRequest: null,
   latestVersion: null,
+  markets: [],
   needsWsReconnectHandling: false,
   nep5Balances: {},
   orderBook: null,

@@ -49,11 +49,12 @@ export {
   setSendInProgress,
   setShowClaimGasStatus,
   setShowOrderConfirmationModal,
+  setShowPortfolioHeader,
   setShowSendRequestLedgerSignature,
   setSocketOrderCreated,
   setSocketOrderCreationFailed,
-  setSocketOrderMatchFailed,
   setSocketOrderMatched,
+  setSocketOrderMatchFailed,
   setStatsToken,
   setSystemWithdraw,
   setSystemWithdrawMergeState,
@@ -134,6 +135,7 @@ function handleLogout(state) {
   state.recentTransactions = [];
   state.searchTransactions = [];
   state.nep5Balances = {};
+  state.orderHistory = null;
   state.sendInProgress = false;
 }
 
@@ -190,7 +192,7 @@ function setCommitChangeInProgress(state, value) {
   state.commitChangeInProgress = value;
 }
 
-async function setCommitState(state, commitState) {
+function setCommitState(state, commitState) {
   if (!state.currentWallet || !state.currentNetwork) {
     return;
   }
@@ -231,6 +233,7 @@ function setCurrentMarket(state, market) {
       });
     }
   }
+
   state.currentMarket = market;
   state.ordersToShow = market.marketName;
 
@@ -261,7 +264,7 @@ function setGasFracture(state, facture) {
   state.gasFracture = facture;
 }
 
-async function setHoldings(state, holdings) {
+function setHoldings(state, holdings) {
   if (!_.isEmpty(holdings)) {
     state.holdings = holdings;
   }
@@ -348,6 +351,10 @@ function setSearchTransactionToDate(state, toDate) {
 
 function setSearchTransactions(state, transactions) {
   state.searchTransactions = transactions;
+}
+
+function setShowPortfolioHeader(state, value) {
+  state.showPortfolioHeader = value;
 }
 
 function setShowSendRequestLedgerSignature(state, value) {
