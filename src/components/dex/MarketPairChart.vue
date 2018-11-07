@@ -1,15 +1,10 @@
 <template>
   <section id="dex--market-pair-chart">
     <div class="header">
-      {{ currentMarket }}
+      <aph-token-icon class="icon" v-if="$store.state.currentMarket && $store.state.currentMarket.quoteCurrency" :symbol="$store.state.currentMarket.quoteCurrency"></aph-token-icon>
+      <span>{{ currentMarket }}</span>
     </div>
     <div class="body">
-      <div class="chart-header">
-        <div class="add-button">
-          Heart/Add
-        </div>
-        <aph-token-icon class="icon" v-if="$store.state.currentMarket && $store.state.currentMarket.quoteCurrency" :symbol="$store.state.currentMarket.quoteCurrency"></aph-token-icon>
-      </div>
       <div class="chart">
         <div class="day-values">
           <div class="row">
@@ -102,8 +97,17 @@ export default {
   max-height: toRem(180px); // Can probably remove this once other components are added
 
   > .header {
-    height: $space;
-    padding: $space;
+    align-items: center;
+    display: flex;
+    flex-direction: row;
+
+    > * {
+      flex: none;
+
+      &.aph-token-icon {
+        margin-right: $space;
+      }
+    }
   }
 
   > .body {
@@ -111,14 +115,7 @@ export default {
     flex-direction: column;
     flex: 1;
     justify-content: space-between;
-    padding: 0 $space $space;
-
-    .chart-header {
-      display: flex;
-      flex-direction: row;
-      justify-content: space-between;
-      align-items: center;
-    }
+    margin-top: $space;
 
     .chart {
       display: flex;
