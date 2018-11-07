@@ -79,13 +79,6 @@
 import { BigNumber } from 'bignumber.js';
 import OrderConfirmationModal from '../modals/OrderConfirmationModal';
 
-const ORDER_TYPES_LIST = [
-  {
-    label: 'Limit',
-    value: 'Limit',
-  },
-];
-
 export default {
   components: {
     OrderConfirmationModal,

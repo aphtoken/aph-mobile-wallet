@@ -461,7 +461,7 @@ export default {
       display: flex;
       flex-direction: column;
       flex: 1;
-      padding: $space;
+      padding: 0 $space $space;
 
       #chart-container {
         overflow: hidden;
