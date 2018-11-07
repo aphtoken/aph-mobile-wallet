@@ -34,6 +34,7 @@ export default {
 
   computed: {
     ...mapGetters([
+      'currentMarket',
       'currentMarketName',
       'tickerData',
     ]),
@@ -121,6 +122,12 @@ export default {
 
       return '';
     },
+  },
+
+  mounted() {
+    if (this.currentMarket) {
+      this.baseCurrency = this.currentMarket.baseCurrency;
+    }
   },
 
   watch: {

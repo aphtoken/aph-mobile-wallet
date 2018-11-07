@@ -6,7 +6,7 @@
         {{$t('areYouSureYouWouldLikeToPlace')}}
         <span class="type">{{ $store.state.orderToConfirm.orderType }}</span>
         <span :class="['side', $store.state.orderToConfirm.side]">{{ $store.state.orderToConfirm.side }}</span>
-        <span class="post-only" v-if="$store.state.orderToConfirm.post-only === true">{{$t('post-only')}}</span>
+        <span class="post-only" v-if="$store.state.orderToConfirm.postOnly === true">{{$t('post-only')}}</span>
         order for
         <span class="quantity">{{ $formatNumber($store.state.orderToConfirm.quantity) }}</span>
         <span class="currency">{{ $store.state.orderToConfirm.market.quoteCurrency }}</span>
@@ -43,7 +43,7 @@
       <div v-if="offersToTake.length === 0">
         {{$t('thisWillBeAMakerOrder')}}
       </div>
-      <div class="taking" v-if="offersToTake.length > 0 && $store.state.orderToConfirm.post-only === true">
+      <div class="taking" v-if="offersToTake.length > 0 && $store.state.orderToConfirm.postOnly === true">
         {{$t('thisOrderWouldTakeTheFollowing')}}
         <div>
           <div class="offer" v-for="(offer, index) in offersToTake" :key="index">
@@ -52,7 +52,7 @@
           <br />{{$t('thisMeansThatItIsIneligible')}}
         </div>
       </div>
-      <div class="taking" v-if="offersToTake.length > 0 && $store.state.orderToConfirm.post-only === false">
+      <div class="taking" v-if="offersToTake.length > 0 && $store.state.orderToConfirm.postOnly === false">
         {{$t('youWillBeImmediatelyTaking', { count: offersToTake.length })}}
         <div>
           <div class="offer" v-for="(offer, index) in offersToTake" :key="index">
@@ -90,7 +90,7 @@
         </p>
       </div>
 
-      <div v-if="offersToTake.length > 0 && $store.state.orderToConfirm.quantityToTake < $store.state.orderToConfirm.quantity && $store.state.orderToConfirm.post-only === false">
+      <div v-if="offersToTake.length > 0 && $store.state.orderToConfirm.quantityToTake < $store.state.orderToConfirm.quantity && $store.state.orderToConfirm.postOnly === false">
         <div v-if="offersToTake.length > 0">
           {{$t('youWillBeCreatingTheFollowingMakerOrder')}}
           <div class="offer">
@@ -132,7 +132,7 @@ export default {
 
     shouldDisableConfirmButton() {
       return this.$isPending('placeOrder')
-        || (this.$store.state.orderToConfirm.quantityToTake > 0 && this.$store.state.orderToConfirm.post-only === true);
+        || (this.$store.state.orderToConfirm.quantityToTake > 0 && this.$store.state.orderToConfirm.postOnly === true);
     },
 
     offersToTake() {
