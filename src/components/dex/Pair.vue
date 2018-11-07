@@ -25,19 +25,19 @@ import MarketPairChart from './MarketPairChart';
 import BaseSelector from './BaseSelector';
 
 const TABLE_COLUMNS = ['asset', 'price', 'volume', '24H change'];
-let storeUnwatch;
 
 export default {
-  beforeDestroy() {
-    storeUnwatch();
-  },
-
   components: {
     BaseSelector,
     MarketPairChart,
   },
 
   computed: {
+    ...mapGetters([
+      'currentMarketName',
+      'tickerData',
+    ]),
+
     baseCurrencies() {
       return _.uniq(_.map(this.$store.state.markets, 'baseCurrency'));
     },
@@ -53,12 +53,9 @@ export default {
     },
 
     close24Hour() {
-      const tradeHistory = this.$store.state.tradeHistory;
-      const marketName = this.$store.state.currentMarket.marketName;
-      return tradeHistory[marketName] &&
-        tradeHistory[marketName].trades &&
-        tradeHistory[marketName].trades.length ?
-        tradeHistory[marketName].trades[0].price : 0;
+      const trades = _.get(this.$store.state, `tradeHistory.${this.currentMarketName}.trades`, []);
+
+      return trades.length ? trades[0].price : 0;
     },
 
     percentChangeAbsolute() {
@@ -68,7 +65,7 @@ export default {
 
     tableData() {
       return this.filteredMarkets().map(({ quoteCurrency, marketName }) => {
-        const tradeHistory = this.$store.state.tradeHistory[marketName];
+        const tradeHistory = _.get(this.$store.state.tradeHistory, marketName, {});
         const hasTradeHistory = tradeHistory && tradeHistory.trades && tradeHistory.trades.length > 0;
         const price = this.$formatTokenAmount(hasTradeHistory ? tradeHistory.close24Hour : 0);
         const vol = this.$formatNumber(hasTradeHistory ? tradeHistory.volume24Hour : 0);
@@ -76,10 +73,6 @@ export default {
         return { asset: quoteCurrency, price, volume: vol, '24H change': change };
       });
     },
-
-    ...mapGetters([
-      'tickerData',
-    ]),
   },
 
   data() {
@@ -130,17 +123,12 @@ export default {
     },
   },
 
-  mounted() {
-    this.baseCurrency = _.first(this.baseCurrencies);
-
-    storeUnwatch = this.$store.watch(
-      () => {
-        return this.$store.state.currentMarket;
-      });
-  },
-
   watch: {
-    //
+    currentMarket(newVal, oldVal) {
+      if (newVal && !oldVal) {
+        this.baseCurrency = newVal.baseCurrency;
+      }
+    },
   },
 };
 </script>

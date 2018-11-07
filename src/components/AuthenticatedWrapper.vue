@@ -47,6 +47,11 @@
 </template>
 
 <script>
+import Vue from 'vue';
+import VueNativeSock from 'vue-native-websocket';
+import { mapGetters } from 'vuex';
+import { store } from '@/store';
+
 import BackupWallet from './BackupWallet';
 import ClaimGasStatus from './ClaimGasStatus';
 
@@ -67,6 +72,11 @@ export default {
   beforeDestroy() {
     clearInterval(loadHoldingsIntervalId);
     clearInterval(loadRecentTxIntervalId);
+    this.$disconnect(); // Disconnect websocket
+  },
+
+  beforeMount() {
+    this.connectWebsocket();
   },
 
   components: {
@@ -82,6 +92,10 @@ export default {
     shouldShowDexLink() {
       return this.$store.state.currentNetwork.net !== 'MainNet';
     },
+
+    ...mapGetters([
+      'websocketUri',
+    ]),
   },
 
   data() {
@@ -91,6 +105,25 @@ export default {
   },
 
   methods: {
+    connectWebsocket() {
+      const index = Vue._installedPlugins.indexOf(VueNativeSock);
+      // Remove the Websocket plugin if it is already installed, so we can re-init and change the uri.
+      if (index > -1) {
+        this.$disconnect();
+        Vue._installedPlugins.splice(index, 1);
+      }
+
+      Vue.use(VueNativeSock, this.websocketUri, {
+        connectManually: true,
+        format: 'json',
+        reconnection: true,
+        reconnectionDelay: 3000,
+        store,
+      });
+
+      this.$connect();
+    },
+
     goBack() {
       this.$router.back();
     },
@@ -124,6 +157,14 @@ export default {
     loadRecentTxIntervalId = setInterval(() => {
       this.loadRecentTransactions();
     }, this.$constants.intervals.TRANSACTIONS_POLLING);
+  },
+
+  watch: {
+    websocketUri(newVal, oldVal) {
+      if (newVal !== oldVal) {
+        this.connectWebsocket();
+      }
+    },
   },
 };
 </script>
