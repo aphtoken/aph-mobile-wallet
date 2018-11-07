@@ -257,7 +257,7 @@ export default {
 
   methods: {
     closeConfirmModal() {
-      this.$store.commit('setShowOrderconfirmationModal', false);
+      this.$store.commit('setShowOrderConfirmationModal', false);
     },
 
     confirmOrder() {
