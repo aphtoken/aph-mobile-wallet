@@ -96,12 +96,12 @@ export default {
 
 <style lang="scss">
 #dex--market-pair-chart {
+  @extend %tile-dark;
+
   display: flex;
-  flex: 1;
+  flex: none;
   flex-direction: column;
-  background: $dark-purple;
-  margin: $space;
-  max-height: toRem(180px); // Can probably remove this once other components are added
+  padding: $space;
 
   > .header {
     align-items: center;
