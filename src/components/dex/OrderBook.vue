@@ -67,10 +67,9 @@ export default {
 
 <style lang="scss">
 #dex--order-book {
-  background: $dark-purple*1.25;
   display: flex;
   flex: 1;
-  
+
   .book {
     background-color: $dark-purple;
     display: flex;
@@ -130,7 +129,7 @@ export default {
                 &.red {
                   background-color: $red;
                 }
-                
+
                 &.size-total {
                   &.green {
                     opacity: 0.2;

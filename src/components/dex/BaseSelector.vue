@@ -23,10 +23,13 @@ export default {
 
 <style lang="scss">
 #dex--base-selector {
+  @extend %tile-dark;
+
   align-items: center;
   display: flex;
   flex-direction: row;
-  margin: 0 $space;
+  margin-top: $space;
+  padding: $space;
 
   > .currency {
     @extend %btn-outline;

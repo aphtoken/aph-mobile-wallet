@@ -36,7 +36,7 @@ export default {
   display: flex;
   flex-direction: row;
   flex: none;
-  margin: $space $space 0;
+  // margin: $space $space 0;
   overflow: scroll;
   white-space: nowrap;
 
