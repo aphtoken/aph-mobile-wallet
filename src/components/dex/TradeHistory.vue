@@ -42,7 +42,6 @@ export default {
 
 <style lang="scss">
 #dex--trade-history {
-  background: $dark-purple*1.25;
   display: flex;
   flex: 1;
 
@@ -51,7 +50,6 @@ export default {
     display: flex;
     flex-direction: column;
     flex: 1;
-    margin: $space;
     overflow: auto;
 
     .table-header {

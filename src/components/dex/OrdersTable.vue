@@ -212,7 +212,6 @@ export default {
     flex-direction: row;
     flex: none;
     justify-content: space-between;
-    margin: 0 $space;
 
     > div {
       flex: 1;
