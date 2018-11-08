@@ -398,7 +398,6 @@ function setStatsToken(state, token) {
 }
 
 function setTickerDataByMarket(state, tickerDataByMarket) {
-  debugger;
   state.tickerDataByMarket = tickerDataByMarket;
 }
 
