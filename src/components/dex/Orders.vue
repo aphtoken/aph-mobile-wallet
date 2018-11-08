@@ -60,7 +60,6 @@ export default {
     display: flex;
     flex-direction: column;
     flex: 1;
-    margin: 0 $space $space;
   }
 }
 </style>

@@ -203,11 +203,12 @@ export default {
   }
 
   > .body {
-    background: $dark-purple;
+    background: lighten($dark-purple, 3%);
     display: flex;
     flex-direction: column;
     flex: 1;
     overflow: auto;
+    padding: $space;
   }
 
   > .footer {

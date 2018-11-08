@@ -156,6 +156,7 @@ export default {
 
     .aph-search-bar {
       margin-top: $space;
+      padding: 0;
 
       .search-bar-wrapper {
         background: $dark-purple;
@@ -167,8 +168,9 @@ export default {
     }
 
     .aph-simple-table {
-      background: $dark-purple;
-      margin: $space;
+      @extend %tile-dark;
+
+      padding: $space;
 
       .cell-price {
         display: flex;

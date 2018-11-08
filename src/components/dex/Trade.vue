@@ -398,7 +398,8 @@ export default {
 
 <style lang="scss">
 #dex--trade {
-  background: $dark-purple;
+  @extend %tile-dark;
+
   display: flex;
   flex-direction: column;
   flex: 1;

@@ -440,7 +440,6 @@ export default {
     .btn-group {
       display: flex;
       flex: none;
-      padding: $space;
 
       > button {
         @extend %btn;
@@ -457,10 +456,12 @@ export default {
     }
 
     .chart {
+      @extend %tile-dark;
+
       display: flex;
       flex-direction: column;
       flex: 1;
-      padding: 0 $space $space;
+      margin-top: $space;
 
       #chart-container {
         overflow: hidden;
