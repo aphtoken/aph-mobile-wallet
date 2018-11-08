@@ -9,7 +9,7 @@
           <aph-icon name="dashboard"></aph-icon>
           <p>{{ $t('Dashboard') }}</p>
         </router-link>
-        <router-link v-if="shouldShowDexLink" to="/authenticated/dex">
+        <router-link to="/authenticated/dex">
           <aph-icon name="dex"></aph-icon>
           <p>{{ $t('tradeDEX') }}</p>
         </router-link>
@@ -87,10 +87,6 @@ export default {
   computed: {
     shouldShowBackButton() {
       return _.includes(ROUTES_USING_BACK_BUTTON, this.$route.name);
-    },
-
-    shouldShowDexLink() {
-      return this.$store.state.currentNetwork.net !== 'MainNet';
     },
 
     ...mapGetters([

@@ -123,7 +123,7 @@ export default {
         marketData[ticker] = {
           close24Hour,
           change24Hour,
-          percentChangeAbsolute: this.getPercentChangeAbsolute(change24Hour, market.open24hr),
+          percentChangeAbsolute: market.open24hr > 0 ? this.getPercentChangeAbsolute(change24Hour, market.open24hr) : 0,
         };
         return marketData;
       }, {});
@@ -158,14 +158,15 @@ export default {
   mounted() {
     if (this.currentMarket) {
       this.baseCurrency = this.currentMarket.baseCurrency;
+      this.setMarketData();
     }
-    this.setMarketData();
   },
 
   watch: {
     currentMarket(newVal, oldVal) {
       if (newVal && !oldVal) {
         this.baseCurrency = newVal.baseCurrency;
+        this.setMarketData();
       }
     },
   },

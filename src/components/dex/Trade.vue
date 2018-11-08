@@ -360,7 +360,7 @@ export default {
       if (!this.baseHolding || !this.baseHolding.availableBalance
         || this.baseHolding.availableBalance.isLessThanOrEqualTo(0)) {
         // TODO: Translate this
-        this.$services.alerts.error(`No balance of ${this.currentMarket.baseCurrency} available to Buy with`);
+        this.$services.alerts.error(`Not enough ${this.currentMarket.baseCurrency} available to perform buy.`);
         return '';
       }
 
@@ -420,7 +420,7 @@ export default {
       if (!this.quoteHolding || !this.quoteHolding.availableBalance
         || this.quoteHolding.availableBalance.isLessThanOrEqualTo(0)) {
         // TODO: Fix this translation
-        this.$services.alerts.error(`No balance of ${this.currentMarket.baseCurrency} available to Sell with`);
+        this.$services.alerts.error(`Not enough ${this.currentMarket.baseCurrency} available to perform sell.`);
         return '';
       }
 

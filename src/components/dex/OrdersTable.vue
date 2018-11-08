@@ -91,7 +91,7 @@ export default {
     },
 
     baseCurrencyUnitPrice() {
-      return this.$store.state.currentMarket && this.$store.state.holdings.length ?
+      return this.$store.state.currentMarket && this.$store.state.holdings && this.$store.state.holdings.length ?
         this.$services.neo.getHolding(this.$store.state.currentMarket.baseAssetId).unitValue : 0;
     },
 
