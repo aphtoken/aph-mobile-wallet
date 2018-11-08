@@ -1,5 +1,5 @@
 <template>
-  <commit-modal-wrapper id="commit--commit-modal">
+  <modal-wrapper id="commit--commit-modal" icon="commit">
     <div class="title">{{ $t('Commit') }}</div>
     <div class="help-text">{{ $t('howMuchWouldYouLikeToCommit') }}</div>
     <aph-input type="number" :light="true" v-model="amount"></aph-input>
@@ -8,16 +8,16 @@
     <template slot="footer">
       <button class="cancel-btn" @click="onClose">{{ $t('cancel') }}</button>
     </template>
-  </commit-modal-wrapper>
+  </modal-wrapper>
 </template>
 
 <script>
 import { BigNumber } from 'bignumber.js';
-import CommitModalWrapper from './CommitModalWrapper';
+import ModalWrapper from './ModalWrapper';
 
 export default {
   components: {
-    CommitModalWrapper,
+    ModalWrapper,
   },
 
   computed: {

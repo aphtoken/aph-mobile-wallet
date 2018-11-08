@@ -1,5 +1,5 @@
 <template>
-  <commit-modal-wrapper id="commit--info-modal">
+  <modal-wrapper id="commit--info-modal" icon="commit">
     <p>{{$t('commitInfoBody1')}}</p>
     <p>{{$t('commitInfoBody2', { minClaimBlocks: $store.state.commitState.minimumClaimBlocks})}}</p>
     <p>{{$t('commitInfoBody3')}}</p>
@@ -7,15 +7,15 @@
     <template slot="footer">
       <button class="close-btn" @click="onClose">{{ $t('close') }}</button>
     </template>
-  </commit-modal-wrapper>
+  </modal-wrapper>
 </template>
 
 <script>
-import CommitModalWrapper from './CommitModalWrapper';
+import ModalWrapper from './ModalWrapper';
 
 export default {
   components: {
-    CommitModalWrapper,
+    ModalWrapper,
   },
 
   props: {
