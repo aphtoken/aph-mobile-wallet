@@ -293,7 +293,7 @@ export default {
     },
 
     depositWithdrawConfirmed(transactionType, holding, amount) {
-      const message = `${amount} ${holding.symbol} ${action} Completed.`;
+      const message = `${amount} ${holding.symbol} ${transactionType} Completed.`;
       const services = this.$services;
       services.dex[`${transactionType}Asset`](holding.assetId, Number(amount))
         .then(() => {

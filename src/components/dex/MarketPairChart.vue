@@ -84,7 +84,7 @@ export default {
     quoteVolume() {
       return _.get(this.currentTickerData, 'quoteVolume', 0);
     },
-    
+
     ...mapGetters([
       'tickerData',
       'currentMarketName',
