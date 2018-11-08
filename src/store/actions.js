@@ -18,6 +18,7 @@ export {
   fetchOrderHistory,
   fetchRecentTransactions,
   fetchSystemAssetBalances,
+  fetchTickerData,
   fetchTradeHistory,
   findTransactions,
   formOrder,
@@ -271,6 +272,19 @@ async function fetchRecentTransactions({ commit }) {
   } catch (message) {
     alerts.exception(message);
     commit('failRequest', { identifier: 'fetchRecentTransactions', message });
+  }
+}
+
+async function fetchTickerData({ commit }) {
+  commit('startRequest', { identifier: 'fetchTickerData' });
+
+  try {
+    const tickerData = await dex.fetchTickerData();
+    commit('endRequest', { identifier: 'fetchTickerData' });
+    commit('setTickerDataByMarket', tickerData);
+  } catch (message) {
+    console.log(message);
+    commit('failRequest', { identifier: 'fetchTickerData', message });
   }
 }
 

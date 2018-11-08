@@ -101,11 +101,11 @@ export default {
         flex-direction: column;
         flex: 1;
         margin-top: $space;
+        justify-content: flex-start;
 
         .row {
           display: flex;
           flex-direction: row;
-          flex: 1;
           justify-content: space-between;
 
           .cell {

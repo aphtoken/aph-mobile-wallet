@@ -9,19 +9,19 @@
         <div class="day-values">
           <div class="row">
             <div class="label">VOL.</div>
-            <div class="value">{{ tickerData.quoteVolume }}</div>
+            <div class="value">{{ quoteVolume }}</div>
           </div>
           <div class="row">
             <div class="label">OPEN</div>
-            <div class="value">{{ $formatNumber(tickerData.open24hr) }}</div>
+            <div class="value">{{ open24hr }}</div>
           </div>
           <div class="row">
             <div class="label">HIGH</div>
-            <div class="value">{{ $formatNumber(tickerData.high24hr) }}</div>
+            <div class="value">{{ high24hr }}</div>
           </div>
           <div class="row">
             <div class="label">LOW</div>
-            <div class="value">{{ $formatNumber(tickerData.low24hr) }}</div>
+            <div class="value">{{ low24hr }}</div>
           </div>
         </div>
         <div class="token-details">
@@ -33,8 +33,8 @@
           </div>
           <div class="label">24H CHANGE ({{ $store.state.currentMarket ? $store.state.currentMarket.quoteCurrency : '' }})</div>
           <div :class="['change', {decrease: change24Hour < 0, increase: change24Hour > 0 }]">
-            {{ $formatNumber(change24Hour) }}
-            ({{ $formatNumber(percentChangeAbsolute) }}%)
+            {{ change24Hour }}
+            ({{ percentChangeAbsolute }}%)
           </div>
         </div>
       </div>
@@ -47,14 +47,48 @@ import { mapGetters } from 'vuex';
 
 export default {
   computed: {
+    currentTickerData() {
+      return _.get(this.tickerDataByMarket, this.currentMarketName, {});
+    },
+
     basePrice() {
       const tradeHistory = _.get(this.$store.state, `tradeHistory.${this.currentMarketName}`, {});
       const hasTradeHistory = tradeHistory.trades && tradeHistory.trades.length > 0;
       return this.$formatTokenAmount(hasTradeHistory ? tradeHistory.close24Hour : 0);
     },
 
+    change24Hour() {
+      return this.$formatNumber(_.get(this.currentTickerData, 'change24Hour', 0));
+    },
+
+    close24Hour() {
+      return _.get(this.currentTickerData, 'close24Hour', 0);
+    },
+
+    high24hr() {
+      return this.$formatMoney(_.get(this.currentTickerData, 'high24hr', 0));
+    },
+
+    low24hr() {
+      return this.$formatMoney(_.get(this.currentTickerData, 'low24hr', 0));
+    },
+
+    open24hr() {
+      return this.$formatMoney(_.get(this.currentTickerData, 'open24hr', 0));
+    },
+
+    percentChangeAbsolute() {
+      return this.$formatNumber(_.get(this.currentTickerData, 'percentChangeAbsolute', 0));
+    },
+
+    quoteVolume() {
+      return _.get(this.currentTickerData, 'quoteVolume', 0);
+    },
+
     ...mapGetters([
+      'tickerData',
       'currentMarketName',
+      'tickerDataByMarket',
     ]),
   },
 
@@ -64,22 +98,7 @@ export default {
       type: Number,
     },
 
-    change24Hour: {
-      default: 0,
-      type: Object,
-    },
-
-    close24Hour: {
-      default: 0,
-      type: Number,
-    },
-
-    percentChangeAbsolute: {
-      default: '',
-      type: Number,
-    },
-
-    tickerData: {
+    marketData: {
       default: {},
       type: Object,
     },

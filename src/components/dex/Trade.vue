@@ -53,21 +53,21 @@
       </div>
     </div>
     <div class="footer">
-      <div @click="actionableHolding = quoteHolding" :class="['balance', {active: quoteHolding.symbol === actionableHolding.symbol}]" :title="quoteBalanceToolTip">
+      <div @click="showDepositWithdrawModal(quoteHolding)" :class="['balance', {active: quoteHolding.symbol === actionableHolding.symbol}]" :title="quoteBalanceToolTip">
         <div class="label">{{ quoteHolding.symbol }} Balance</div>
         <div class="contract">CONTRACT</div>
         <div class="contract-value">{{ $formatNumber(quoteHolding.totalBalance) }}</div>
         <div class="wallet">WALLET</div>
         <div class="wallet-value">32,431</div>
       </div>
-      <div @click="actionableHolding = baseHolding" :class="['balance', {active: baseHolding.symbol === actionableHolding.symbol}]" :title="baseBalanceToolTip">
+      <div @click="showDepositWithdrawModal(baseHolding)" :class="['balance', {active: baseHolding.symbol === actionableHolding.symbol}]" :title="baseBalanceToolTip">
         <div class="label">{{ baseHolding.symbol }} Balance</div>
         <div class="contract">CONTRACT</div>
         <div class="contract-value">{{ $formatNumber(baseHolding.totalBalance) }}</div>
         <div class="wallet">WALLET</div>
         <div class="wallet-value">1.21</div>
       </div>
-      <div @click="actionableHolding = aphHolding" :class="['balance', {active: aphHolding.symbol === actionableHolding.symbol}]" :title="aphBalanceToolTip" v-if="baseHolding.symbol !== 'APH' && quoteHolding.symbol !== 'APH'">
+      <div @click="showDepositWithdrawModal(aphHolding)" :class="['balance', {active: aphHolding.symbol === actionableHolding.symbol}]" :title="aphBalanceToolTip" v-if="baseHolding.symbol !== 'APH' && quoteHolding.symbol !== 'APH'">
         <div class="label">APH Balance</div>
         <div class="contract">CONTRACT</div>
         <div class="contract-value">{{ $formatNumber(aphHolding.totalBalance) }}</div>
@@ -75,16 +75,20 @@
         <div class="wallet-value">3.21</div>
       </div>
     </div>
-    <order-confirmation-modal v-if="$store.state.showOrderConfirmationModal" :onClose="closeConfirmModal" :onConfirm="orderConfirmed"></order-confirmation-modal>
+    <order-confirmation-modal v-if="$store.state.showOrderConfirmationModal" :onClose="closeConfirmModal" :onConfirmed="orderConfirmed" />
+    <deposit-withdraw-modal v-if="$store.state.depositWithdrawModalModel" :onConfirmed="depositWithdrawConfirmed" :onCancel="hideDepositWithdrawModal" />
   </section>
 </template>
 
 <script>
 import { BigNumber } from 'bignumber.js';
+import { mapGetters } from 'vuex';
 import OrderConfirmationModal from '../modals/OrderConfirmationModal';
+import DepositWithdrawModal from '../modals/DepositWithdrawModal';
 
 export default {
   components: {
+    DepositWithdrawModal,
     OrderConfirmationModal,
   },
 
@@ -143,10 +147,6 @@ export default {
     canPlaceMarketOrder() {
       const currentWallet = this.$services.wallets.getCurrentWallet();
       return currentWallet && !currentWallet.isLedger;
-    },
-
-    currentMarket() {
-      return this.$store.state.currentMarket;
     },
 
     estimate() {
@@ -241,6 +241,10 @@ export default {
         return 0;
       }
     },
+
+    ...mapGetters([
+      'currentMarket',
+    ]),
   },
 
   created() {
@@ -285,10 +289,25 @@ export default {
           price: this.$store.state.orderPrice !== '' ? new BigNumber(this.$store.state.orderPrice) : null,
           postOnly: this.postOnly,
         },
-        // done: () => {
-        //   this.orderConfirmed();
-        // },
       });
+    },
+
+    depositWithdrawConfirmed(transactionType, holding, amount) {
+      const message = `${amount} ${holding.symbol} ${transactionType} Completed.`;
+      const services = this.$services;
+      services.dex[`${transactionType}Asset`](holding.assetId, Number(amount))
+        .then(() => {
+          services.alerts.success(message);
+        })
+        .catch((e) => {
+          services.alerts.exception(e);
+        });
+
+      this.hideDepositWithdrawModal();
+    },
+
+    hideDepositWithdrawModal() {
+      this.$store.commit('setDepositWithdrawModalModel', null);
     },
 
     loadHoldings() {
@@ -302,10 +321,10 @@ export default {
     marketPriceForQuantity(side, quantity) {
       let quantityRemaining = new BigNumber(quantity);
       let totalMultiple = new BigNumber(0);
-      let book = this.$store.state.orderBook.asks;
+      let book = this.$store.state.orderBookAsks;
 
       if (side === 'Sell') {
-        book = this.$store.state.orderBook.bids;
+        book = this.$store.state.orderBookBids;
       }
 
       book.forEach((level) => {
@@ -337,14 +356,125 @@ export default {
       return this.side === 'Buy' ? this.percentForBuy(value) : this.percentForSell(value);
     },
 
-    percentForBuy() {
-      // TODO: fix this
-      console.log('return');
+    percentForBuy(value) {
+      if (!this.baseHolding || !this.baseHolding.availableBalance
+        || this.baseHolding.availableBalance.isLessThanOrEqualTo(0)) {
+        // TODO: Translate this
+        this.$services.alerts.error(`Not enough ${this.currentMarket.baseCurrency} available to perform buy.`);
+        return '';
+      }
+
+      const baseAssetQuantity = this.baseHolding.availableBalance;
+
+      let newQuantity = new BigNumber(0);
+      const book = this.$store.state.orderBookAsks;
+      let orderPrice = null;
+      if (this.orderType !== 'Market' && this.$store.state.orderPrice !== '') {
+        orderPrice = new BigNumber(this.$store.state.orderPrice);
+      }
+
+      let willTakeOffers = false;
+      if (!orderPrice || orderPrice.isGreaterThanOrEqualTo(book[0].price)) {
+        willTakeOffers = !this.postOnly;
+      }
+
+      let leftToSpend = baseAssetQuantity;
+
+      if (willTakeOffers) {
+        book.forEach((level) => {
+          if (orderPrice && level.price.isGreaterThan(orderPrice)) {
+            return;
+          }
+
+          if (leftToSpend.isLessThanOrEqualTo(0)) {
+            return;
+          }
+
+          const levelCost = level.quantity.multipliedBy(level.price);
+
+          let spendAtThisLevel = levelCost.isGreaterThan(leftToSpend) ? leftToSpend : levelCost;
+          if (this.baseHolding.assetId === this.$store.state.currentNetwork.aph_hash) {
+            const maxLots = spendAtThisLevel.dividedBy(level.price).dividedBy(this.currentMarket.minimumSize);
+            leftToSpend = leftToSpend.minus(maxLots.multipliedBy(this.currentMarket.buyFee));
+          }
+
+          spendAtThisLevel = levelCost.isGreaterThan(leftToSpend) ? leftToSpend : levelCost;
+          newQuantity = newQuantity.plus(spendAtThisLevel.dividedBy(level.price));
+          leftToSpend = leftToSpend.minus(spendAtThisLevel);
+        });
+      }
+
+      if (leftToSpend.isGreaterThan(0) && orderPrice) {
+        newQuantity = newQuantity.plus(leftToSpend.dividedBy(orderPrice));
+      }
+
+      newQuantity = newQuantity.multipliedBy(value);
+      newQuantity = newQuantity
+        .multipliedBy(100000000)
+        .decimalPlaces(0, BigNumber.ROUND_DOWN)
+        .dividedBy(100000000.0);
+      return newQuantity.toString();
     },
 
-    percentForSell() {
-      // TODO: fix this
-      console.log('return');
+    percentForSell(value) {
+      if (!this.quoteHolding || !this.quoteHolding.availableBalance
+        || this.quoteHolding.availableBalance.isLessThanOrEqualTo(0)) {
+        // TODO: Fix this translation
+        this.$services.alerts.error(`Not enough ${this.currentMarket.baseCurrency} available to perform sell.`);
+        return '';
+      }
+
+      const quoteAssetQuantity = this.quoteHolding.availableBalance;
+
+
+      let orderPrice = null;
+      if (this.orderType !== 'Market' && this.$store.state.orderPrice !== '') {
+        orderPrice = new BigNumber(this.$store.state.orderPrice);
+      }
+
+      const book = this.$store.state.orderBookBids;
+      let willTakeOffers = false;
+      if (!orderPrice || orderPrice.isLessThanOrEqualTo(book[0].price)) {
+        willTakeOffers = !this.postOnly;
+      }
+
+      let leftToSpend = quoteAssetQuantity;
+      let newQuantity = new BigNumber(0);
+
+      if (willTakeOffers) {
+        book.forEach((level) => {
+          if (orderPrice && level.price.isLessThan(orderPrice)) {
+            return;
+          }
+
+          if (leftToSpend.isLessThanOrEqualTo(0)) {
+            return;
+          }
+
+          const levelCost = level.quantity;
+
+          let spendAtThisLevel = levelCost.isGreaterThan(leftToSpend) ? leftToSpend : levelCost;
+          if (this.quoteHolding.assetId === this.$store.state.currentNetwork.aph_hash) {
+            const maxLots = spendAtThisLevel.dividedBy(this.currentMarket.minimumSize);
+            leftToSpend = leftToSpend.minus(maxLots.multipliedBy(this.currentMarket.sellFee));
+          }
+
+          spendAtThisLevel = levelCost.isGreaterThan(leftToSpend) ? leftToSpend : levelCost;
+          newQuantity = newQuantity.plus(spendAtThisLevel);
+          leftToSpend = leftToSpend.minus(spendAtThisLevel);
+        });
+      }
+
+      if (leftToSpend.isGreaterThan(0) && orderPrice) {
+        newQuantity = newQuantity.plus(leftToSpend);
+      }
+
+      newQuantity = newQuantity.multipliedBy(value);
+      newQuantity = newQuantity
+        .multipliedBy(100000000)
+        .decimalPlaces(0, BigNumber.ROUND_DOWN)
+        .dividedBy(100000000.0);
+      return newQuantity.toString();
     },
 
     setOrderType(orderType) {
@@ -363,6 +493,13 @@ export default {
     setSide(side) {
       this.side = side;
       this.$store.commit('setOrderQuantity', '');
+    },
+
+    showDepositWithdrawModal(holdingAsset) {
+      this.$store.commit('setDepositWithdrawModalModel', {
+        // NOTE: if whitelisted, adjust assetId to test a new asset that has been whitelisted but market not yet added.
+        holdingAssetId: holdingAsset.assetId,
+      });
     },
 
     // TODO: move this code into a codebase that's shared between mobile and desktop

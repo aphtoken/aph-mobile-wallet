@@ -90,6 +90,11 @@ export default {
       }).baseCurrency;
     },
 
+    baseCurrencyUnitPrice() {
+      return this.$store.state.currentMarket && this.$store.state.holdings && this.$store.state.holdings.length ?
+        this.$services.neo.getHolding(this.$store.state.currentMarket.baseAssetId).unitValue : 0;
+    },
+
     completedOrders() {
       return _.filter(this.allOrders, (order) => {
         return order.status !== 'Open' && order.status !== 'PartiallyFilled';
@@ -157,8 +162,7 @@ export default {
             amount: tableEntry.quantity,
             base: this.baseCurrency,
             price: tableEntry.price,
-            // TODO: Fix this. Supposed to be converted to USD.
-            cost: '$.25',
+            cost: this.$formatNumber(tableEntry.price * this.baseCurrencyUnitPrice),
             // These last two are needed here for order cancellation.
             offerId: tableEntry.offerId,
             marketName: tableEntry.marketName,

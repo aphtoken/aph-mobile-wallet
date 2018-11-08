@@ -1,16 +1,16 @@
 <template>
   <section id="dex--pair">
     <div class="body">
-      <market-pair-chart v-bind="{ percentChangeAbsolute, tickerData, change24Hour, close24Hour, baseCurrencyUnitPrice }"></market-pair-chart>
+      <market-pair-chart v-bind="{ marketData, baseCurrencyUnitPrice }"></market-pair-chart>
       <base-selector v-model="baseCurrency" v-bind="{ baseCurrencies }"></base-selector>
       <aph-search-bar v-model="searchBy"></aph-search-bar>
       <aph-simple-table v-bind="{ columns, data: tableData, formatEntry, injectCellStyling: getRelativeChange, injectRowStyling, handleRowClick: handleMarketSelection }">
         <div class="cell-price" slot="price" slot-scope="slotProps">
           <div>
-            {{ slotProps.value }}
+            {{ slotProps.value.price }}
           </div>
           <div class="price-conversion">
-            {{ $formatMoney(close24Hour * baseCurrencyUnitPrice) }}
+            {{ slotProps.value.priceConverted }}
           </div>
         </div>
       </aph-simple-table>
@@ -36,7 +36,7 @@ export default {
     ...mapGetters([
       'currentMarket',
       'currentMarketName',
-      'tickerData',
+      'tickerDataByMarket',
     ]),
 
     baseCurrencies() {
@@ -48,30 +48,29 @@ export default {
         this.$services.neo.getHolding(this.$store.state.currentMarket.baseAssetId).unitValue : 0;
     },
 
-    change24Hour() {
-      return new BigNumber(String(this.close24Hour))
-        .minus(new BigNumber(String(this.tickerData.open24hr)));
-    },
-
-    close24Hour() {
-      const trades = _.get(this.$store.state, `tradeHistory.${this.currentMarketName}.trades`, []);
-
-      return trades.length ? trades[0].price : 0;
+    currentTickerData() {
+      return _.get(this.tickerDataByMarket, this.currentMarketName, {});
     },
 
     percentChangeAbsolute() {
-      return Math.round(((this.change24Hour)
-        / this.tickerData.open24hr) * 10000) / 100;
+      return this.$formatNumber(
+        _.get(this.currentTickerData, 'percentChangeAbsolute', 0) * this.baseCurrencyUnitPrice,
+      );
+    },
+
+    quoteVolume() {
+      return this.$formatNumber(_.get(this.currentTickerData, 'quoteVolume', 0));
     },
 
     tableData() {
       return this.filteredMarkets().map(({ quoteCurrency, marketName }) => {
         const tradeHistory = _.get(this.$store.state.tradeHistory, marketName, {});
         const hasTradeHistory = tradeHistory && tradeHistory.trades && tradeHistory.trades.length > 0;
-        const price = this.$formatTokenAmount(hasTradeHistory ? tradeHistory.close24Hour : 0);
-        const vol = this.$formatNumber(hasTradeHistory ? tradeHistory.volume24Hour : 0);
-        const change = this.$formatNumber(this.percentChangeAbsolute);
-        return { asset: quoteCurrency, price, volume: vol, '24H change': change };
+        const price = {
+          price: this.$formatTokenAmount(hasTradeHistory ? tradeHistory.close24Hour : 0),
+          priceConverted: this.$formatMoney((hasTradeHistory ? tradeHistory.close24Hour : 0) * this.baseCurrencyUnitPrice),
+        };
+        return { asset: quoteCurrency, price, volume: this.quoteVolume, '24H change': this.percentChangeAbsolute };
       });
     },
   },
@@ -80,11 +79,25 @@ export default {
     return {
       baseCurrency: '',
       columns: TABLE_COLUMNS,
+      marketData: {},
       searchBy: '',
     };
   },
 
   methods: {
+    getChange24Hour(close24Hour, open24hr) {
+      return new BigNumber(String(close24Hour))
+        .minus(new BigNumber(String(open24hr)));
+    },
+
+    getClose24Hour(marketName) {
+      const tradeHistory = this.$store.state.tradeHistory;
+      return tradeHistory[marketName] &&
+        tradeHistory[marketName].trades &&
+        tradeHistory[marketName].trades.length ?
+        tradeHistory[marketName].trades[0].price : 0;
+    },
+
     filteredMarkets() {
       return this.$store.state.markets.filter((market) => {
         if (this.searchBy.length > 0) {
@@ -100,6 +113,20 @@ export default {
         return `${this.$services.formatting.formatNumber(value)}%`;
       }
       return value;
+    },
+
+    setMarketData() {
+      this.marketData = _.reduce(this.tickerDataByMarket, (marketData, market, ticker) => {
+        const close24Hour = this.getClose24Hour(ticker);
+        const change24Hour = this.getChange24Hour(close24Hour, market.open24hr);
+
+        marketData[ticker] = {
+          close24Hour,
+          change24Hour,
+          percentChangeAbsolute: market.open24hr > 0 ? this.getPercentChangeAbsolute(change24Hour, market.open24hr) : 0,
+        };
+        return marketData;
+      }, {});
     },
 
     getRelativeChange(value, entry, key) {
@@ -122,11 +149,16 @@ export default {
 
       return '';
     },
+
+    getPercentChangeAbsolute(change24Hour, open24hr) {
+      return Math.round(((change24Hour) / open24hr) * 10000) / 100 || 0;
+    },
   },
 
   mounted() {
     if (this.currentMarket) {
       this.baseCurrency = this.currentMarket.baseCurrency;
+      this.setMarketData();
     }
   },
 
@@ -134,6 +166,7 @@ export default {
     currentMarket(newVal, oldVal) {
       if (newVal && !oldVal) {
         this.baseCurrency = newVal.baseCurrency;
+        this.setMarketData();
       }
     },
   },

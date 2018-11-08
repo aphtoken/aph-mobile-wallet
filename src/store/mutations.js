@@ -28,6 +28,7 @@ export {
   setCurrentNetwork,
   setCurrentWallet,
   setCommitChangeInProgress,
+  setDepositWithdrawModalModel,
   setFractureGasModalModel,
   setGasClaim,
   setGasFracture,
@@ -198,6 +199,10 @@ function setCommitState(state, commitState) {
   }
 
   state.commitState = commitState;
+}
+
+function setDepositWithdrawModalModel(state, model) {
+  state.depositWithdrawModalModel = model;
 }
 
 function setWalletToBackup(state, wallet) {

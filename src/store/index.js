@@ -22,6 +22,7 @@ const state = {
   currentMarket: null,
   currentNetwork: null,
   currentWallet: null,
+  depositWithdrawModalModel: null,
   gasClaim: null,
   gasFracture: null,
   holdings: [],
