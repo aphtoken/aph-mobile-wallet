@@ -30,7 +30,7 @@ export const sendInProgress = state => state.sendInProgress;
 export const showClaimGasStatus = state => state.showClaimGasStatus;
 export const showPortfolioHeader = state => state.showPortfolioHeader;
 export const statsToken = state => state.statsToken;
-export const tickerData = state => _.get(state.tickerDataByMarket, `${state.currentMarketName}`, {});
+export const tickerData = state => _.get(state.tickerDataByMarket, state.currentMarketName, {});
 export const tickerDataByMarket = state => state.ticketDataByMarket;
 export const tradeHistory = state => state.tradeHistory;
 export const version = state => state.version;

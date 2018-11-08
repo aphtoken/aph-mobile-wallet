@@ -48,18 +48,25 @@ export default {
         this.$services.neo.getHolding(this.$store.state.currentMarket.baseAssetId).unitValue : 0;
     },
 
+    percentChangeAbsolute() {
+      return this.$formatNumber(
+        _.get(this.tickerData, [this.currentMarketName, 'percentChangeAbsolute'], 0) * this.baseCurrencyUnitPrice,
+      );
+    },
+
+    quoteVolume() {
+      return this.$formatNumber(_.get(this.tickerData, [this.currentMarketName, 'quoteVolume'], 0));
+    },
+
     tableData() {
       return this.filteredMarkets().map(({ quoteCurrency, marketName }) => {
         const tradeHistory = _.get(this.$store.state.tradeHistory, marketName, {});
         const hasTradeHistory = tradeHistory && tradeHistory.trades && tradeHistory.trades.length > 0;
-        const close24Hour = this.marketData[marketName].close24Hour || 0;
         const price = {
           price: this.$formatTokenAmount(hasTradeHistory ? tradeHistory.close24Hour : 0),
           priceConverted: this.$formatMoney((hasTradeHistory ? tradeHistory.close24Hour : 0) * this.baseCurrencyUnitPrice),
         };
-        const vol = this.$formatNumber(this.tickerData[marketName].quoteVolume);
-        const change = this.$formatNumber(this.marketData[marketName].percentChangeAbsolute * this.baseCurrencyUnitPrice);
-        return { asset: quoteCurrency, price, volume: vol, '24H change': change };
+        return { asset: quoteCurrency, price, volume: this.quoteVolume, '24H change': this.percentChangeAbsolute };
       });
     },
   },

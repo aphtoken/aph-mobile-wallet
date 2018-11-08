@@ -241,7 +241,7 @@ export default {
 
     ...mapGetters([
       'currentMarket',
-    ])
+    ]),
   },
 
   created() {
