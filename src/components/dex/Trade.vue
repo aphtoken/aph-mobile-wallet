@@ -48,21 +48,21 @@
       </div>
     </div>
     <div class="footer">
-      <div @click="actionableHolding = quoteHolding" :class="['balance', {active: quoteHolding.symbol === actionableHolding.symbol}]" :title="quoteBalanceToolTip">
+      <div @click="showDepositWithdrawModal(quoteHolding)" :class="['balance', {active: quoteHolding.symbol === actionableHolding.symbol}]" :title="quoteBalanceToolTip">
         <div class="label">{{ quoteHolding.symbol }} Balance</div>
         <div class="contract">CONTRACT</div>
         <div class="contract-value">{{ $formatNumber(quoteHolding.totalBalance) }}</div>
         <div class="wallet">WALLET</div>
         <div class="wallet-value">32,431</div>
       </div>
-      <div @click="actionableHolding = baseHolding" :class="['balance', {active: baseHolding.symbol === actionableHolding.symbol}]" :title="baseBalanceToolTip">
+      <div @click="showDepositWithdrawModal(baseHolding)" :class="['balance', {active: baseHolding.symbol === actionableHolding.symbol}]" :title="baseBalanceToolTip">
         <div class="label">{{ baseHolding.symbol }} Balance</div>
         <div class="contract">CONTRACT</div>
         <div class="contract-value">{{ $formatNumber(baseHolding.totalBalance) }}</div>
         <div class="wallet">WALLET</div>
         <div class="wallet-value">1.21</div>
       </div>
-      <div @click="actionableHolding = aphHolding" :class="['balance', {active: aphHolding.symbol === actionableHolding.symbol}]" :title="aphBalanceToolTip" v-if="baseHolding.symbol !== 'APH' && quoteHolding.symbol !== 'APH'">
+      <div @click="showDepositWithdrawModal(aphHolding)" :class="['balance', {active: aphHolding.symbol === actionableHolding.symbol}]" :title="aphBalanceToolTip" v-if="baseHolding.symbol !== 'APH' && quoteHolding.symbol !== 'APH'">
         <div class="label">APH Balance</div>
         <div class="contract">CONTRACT</div>
         <div class="contract-value">{{ $formatNumber(aphHolding.totalBalance) }}</div>
@@ -70,7 +70,8 @@
         <div class="wallet-value">3.21</div>
       </div>
     </div>
-    <order-confirmation-modal v-if="$store.state.showOrderConfirmationModal" :onClose="closeConfirmModal" :onConfirmed="orderConfirmed"></order-confirmation-modal>
+    <order-confirmation-modal v-if="$store.state.showOrderConfirmationModal" :onClose="closeConfirmModal" :onConfirmed="orderConfirmed" />
+    <deposit-withdraw-modal v-if="$store.state.depositWithdrawModalModel" :onConfirmed="depositWithdrawConfirmed" :onCancel="hideDepositWithdrawModal" />
   </section>
 </template>
 
@@ -78,6 +79,7 @@
 import { BigNumber } from 'bignumber.js';
 import { mapGetters } from 'vuex';
 import OrderConfirmationModal from '../modals/OrderConfirmationModal';
+import DepositWithdrawModal from '../modals/DepositWithdrawModal';
 
 const ORDER_TYPES_LIST = [
   {
@@ -88,6 +90,7 @@ const ORDER_TYPES_LIST = [
 
 export default {
   components: {
+    DepositWithdrawModal,
     OrderConfirmationModal,
   },
 
@@ -261,7 +264,7 @@ export default {
 
     ...mapGetters([
       'currentMarket',
-    ])
+    ]),
   },
 
   created() {
@@ -307,6 +310,24 @@ export default {
           postOnly: this.postOnly,
         },
       });
+    },
+
+    depositWithdrawConfirmed(transactionType, holding, amount) {
+      const message = `${amount} ${holding.symbol} ${action} Completed.`;
+      const services = this.$services;
+      services.dex[`${transactionType}Asset`](holding.assetId, Number(amount))
+        .then(() => {
+          services.alerts.success(message);
+        })
+        .catch((e) => {
+          services.alerts.exception(e);
+        });
+
+      this.hideDepositWithdrawModal();
+    },
+
+    hideDepositWithdrawModal() {
+      this.$store.commit('setDepositWithdrawModalModel', null);
     },
 
     loadHoldings() {
@@ -488,6 +509,13 @@ export default {
     setSide(side) {
       this.side = side;
       this.$store.commit('setOrderQuantity', '');
+    },
+
+    showDepositWithdrawModal(holdingAsset) {
+      this.$store.commit('setDepositWithdrawModalModel', {
+        // NOTE: if whitelisted, adjust assetId to test a new asset that has been whitelisted but market not yet added.
+        holdingAssetId: holdingAsset.assetId,
+      });
     },
 
     // TODO: move this code into a codebase that's shared between mobile and desktop

@@ -6,6 +6,10 @@ export default {
       return formatting.abbreviateNumber.apply(null, args);
     },
 
+    $cleanAmount(...args) {
+      return formatting.cleanAmount.apply(null, args);
+    },
+
     $formatDate(...args) {
       return formatting.formatDate.apply(null, args);
     },
