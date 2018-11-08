@@ -364,15 +364,15 @@ export default {
           loading_screen: false,
           locale: "en",
           overrides: {
-            "paneProperties.background": "#1d1c33",
+            "paneProperties.background": "#171629",
             "paneProperties.vertGridProperties.color": "#454545",
             "paneProperties.horzGridProperties.color": "#454545",
             "symbolWatermarkProperties.transparency": 90,
             "scalesProperties.textColor": "#AAA",
-            "scalesProperties.backgroundColor": "#1d1c33",
+            "scalesProperties.backgroundColor": "#171629",
           },
           symbol: symbolName,
-          toolbar_bg: '#1d1c33',
+          toolbar_bg: '#171629',
         };
 
         this.tradingView = new TradingView.widget(settings);
@@ -432,7 +432,6 @@ export default {
   overflow: hidden;
 
    > .body {
-    background: lighten($dark-purple, 3%);
     display: flex;
     flex-direction: column;
     flex: 1;

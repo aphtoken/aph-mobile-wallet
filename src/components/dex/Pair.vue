@@ -149,7 +149,6 @@ export default {
   overflow: hidden;
 
    > .body {
-    background: $dark-purple*1.25;
     display: flex;
     flex-direction: column;
     flex: 1;

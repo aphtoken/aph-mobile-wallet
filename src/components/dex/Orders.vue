@@ -52,7 +52,6 @@ export default {
 
 <style lang="scss">
 #dex--orders {
-  background: $dark-purple*1.25;
   display: flex;
   flex-direction: column;
   flex: 1;

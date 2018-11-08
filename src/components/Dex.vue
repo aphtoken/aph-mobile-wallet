@@ -203,6 +203,7 @@ export default {
   }
 
   > .body {
+    background: $dark-purple;
     display: flex;
     flex-direction: column;
     flex: 1;

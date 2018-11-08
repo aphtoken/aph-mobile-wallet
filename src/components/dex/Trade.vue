@@ -487,7 +487,6 @@ export default {
     }
 
     .percentages {
-      background-color: $dark-purple*1.25;
       color: $darker-grey;
       display: flex;
       flex-direction: row;
