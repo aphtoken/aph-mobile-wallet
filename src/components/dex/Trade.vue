@@ -431,30 +431,25 @@ export default {
       display: flex;
       flex: none;
 
-      .buy-btn {
-        border-color: $green;
-
-        &:hover, &.selected {
-          background-color: $green;
-        }
-      }
-
-      .sell-btn {
-        border-color: $red;
-        margin-left: $space;
-
-        &:hover, &.selected {
-          background-color: $red;
-        }
-      }
-
-      .buy-btn, .sell-btn {
+      > button {
         @extend %btn-outline;
-        @extend %selected-text;
 
-        color: white;
-        flex: 1;
-        font-family: GilroySemibold;
+        &.buy-btn {
+          border-color: $green;
+
+          &:hover, &.selected {
+            background-color: $green;
+          }
+        }
+
+        &.sell-btn {
+          border-color: $red;
+          margin-left: $space;
+
+          &:hover, &.selected {
+            background-color: $red;
+          }
+        }
 
         &:disabled {
           background: transparent !important;
