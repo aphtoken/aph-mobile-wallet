@@ -441,16 +441,18 @@ export default {
     .btn-group {
       display: flex;
       flex: none;
-      padding: $space-lg $space;
+      padding: $space;
 
-      > * {
+      > button {
         @extend %btn;
-
-        margin: 0 $space;
 
         &:not(.active) {
           background-color: $dark-purple;
           border-color: $dark-purple;
+        }
+
+        & + button {
+          margin-left: $space;
         }
       }
     }
@@ -459,7 +461,7 @@ export default {
       display: flex;
       flex-direction: column;
       flex: 1;
-      padding: $space;
+      padding: 0 $space $space;
 
       #chart-container {
         overflow: hidden;

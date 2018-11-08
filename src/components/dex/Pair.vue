@@ -25,19 +25,20 @@ import MarketPairChart from './MarketPairChart';
 import BaseSelector from './BaseSelector';
 
 const TABLE_COLUMNS = ['asset', 'price', 'volume', '24H change'];
-let storeUnwatch;
 
 export default {
-  beforeDestroy() {
-    storeUnwatch();
-  },
-
   components: {
     BaseSelector,
     MarketPairChart,
   },
 
   computed: {
+    ...mapGetters([
+      'currentMarket',
+      'currentMarketName',
+      'tickerData',
+    ]),
+
     baseCurrencies() {
       return _.uniq(_.map(this.$store.state.markets, 'baseCurrency'));
     },
@@ -49,7 +50,7 @@ export default {
 
     tableData() {
       return this.filteredMarkets().map(({ quoteCurrency, marketName }) => {
-        const tradeHistory = this.$store.state.tradeHistory[marketName];
+        const tradeHistory = _.get(this.$store.state.tradeHistory, marketName, {});
         const hasTradeHistory = tradeHistory && tradeHistory.trades && tradeHistory.trades.length > 0;
         const close24Hour = this.marketData[marketName].close24Hour || 0;
         const price = {
@@ -61,10 +62,6 @@ export default {
         return { asset: quoteCurrency, price, volume: vol, '24H change': change };
       });
     },
-
-    ...mapGetters([
-      'tickerData',
-    ]),
   },
 
   data() {
@@ -148,17 +145,17 @@ export default {
   },
 
   mounted() {
-    this.baseCurrency = _.first(this.baseCurrencies);
-    this.setMarketData();
-
-    storeUnwatch = this.$store.watch(
-      () => {
-        return this.$store.state.currentMarket;
-      });
+    if (this.currentMarket) {
+      this.baseCurrency = this.currentMarket.baseCurrency;
+    }
   },
 
   watch: {
-    //
+    currentMarket(newVal, oldVal) {
+      if (newVal && !oldVal) {
+        this.baseCurrency = newVal.baseCurrency;
+      }
+    },
   },
 };
 </script>

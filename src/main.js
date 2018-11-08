@@ -15,7 +15,6 @@ import { contacts, network, settings, storage, wallets } from './services';
 
 // Initial Vue Libraries.
 import './libraries';
-import './error-handler';
 import * as mixins from './mixins';
 import App from './App';
 import router from './router';
@@ -59,11 +58,12 @@ Vue.use(Vue2TouchEvents);
 Vue.use(VueI18n);
 require('vue-flash-message/dist/vue-flash-message.min.css');
 
-Vue.use(VueNativeSock, 'wss://testnet.aphelion-neo.com:62443/ws', {
+Vue.use(VueNativeSock, network.getSelectedNetwork().websocketUri, {
+  connectManually: true,
   format: 'json',
+  reconnection: true,
+  reconnectionDelay: 3000,
   store,
-  reconnection: true, // (Boolean) whether to reconnect automatically (false)
-  reconnectionDelay: 3000, // (Number) how long to initially wait before attempting a new (1000)
 });
 
 // Register global mixins.
