@@ -10,19 +10,19 @@
         <div class="day-values">
           <div class="row">
             <div class="label">VOL.</div>
-            <div class="value">{{ currentTickerData.quoteVolume ? currentTickerData.quoteVolume : 0 }}</div>
+            <div class="value">{{ quoteVolume }}</div>
           </div>
           <div class="row">
             <div class="label">OPEN</div>
-            <div class="value">{{ $formatNumber(currentTickerData.open24hr ? currentTickerData.open24hr: 0) }}</div>
+            <div class="value">{{ open24hr }}</div>
           </div>
           <div class="row">
             <div class="label">HIGH</div>
-            <div class="value">{{ $formatNumber(currentTickerData.high24hr ? currentTickerData.high24hr: 0) }}</div>
+            <div class="value">{{ high24hr }}</div>
           </div>
           <div class="row">
             <div class="label">LOW</div>
-            <div class="value">{{ $formatNumber(currentTickerData.low24hr ? currentTickerData.low24hr : 0) }}</div>
+            <div class="value">{{ low24hr }}</div>
           </div>
         </div>
         <div class="token-details">
@@ -30,12 +30,12 @@
             {{ basePrice }}
           </div>
           <div class="base-price-converted">
-            {{ $formatMoney((currentMarketData.close24Hour ? currentMarketData.close24Hour : 0) * baseCurrencyUnitPrice) }}
+            {{ $formatMoney(close24Hour * baseCurrencyUnitPrice) }}
           </div>
           <div class="label">24H CHANGE ({{ $store.state.currentMarket ? $store.state.currentMarket.quoteCurrency : '' }})</div>
-          <div :class="['change', {decrease: currentMarketData.change24Hour < 0, increase: currentMarketData.change24Hour > 0 }]">
-            {{ $formatNumber(currentMarketData.change24Hour ? currentMarketData.change24Hour : 0) }}
-            ({{ $formatNumber(currentMarketData.percentChangeAbsolute ? currentMarketData.percentChangeAbsolute : 0) }}%)
+          <div :class="['change', {decrease: change24Hour < 0, increase: change24Hour > 0 }]">
+            {{ change24Hour }}
+            ({{ percentChangeAbsolute }}%)
           </div>
         </div>
       </div>
@@ -48,12 +48,8 @@ import { mapGetters } from 'vuex';
 
 export default {
   computed: {
-    currentMarketData() {
-      return this.marketData[this.currentMarketName];
-    },
-
     currentTickerData() {
-      return this.tickerData[this.currentMarketName];
+      return _.get(this.tickerDataByMarket, this.currentMarketName, {});
     },
 
     basePrice() {
@@ -62,12 +58,38 @@ export default {
       return this.$formatTokenAmount(hasTradeHistory ? tradeHistory.close24Hour : 0);
     },
 
-    quoteVolume() {
-      return _.get(this.tickerData, [this.currentMarketName, 'quoteVolume'], 0)
+    change24Hour() {
+      return this.$formatNumber(_.get(this.currentTickerData, 'change24Hour', 0));
     },
+
+    close24Hour() {
+      return _.get(this.currentTickerData, 'close24Hour', 0);
+    },
+
+    high24hr() {
+      return this.$formatMoney(_.get(this.currentTickerData, 'high24hr', 0));
+    },
+
+    low24hr() {
+      return this.$formatMoney(_.get(this.currentTickerData, 'low24hr', 0));
+    },
+
+    open24hr() {
+      return this.$formatMoney(_.get(this.currentTickerData, 'open24hr', 0));
+    },
+
+    percentChangeAbsolute() {
+      return this.$formatNumber(_.get(this.currentTickerData, 'percentChangeAbsolute', 0));
+    },
+
+    quoteVolume() {
+      return _.get(this.currentTickerData, 'quoteVolume', 0);
+    },
+    
     ...mapGetters([
-      'currentMarketName',
       'tickerData',
+      'currentMarketName',
+      'tickerDataByMarket',
     ]),
   },
 

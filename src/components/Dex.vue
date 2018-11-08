@@ -154,10 +154,7 @@ export default {
     },
 
     loadTickerData() {
-      this.$services.dex.fetchTickerData()
-        .then((tickerData) => {
-          this.$store.commit('setTickerDataByMarket', tickerData);
-        });
+      this.$store.dispatch('fetchTickerData');
     },
 
     setTab(event) {

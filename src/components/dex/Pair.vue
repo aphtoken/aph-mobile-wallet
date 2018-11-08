@@ -36,7 +36,7 @@ export default {
     ...mapGetters([
       'currentMarket',
       'currentMarketName',
-      'tickerData',
+      'tickerDataByMarket',
     ]),
 
     baseCurrencies() {
@@ -48,18 +48,29 @@ export default {
         this.$services.neo.getHolding(this.$store.state.currentMarket.baseAssetId).unitValue : 0;
     },
 
+    currentTickerData() {
+      return _.get(this.tickerDataByMarket, this.currentMarketName, {});
+    },
+
+    percentChangeAbsolute() {
+      return this.$formatNumber(
+        _.get(this.currentTickerData, 'percentChangeAbsolute', 0) * this.baseCurrencyUnitPrice,
+      );
+    },
+
+    quoteVolume() {
+      return this.$formatNumber(_.get(this.currentTickerData, 'quoteVolume', 0));
+    },
+
     tableData() {
       return this.filteredMarkets().map(({ quoteCurrency, marketName }) => {
         const tradeHistory = _.get(this.$store.state.tradeHistory, marketName, {});
         const hasTradeHistory = tradeHistory && tradeHistory.trades && tradeHistory.trades.length > 0;
-        const close24Hour = this.marketData[marketName].close24Hour || 0;
         const price = {
           price: this.$formatTokenAmount(hasTradeHistory ? tradeHistory.close24Hour : 0),
           priceConverted: this.$formatMoney((hasTradeHistory ? tradeHistory.close24Hour : 0) * this.baseCurrencyUnitPrice),
         };
-        const vol = this.$formatNumber(this.tickerData[marketName].quoteVolume);
-        const change = this.$formatNumber(this.marketData[marketName].percentChangeAbsolute * this.baseCurrencyUnitPrice);
-        return { asset: quoteCurrency, price, volume: vol, '24H change': change };
+        return { asset: quoteCurrency, price, volume: this.quoteVolume, '24H change': this.percentChangeAbsolute };
       });
     },
   },
@@ -105,21 +116,7 @@ export default {
     },
 
     setMarketData() {
-      const sample = _.reduce(this.tickerData, (marketData, market, ticker) => {
-        const close24Hour = this.getClose24Hour(ticker);
-        console.log('waterbottle, close24Hour', close24Hour)
-        const change24Hour = this.getChange24Hour(close24Hour, market.open24hr);
-        console.log('beans', change24Hour)
-
-        marketData[ticker] = {
-          close24Hour,
-          change24Hour,
-          percentChangeAbsolute: this.getPercentChangeAbsolute(change24Hour, market.open24hr),
-        };
-        return marketData;
-      }, {});
-      console.log('hererere', sample)
-      this.marketData = _.reduce(this.tickerData, (marketData, market, ticker) => {
+      this.marketData = _.reduce(this.tickerDataByMarket, (marketData, market, ticker) => {
         const close24Hour = this.getClose24Hour(ticker);
         const change24Hour = this.getChange24Hour(close24Hour, market.open24hr);
 
