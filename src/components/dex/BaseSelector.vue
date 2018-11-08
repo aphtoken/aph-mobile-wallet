@@ -1,10 +1,8 @@
 <template>
   <section id="dex--base-selector">
-    <div :class="['currency', {active: value === currency}]" @click="$emit('input', currency)"
-      v-for="currency in baseCurrencies" :key="currency">{{ currency }}</div>
-    <div>
-      Favourites
-    </div>
+    <button :class="['currency', {active: value === currency}]" @click="$emit('input', currency)" v-for="currency in baseCurrencies" :key="currency">
+      {{ currency }}
+    </button>
   </section>
 </template>
 
@@ -25,19 +23,25 @@ export default {
 
 <style lang="scss">
 #dex--base-selector {
+  @extend %tile-dark;
+
   align-items: center;
   display: flex;
   flex-direction: row;
-  justify-content: space-around;
+  margin-top: $space;
+  padding: $space;
 
-  > div {
-    background: $dark-purple;
-    border-radius: $border-radius;
-    font-size: toRem(16px);
-    padding: $space;
+  > .currency {
+    @extend %btn-outline;
+
+    flex: 1;
 
     &.active {
-      background: $purple;
+      @extend %btn;
+    }
+
+    & + .currency {
+      margin-left: $space;
     }
   }
 }

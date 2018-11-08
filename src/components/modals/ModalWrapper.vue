@@ -1,9 +1,9 @@
 <template>
-  <section class="aph-commit-modal-wrapper">
+  <section class="aph-modal-wrapper">
     <div class="body">
       <div class="icons">
         <aph-icon name="hex"></aph-icon>
-        <aph-icon name="commit"></aph-icon>
+        <aph-icon :name="icon"></aph-icon>
       </div>
       <div class="content">
         <slot></slot>
@@ -17,13 +17,18 @@
 
 <script>
 export default {
-
+  props: {
+    icon: {
+      require: true,
+      type: String,
+    },
+  },
 };
 </script>
 
 
 <style lang="scss">
-.aph-commit-modal-wrapper {
+.aph-modal-wrapper {
   background: rgba($dark, .7);
   bottom: 0;
   display: flex;

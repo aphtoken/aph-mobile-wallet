@@ -25,19 +25,20 @@ import MarketPairChart from './MarketPairChart';
 import BaseSelector from './BaseSelector';
 
 const TABLE_COLUMNS = ['asset', 'price', 'volume', '24H change'];
-let storeUnwatch;
 
 export default {
-  beforeDestroy() {
-    storeUnwatch();
-  },
-
   components: {
     BaseSelector,
     MarketPairChart,
   },
 
   computed: {
+    ...mapGetters([
+      'currentMarket',
+      'currentMarketName',
+      'tickerData',
+    ]),
+
     baseCurrencies() {
       return _.uniq(_.map(this.$store.state.markets, 'baseCurrency'));
     },
@@ -49,7 +50,7 @@ export default {
 
     tableData() {
       return this.filteredMarkets().map(({ quoteCurrency, marketName }) => {
-        const tradeHistory = this.$store.state.tradeHistory[marketName];
+        const tradeHistory = _.get(this.$store.state.tradeHistory, marketName, {});
         const hasTradeHistory = tradeHistory && tradeHistory.trades && tradeHistory.trades.length > 0;
         const close24Hour = this.marketData[marketName].close24Hour || 0;
         const price = {
@@ -61,10 +62,6 @@ export default {
         return { asset: quoteCurrency, price, volume: vol, '24H change': change };
       });
     },
-
-    ...mapGetters([
-      'tickerData',
-    ]),
   },
 
   data() {
@@ -108,6 +105,20 @@ export default {
     },
 
     setMarketData() {
+      const sample = _.reduce(this.tickerData, (marketData, market, ticker) => {
+        const close24Hour = this.getClose24Hour(ticker);
+        console.log('waterbottle, close24Hour', close24Hour)
+        const change24Hour = this.getChange24Hour(close24Hour, market.open24hr);
+        console.log('beans', change24Hour)
+
+        marketData[ticker] = {
+          close24Hour,
+          change24Hour,
+          percentChangeAbsolute: this.getPercentChangeAbsolute(change24Hour, market.open24hr),
+        };
+        return marketData;
+      }, {});
+      console.log('hererere', sample)
       this.marketData = _.reduce(this.tickerData, (marketData, market, ticker) => {
         const close24Hour = this.getClose24Hour(ticker);
         const change24Hour = this.getChange24Hour(close24Hour, market.open24hr);
@@ -148,13 +159,18 @@ export default {
   },
 
   mounted() {
-    this.baseCurrency = _.first(this.baseCurrencies);
+    if (this.currentMarket) {
+      this.baseCurrency = this.currentMarket.baseCurrency;
+    }
     this.setMarketData();
+  },
 
-    storeUnwatch = this.$store.watch(
-      () => {
-        return this.$store.state.currentMarket;
-      });
+  watch: {
+    currentMarket(newVal, oldVal) {
+      if (newVal && !oldVal) {
+        this.baseCurrency = newVal.baseCurrency;
+      }
+    },
   },
 };
 </script>
@@ -168,7 +184,6 @@ export default {
   overflow: hidden;
 
    > .body {
-    background: $dark-purple*1.25;
     display: flex;
     flex-direction: column;
     flex: 1;
@@ -176,6 +191,7 @@ export default {
 
     .aph-search-bar {
       margin-top: $space;
+      padding: 0;
 
       .search-bar-wrapper {
         background: $dark-purple;
@@ -187,8 +203,9 @@ export default {
     }
 
     .aph-simple-table {
-      background: $dark-purple;
-      margin: $space;
+      @extend %tile-dark;
+
+      padding: $space;
 
       .cell-price {
         display: flex;

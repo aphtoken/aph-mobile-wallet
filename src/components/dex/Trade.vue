@@ -1,50 +1,55 @@
 <template>
   <section id="dex--trade">
     <div class="body">
-      <div class="side">
-        <div @click="setSide('Buy')" :class="['buy-btn', {selected: side === 'Buy'}]">Buy</div>
-        <div @click="setSide('Sell')" :class="['sell-btn', {selected: side === 'Sell'}]">Sell</div>
-      </div>
-      <div class="order-type">
-        <aph-select :light="true" :options="orderTypes" v-model="orderType"></aph-select>
-      </div>
-      <div class="price" v-if="orderType === 'Limit'">
-        <aph-input v-model="$store.state.orderPrice"></aph-input>
-        <div class="description">
-          LIMIT PRICE ({{ priceLabel }})
+      <div class="controls">
+        <div class="side">
+          <button @click="setSide('Buy')" :class="['buy-btn', {selected: side === 'Buy'}]">Buy</button>
+          <button @click="setSide('Sell')" :class="['sell-btn', {selected: side === 'Sell'}]">Sell</button>
+        </div>
+        <div class="order-type">
+          <button @click="setOrderType('Limit')" :class="['limit-btn', {selected: orderType === 'Limit'}]">Limit</button>
+          <button @click="setOrderType('Market')" :class="['market-btn', {selected: orderType === 'Market'}]">Market</button>
         </div>
       </div>
-      <div class="quantity">
-        <aph-input v-model="$store.state.orderQuantity"></aph-input>
-        <div class="description">
-          AMOUNT ({{ priceLabel }})
+      <div class="form">
+        <div class="price" v-if="orderType === 'Limit'">
+          <aph-input v-model="$store.state.orderPrice"></aph-input>
+          <div class="description">
+            LIMIT PRICE ({{ priceLabel }})
+          </div>
         </div>
-      </div>
-      <div class="percentages">
-        <div @click="setPercent(.25)" :class="['percent-btn', {selected: selectedPercent === .25}]">25%</div>
-        <div @click="setPercent(.50)" :class="['percent-btn', {selected: selectedPercent === .50}]">50%</div>
-        <div @click="setPercent(.75)" :class="['percent-btn', {selected: selectedPercent === .75}]">75%</div>
-        <div @click="setPercent(1)" :class="['percent-btn', {selected: selectedPercent === 1}]">100%</div>
-      </div>
-      <div class="options">
-        <div @click="postOnly = !postOnly" class="option" v-if="orderType === 'Limit'">
-          <label>POST ONLY</label>
-          <aph-icon name="radio-on" v-if="postOnly"></aph-icon>
-          <aph-icon name="radio-off" v-else></aph-icon>
+        <div class="quantity">
+          <aph-input v-model="$store.state.orderQuantity"></aph-input>
+          <div class="description">
+            AMOUNT ({{ priceLabel }})
+          </div>
         </div>
-      </div>
-      <div class="total">
-        <div class="label">TOTAL ({{ baseHolding.symbol }})</div>
-        <div class="value">{{ $formatNumber(total) }}</div>
-      </div>
-      <div class="estimate">
-        <div class="label">ESTIMATE ({{ $services.settings.getCurrency() }})</div>
-        <div class="value">{{ $formatMoney(estimate) }}</div>
-      </div>
-      <div class="place-order">
-        <button @click="confirmOrder" :disabled="shouldDisableOrderButton" :class="['order-btn', { 'buy-btn': side === 'Buy', 'sell-btn': side === 'Sell'}]">
-          Place {{ side }} order
-        </button>
+        <div class="percentages">
+          <div @click="setPercent(.25)" :class="['percent-btn', {selected: selectedPercent === .25}]">25%</div>
+          <div @click="setPercent(.50)" :class="['percent-btn', {selected: selectedPercent === .50}]">50%</div>
+          <div @click="setPercent(.75)" :class="['percent-btn', {selected: selectedPercent === .75}]">75%</div>
+          <div @click="setPercent(1)" :class="['percent-btn', {selected: selectedPercent === 1}]">100%</div>
+        </div>
+        <div class="options">
+          <div @click="postOnly = !postOnly" class="option" v-if="orderType === 'Limit'">
+            <label>POST ONLY</label>
+            <aph-icon name="radio-on" v-if="postOnly"></aph-icon>
+            <aph-icon name="radio-off" v-else></aph-icon>
+          </div>
+        </div>
+        <div class="total">
+          <div class="label">TOTAL ({{ baseHolding.symbol }})</div>
+          <div class="value">{{ $formatNumber(total) }}</div>
+        </div>
+        <div class="estimate">
+          <div class="label">ESTIMATE ({{ $services.settings.getCurrency() }})</div>
+          <div class="value">{{ $formatMoney(estimate) }}</div>
+        </div>
+        <div class="place-order">
+          <button @click="confirmOrder" :disabled="shouldDisableOrderButton" :class="['order-btn', { 'buy-btn': side === 'Buy', 'sell-btn': side === 'Sell'}]">
+            Place {{ side }} order
+          </button>
+        </div>
       </div>
     </div>
     <div class="footer">
@@ -80,13 +85,6 @@ import { BigNumber } from 'bignumber.js';
 import { mapGetters } from 'vuex';
 import OrderConfirmationModal from '../modals/OrderConfirmationModal';
 import DepositWithdrawModal from '../modals/DepositWithdrawModal';
-
-const ORDER_TYPES_LIST = [
-  {
-    label: 'Limit',
-    value: 'Limit',
-  },
-];
 
 export default {
   components: {
@@ -186,24 +184,6 @@ export default {
       return this.isOutOfDate || this.isMarketClosed;
     },
 
-    // orderButtonLabel() {
-    //   return this.$isPending('placeOrder') === false ?
-    //     this.$t('placeSideOrder', { side: this.side }) :
-    //     this.$t('placingOrder');
-    // },
-
-    orderTypes() {
-      if (this.canPlaceMarketOrder) {
-        return _.concat(ORDER_TYPES_LIST, [
-          {
-            label: 'Market',
-            value: 'Market',
-          },
-        ]);
-      }
-      return ORDER_TYPES_LIST;
-    },
-
     price() {
       let price = this.$store.state.orderPrice;
       if (!price) {
@@ -285,7 +265,7 @@ export default {
 
   methods: {
     closeConfirmModal() {
-      this.$store.commit('setShowOrderconfirmationModal', false);
+      this.$store.commit('setShowOrderConfirmationModal', false);
     },
 
     confirmOrder() {
@@ -497,6 +477,10 @@ export default {
       return newQuantity.toString();
     },
 
+    setOrderType(orderType) {
+      this.orderType = orderType;
+    },
+
     setPercent(value) {
       if (this.orderType === 'Limit' && !this.$store.state.orderPrice && this.side === 'Buy') {
         this.$services.alerts.error('pleaseEnterAPrice');
@@ -555,50 +539,54 @@ export default {
 
 <style lang="scss">
 #dex--trade {
-  background: $dark-purple*1.25;
   display: flex;
   flex-direction: column;
-  height: 100%;
+  flex: 1;
   overflow: hidden;
 
   > .body {
-    background: $dark-purple;
     display: flex;
     flex-direction: column;
     flex: 1;
     justify-content: space-around;
-    margin: $space;
     overflow: hidden;
+
+    .controls {
+      flex: none;
+    }
+
+    .form {
+      @extend %tile-dark;
+
+      flex: 1;
+      margin-top: $space;
+      overflow: auto;
+      padding: $space;
+    }
 
     .side {
       display: flex;
-      margin: 0 $space;
+      flex: none;
 
-      .buy-btn {
-        border-color: $green;
-
-        &:hover, &.selected {
-          background-color: $green;
-        }
-      }
-
-      .sell-btn {
-        border-color: $red;
-        margin-left: $space;
-
-        &:hover, &.selected {
-          background-color: $red;
-        }
-      }
-
-      .buy-btn, .sell-btn {
+      > button {
         @extend %btn-outline;
-        @extend %selected-text;
 
-        color: white;
-        flex: 1;
-        font-family: GilroySemibold;
-        margin-top: $space;
+        &.buy-btn {
+          border-color: $green;
+
+          &:hover, &.selected {
+            background-color: $green;
+          }
+        }
+
+        &.sell-btn {
+          border-color: $red;
+          margin-left: $space;
+
+          &:hover, &.selected {
+            background-color: $red;
+          }
+        }
 
         &:disabled {
           background: transparent !important;
@@ -608,28 +596,27 @@ export default {
     }
 
     .order-type {
-      margin: $space $space 0;
+      display: flex;
+      flex: none;
+      margin-top: $space;
 
-      .aph-select {
-        .aph-select--label {
-          background: $dark-purple*1.25;
-          color: white;
+
+      > button {
+        @extend %btn-outline;
+
+        &.selected {
+          @extend %btn;
         }
 
-        .aph-select--dropdown {
-          li {
-            color: $dark;
-          }
+        & + button {
+          margin-left: $space;
         }
-      }
-
-      .aph-icon .fill {
-        fill: $purple;
       }
     }
 
     .price, .quantity {
-      margin: 0 $space;
+      flex: none;
+      margin-top: $space;
 
       .aph-input {
         border-color: $darker-grey;
@@ -647,12 +634,12 @@ export default {
     }
 
     .percentages {
-      background-color: $dark-purple*1.25;
       color: $darker-grey;
       display: flex;
       flex-direction: row;
+      flex: none;
       justify-content: space-around;
-      margin: $space;
+      margin-top: $space;
       padding: $space 0;
 
       > div {
@@ -667,8 +654,9 @@ export default {
 
     .options {
       color: $darker-grey;
+      flex: none;
       font-size: toRem(12px);
-      margin: 0 $space $space;
+      margin-top: $space;
 
       .option {
         display: flex;
@@ -695,15 +683,17 @@ export default {
       flex-direction: row;
       font-size: toRem(12px);
       justify-content: space-between;
-      margin: 0 $space $space;
+      flex: none;
+      margin-top: $space-sm;
 
       .label {
-        color: $darker-grey;
+        @extend %small-uppercase-grey-label;
       }
     }
 
     .place-order {
-      margin: 0 $space $space;
+      flex: 1;
+      margin-top: $space;
 
       .order-btn {
         @extend %btn-outline;
@@ -720,17 +710,18 @@ export default {
   }
 
   > .footer {
-    margin: 0 $space;
-    overflow: scroll;
-    white-space: nowrap;
+    @extend %tile-dark;
+
+    display: flex;
+    flex: none;
+    margin-top: $space;
+    padding: $space;
 
     > div {
-      background-color: $dark-purple;
       display: inline-block;
-      height: toRem(110px);
       margin: 0 $space-sm;
       padding: $space;
-      width: toRem(150px);
+      flex: 1;
 
       &:first-child, &:last-child {
         margin: 0;

@@ -193,7 +193,6 @@ export default {
 
       .row {
         display: flex;
-        padding: 0 $space-xs 0 $space;
 
         &:active {
           background: $darker-grey/2;
@@ -216,10 +215,13 @@ export default {
           font-size: toRem(12px);
           padding: $space 0;
 
+          &:first-child {
+            padding-left: $space-sm;
+          }
+
           &:last-child {
             justify-content: flex-end;
-            position: relative;
-            right: toRem(10px);
+            padding-right: $space-sm;
           }
         }
       }

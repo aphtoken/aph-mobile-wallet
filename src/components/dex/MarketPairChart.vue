@@ -1,15 +1,11 @@
 <template>
   <section id="dex--market-pair-chart">
     <div class="header">
-      {{ currentMarket }}
+      <aph-token-icon class="icon" v-if="$store.state.currentMarket && $store.state.currentMarket.quoteCurrency" :symbol="$store.state.currentMarket.quoteCurrency"></aph-token-icon>
+      <span>{{ currentMarketName }}</span>
+      {{debug()}}
     </div>
     <div class="body">
-      <div class="chart-header">
-        <div class="add-button">
-          Heart/Add
-        </div>
-        <aph-token-icon class="icon" v-if="$store.state.currentMarket && $store.state.currentMarket.quoteCurrency" :symbol="$store.state.currentMarket.quoteCurrency"></aph-token-icon>
-      </div>
       <div class="chart">
         <div class="day-values">
           <div class="row">
@@ -52,29 +48,25 @@ import { mapGetters } from 'vuex';
 
 export default {
   computed: {
-    currentMarket() {
-      return this.$store.state.currentMarket ? this.$store.state.currentMarket.marketName : '';
-    },
-
     currentMarketData() {
-      return this.marketData[this.currentMarket];
+      return this.marketData[this.currentMarketName];
     },
 
     currentTickerData() {
-      return this.tickerData[this.currentMarket];
+      return this.tickerData[this.currentMarketName];
     },
 
     basePrice() {
-      const tradeHistory = this.$store.state.tradeHistory[this.currentMarket];
-      const hasTradeHistory = tradeHistory && tradeHistory.trades && tradeHistory.trades.length > 0;
+      const tradeHistory = _.get(this.$store.state, `tradeHistory.${this.currentMarketName}`, {});
+      const hasTradeHistory = tradeHistory.trades && tradeHistory.trades.length > 0;
       return this.$formatTokenAmount(hasTradeHistory ? tradeHistory.close24Hour : 0);
     },
 
     quoteVolume() {
-      return _.get(this.tickerData, [this.currentMarket, 'quoteVolume'], 0)
+      return _.get(this.tickerData, [this.currentMarketName, 'quoteVolume'], 0)
     },
-
     ...mapGetters([
+      'currentMarketName',
       'tickerData',
     ]),
   },
@@ -90,22 +82,38 @@ export default {
       type: Object,
     },
   },
+
+  methods: {
+    debug() {
+      console.log('this.tickerData', this.tickerData)
+      console.log('this.marketData', this.marketData)
+    },
+  },
 };
 
 </script>
 
 <style lang="scss">
 #dex--market-pair-chart {
+  @extend %tile-dark;
+
   display: flex;
-  flex: 1;
+  flex: none;
   flex-direction: column;
-  background: $dark-purple;
-  margin: $space;
-  max-height: toRem(180px); // Can probably remove this once other components are added
+  padding: $space;
 
   > .header {
-    height: $space;
-    padding: $space;
+    align-items: center;
+    display: flex;
+    flex-direction: row;
+
+    > * {
+      flex: none;
+
+      &.aph-token-icon {
+        margin-right: $space;
+      }
+    }
   }
 
   > .body {
@@ -113,14 +121,7 @@ export default {
     flex-direction: column;
     flex: 1;
     justify-content: space-between;
-    padding: 0 $space $space;
-
-    .chart-header {
-      display: flex;
-      flex-direction: row;
-      justify-content: space-between;
-      align-items: center;
-    }
+    margin-top: $space;
 
     .chart {
       display: flex;

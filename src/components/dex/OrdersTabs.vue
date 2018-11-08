@@ -1,10 +1,10 @@
 <template>
   <section id="dex--orders-tabs">
-    <div v-for="option in tabOptions"
-      :class="[option.key, { active: selectedTab === option.key }]"
+    <button v-for="option in tabOptions"
+      :class="['btn', option.key, { active: selectedTab === option.key }]"
       @click="$emit('updateSelectedTab', option.key)">
       {{ option.label }}
-    </div>
+    </button>
   </section>
 </template>
 
@@ -36,23 +36,24 @@ export default {
   display: flex;
   flex-direction: row;
   flex: none;
-  margin: $space $space 0;
+  // margin: $space $space 0;
   overflow: scroll;
   white-space: nowrap;
 
-  > div {
-    background-color: $dark-purple;
-    border-radius: $border-radius;
-    font-size: toRem(16px);
-    margin: 0 $space;
-    padding: $space;
+  > .btn {
+    @extend %btn-outline;
 
-    &:first-child, &:last-child {
-      margin: 0;
-    }
+    flex: none;
+    width: percentage(2/5);
 
     &.active {
-      background-color: $purple;
+      @extend %btn;
+
+      width: percentage(2/5);
+    }
+
+    & + .btn {
+      margin-left: $space;
     }
   }
 }
