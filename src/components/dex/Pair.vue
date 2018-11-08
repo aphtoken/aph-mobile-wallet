@@ -36,7 +36,7 @@ export default {
     ...mapGetters([
       'currentMarket',
       'currentMarketName',
-      'tickerData',
+      'tickerDataByMarket',
     ]),
 
     baseCurrencies() {
@@ -48,14 +48,18 @@ export default {
         this.$services.neo.getHolding(this.$store.state.currentMarket.baseAssetId).unitValue : 0;
     },
 
+    currentTickerData() {
+      return _.get(this.tickerDataByMarket, this.currentMarketName, {});
+    },
+
     percentChangeAbsolute() {
       return this.$formatNumber(
-        _.get(this.tickerData, [this.currentMarketName, 'percentChangeAbsolute'], 0) * this.baseCurrencyUnitPrice,
+        _.get(this.currentTickerData, 'percentChangeAbsolute', 0) * this.baseCurrencyUnitPrice,
       );
     },
 
     quoteVolume() {
-      return this.$formatNumber(_.get(this.tickerData, [this.currentMarketName, 'quoteVolume'], 0));
+      return this.$formatNumber(_.get(this.currentTickerData, 'quoteVolume', 0));
     },
 
     tableData() {
@@ -112,7 +116,7 @@ export default {
     },
 
     setMarketData() {
-      this.marketData = _.reduce(this.tickerData, (marketData, market, ticker) => {
+      this.marketData = _.reduce(this.tickerDataByMarket, (marketData, market, ticker) => {
         const close24Hour = this.getClose24Hour(ticker);
         const change24Hour = this.getChange24Hour(close24Hour, market.open24hr);
 

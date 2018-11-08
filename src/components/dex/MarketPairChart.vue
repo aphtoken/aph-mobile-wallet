@@ -47,16 +47,8 @@ import { mapGetters } from 'vuex';
 
 export default {
   computed: {
-    currentMarket() {
-      return this.$store.state.currentMarket ? this.$store.state.currentMarket.marketName : '';
-    },
-
-    currentMarketData() {
-      return _.get(this.marketData, this.currentMarket, {});
-    },
-
     currentTickerData() {
-      return _.get(this.tickerData, this.currentMarket, {});
+      return _.get(this.tickerDataByMarket, this.currentMarketName, {});
     },
 
     basePrice() {
@@ -66,36 +58,37 @@ export default {
     },
 
     change24Hour() {
-      return this.$formatNumber(_.get(this.tickerData, [this.currentMarket, 'change24Hour'], 0));
+      return this.$formatNumber(_.get(this.currentTickerData, 'change24Hour', 0));
     },
 
     close24Hour() {
-      return _.get(this.tickerData, [this.currentMarket, 'close24Hour'], 0);
+      return _.get(this.currentTickerData, 'close24Hour', 0);
     },
 
     high24hr() {
-      return this.$formatMoney(_.get(this.tickerData, [this.currentMarket, 'high24hr'], 0));
+      return this.$formatMoney(_.get(this.currentTickerData, 'high24hr', 0));
     },
 
     low24hr() {
-      return this.$formatMoney(_.get(this.tickerData, [this.currentMarket, 'low24hr'], 0));
+      return this.$formatMoney(_.get(this.currentTickerData, 'low24hr', 0));
     },
 
     open24hr() {
-      return this.$formatMoney(_.get(this.tickerData, [this.currentMarket, 'open24hr'], 0));
+      return this.$formatMoney(_.get(this.currentTickerData, 'open24hr', 0));
     },
 
     percentChangeAbsolute() {
-      return this.$formatNumber(_.get(this.tickerData, [this.currentMarket, 'percentChangeAbsolute'], 0));
+      return this.$formatNumber(_.get(this.currentTickerData, 'percentChangeAbsolute', 0));
     },
 
     quoteVolume() {
-      return _.get(this.tickerData, [this.currentMarket, 'quoteVolume'], 0);
+      return _.get(this.currentTickerData, 'quoteVolume', 0);
     },
 
     ...mapGetters([
+      'currentMarket',
       'currentMarketName',
-      'tickerData',
+      'tickerDataByMarket',
     ]),
   },
 
