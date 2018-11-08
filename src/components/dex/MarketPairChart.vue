@@ -3,7 +3,6 @@
     <div class="header">
       <aph-token-icon class="icon" v-if="$store.state.currentMarket && $store.state.currentMarket.quoteCurrency" :symbol="$store.state.currentMarket.quoteCurrency"></aph-token-icon>
       <span>{{ currentMarketName }}</span>
-      {{debug()}}
     </div>
     <div class="body">
       <div class="chart">
@@ -102,13 +101,6 @@ export default {
     marketData: {
       default: {},
       type: Object,
-    },
-  },
-
-  methods: {
-    debug() {
-      console.log('this.tickerData', this.tickerData)
-      console.log('this.marketData', this.marketData)
     },
   },
 };
