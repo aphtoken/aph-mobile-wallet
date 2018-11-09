@@ -194,8 +194,7 @@ export default {
     },
 
     priceLabel() {
-      // TODO: This will most likely change when we get live data.
-      return this.currentMarket ? 'GAS' : '';
+      return _.get(this.baseHolding, 'symbol');
     },
 
     quoteBalanceToolTip() {
@@ -627,8 +626,8 @@ export default {
         }
       }
       .description {
-        color: $darker-grey;
-        font-size: toRem(10px);
+        @extend %small-uppercase-grey-label-dark;
+
         margin-top: $space-sm;
       }
     }
@@ -720,7 +719,6 @@ export default {
     > div {
       display: inline-block;
       margin: 0 $space-sm;
-      padding: $space;
       flex: 1;
 
       &:first-child, &:last-child {
