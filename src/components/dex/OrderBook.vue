@@ -100,12 +100,14 @@ export default {
         display: flex;
         flex-direction: column;
         flex: 1;
-        margin-top: $space;
         justify-content: flex-start;
+        margin-top: $space;
+        overflow: auto;
 
         .row {
           display: flex;
           flex-direction: row;
+          flex: none;
           justify-content: space-between;
 
           .cell {
