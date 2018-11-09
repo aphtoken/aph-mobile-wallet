@@ -13,11 +13,11 @@
         <div class="balance-container">
           <div class="balance">
             <span class="label">Contract Balance:</span>
-            <span class="value">{{ $formatNumber(holding.contractBalance) }}</span> 
+            <span class="value">{{ $formatNumber(holding.contractBalance) }}</span>
           </div>
-          <div class="balance"> 
+          <div class="balance">
             <span class="label">Wallet Balance:</span>
-            <span class="value">{{ $formatNumber(holding.balance) }}</span> 
+            <span class="value">{{ $formatNumber(holding.balance) }}</span>
           </div>
         </div>
         <div class="amount">
@@ -217,13 +217,11 @@ export default {
       }
 
       .deposit-withdraw-btn {
-        @extend %btn-footer;
+        @extend %btn;
 
-        color: white;
         display: flex;
         flex: none;
         justify-content: center;
-        text-transform: capitalize;
       }
     }
   }

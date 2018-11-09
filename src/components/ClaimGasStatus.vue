@@ -204,6 +204,7 @@ export default {
   }
   .cancel-btn {
     @extend %btn-footer-light;
+
     border-bottom-left-radius: $border-radius;
     border-bottom-right-radius: $border-radius;
   }
