@@ -31,7 +31,7 @@
       </div>
     </div>
     <div class="cancel">
-      <button class="cancel-btn" @click="hideDepositWithdrawModal">Cancel</button>
+      <button class="cancel-btn" @click="onCancel()">Cancel</button>
     </div>
   </section>
 </template>
@@ -79,10 +79,6 @@ export default {
       this.onConfirmed(this.transactionType, this.holding, this.amount);
     },
 
-    hideDepositWithdrawModal() {
-      this.$store.commit('setDepositWithdrawModalModel', null);
-    },
-
     setAmountToMax() {
       this.amount = this.isDeposit ?
         this.holding.balance.toString() :
@@ -103,6 +99,17 @@ export default {
     }
   },
 
+  props: {
+    onCancel: {
+      required: true,
+      type: Function,
+    },
+
+    onConfirmed: {
+      required: true,
+      type: Function,
+    },
+  },
 };
 </script>
 
