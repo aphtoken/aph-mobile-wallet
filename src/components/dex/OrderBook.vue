@@ -81,7 +81,7 @@ export default {
       display: flex;
       flex-direction: column;
       flex: 1;
-      margin: 0   $space;
+      margin: 0 $space;
 
       .header {
         color: $darker-grey;
