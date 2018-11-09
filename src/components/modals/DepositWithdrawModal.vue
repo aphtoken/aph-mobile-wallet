@@ -24,14 +24,12 @@
           <aph-input :isNumeric="true" @blur="amount = $cleanAmount(amount, holding)" placeholder="Amount" :light="true" v-model="amount"></aph-input>
           <div class="max" v-if="hasAsset" @click="setAmountToMax">Max</div>
         </div>
-        <div class="confirm-btn">
-          <button class="deposit-withdraw-btn" @click="submitTransaction"
-            :disabled="shouldDisableDepositWithdrawButton">Submit {{ transactionType }}</button>
-        </div>
+        <button class="deposit-withdraw-btn" @click="submitTransaction"
+          :disabled="shouldDisableDepositWithdrawButton">Submit {{ transactionType }}</button>
       </div>
     </div>
     <div class="cancel">
-      <button class="cancel-btn" @click="hideDepositWithdrawModal">Cancel</button>
+      <button class="cancel-btn" @click="onCancel()">Cancel</button>
     </div>
   </section>
 </template>
@@ -79,10 +77,6 @@ export default {
       this.onConfirmed(this.transactionType, this.holding, this.amount);
     },
 
-    hideDepositWithdrawModal() {
-      this.$store.commit('setDepositWithdrawModalModel', null);
-    },
-
     setAmountToMax() {
       this.amount = this.isDeposit ?
         this.holding.balance.toString() :
@@ -103,6 +97,17 @@ export default {
     }
   },
 
+  props: {
+    onCancel: {
+      required: true,
+      type: Function,
+    },
+
+    onConfirmed: {
+      required: true,
+      type: Function,
+    },
+  },
 };
 </script>
 
@@ -211,17 +216,14 @@ export default {
         margin-bottom: $space;
       }
 
-      .confirm-btn {
+      .deposit-withdraw-btn {
         @extend %btn-footer;
 
+        color: white;
         display: flex;
         flex: none;
         justify-content: center;
-
-        .deposit-withdraw-btn {
-          text-transform: capitalize;
-          color: white;
-        }
+        text-transform: capitalize;
       }
     }
   }
