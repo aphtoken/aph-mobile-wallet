@@ -41,7 +41,7 @@ export default {
   height: 100%;
   overflow: hidden;
   position: relative;
-  z-index: 0;
+  z-index: 1;
 
   > .background {
     display: block;
