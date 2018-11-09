@@ -71,7 +71,8 @@ export default {
   flex: 1;
 
   .book {
-    background-color: $dark-purple;
+    @extend %tile-dark;
+
     display: flex;
     flex-direction: column;
     flex: 1;
@@ -80,7 +81,7 @@ export default {
       display: flex;
       flex-direction: column;
       flex: 1;
-      margin: $space;
+      margin: 0   $space;
 
       .header {
         color: $darker-grey;
@@ -88,6 +89,7 @@ export default {
         flex-direction: row;
         flex: none;
         justify-content: space-between;
+        margin: $space-sm 0;
         text-transform: uppercase;
 
         .cell {
@@ -101,7 +103,6 @@ export default {
         flex-direction: column;
         flex: 1;
         justify-content: flex-start;
-        margin-top: $space;
         overflow: auto;
 
         .row {
@@ -112,6 +113,7 @@ export default {
 
           .cell {
             flex: 1;
+            font-size: toRem(12px);
 
             &.graph {
               font-size: 0;
@@ -120,7 +122,7 @@ export default {
 
               .size-bar {
                 display: inline-block;
-                height: toRem(12px);
+                height: toRem(10px);
                 position: absolute;
                 right: 0px;
 
@@ -161,8 +163,8 @@ export default {
       flex-direction: row;
       flex: none;
       justify-content: space-between;
-      margin: $space;
-      padding: $space-sm;
+      margin: $space-sm $space;
+      padding: $space-sm 0;
 
       > div {
         flex: 1;

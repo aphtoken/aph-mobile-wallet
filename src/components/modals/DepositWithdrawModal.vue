@@ -1,43 +1,42 @@
 <template>
-  <section class="aph-deposit-withdraw-modal">
-    <div class="content">
-      <div class="icons">
-        <aph-icon name="hex"></aph-icon>
-        <aph-icon name="trade"></aph-icon>
+  <modal-wrapper id="aph-deposit-withdraw-modal" icon="dex">
+    <div class="body">
+      <div class="transaction">
+        <button :class="{active: transactionType === 'deposit'}" @click="transactionType = 'deposit'">Deposit</button>
+        <button :class="{active: transactionType === 'withdraw'}" @click="transactionType = 'withdraw'">Withdraw</button>
       </div>
-      <div class="body">
-        <div class="transaction">
-          <button :class="{active: transactionType === 'deposit'}" @click="transactionType = 'deposit'">Deposit</button>
-          <button :class="{active: transactionType === 'withdraw'}" @click="transactionType = 'withdraw'">Withdraw</button>
+      <div class="balance-container">
+        <div class="balance">
+          <span class="label">Contract Balance:</span>
+          <span class="value">{{ $formatNumber(holding.contractBalance) }}</span>
         </div>
-        <div class="balance-container">
-          <div class="balance">
-            <span class="label">Contract Balance:</span>
-            <span class="value">{{ $formatNumber(holding.contractBalance) }}</span>
-          </div>
-          <div class="balance">
-            <span class="label">Wallet Balance:</span>
-            <span class="value">{{ $formatNumber(holding.balance) }}</span>
-          </div>
+        <div class="balance">
+          <span class="label">Wallet Balance:</span>
+          <span class="value">{{ $formatNumber(holding.balance) }}</span>
         </div>
-        <div class="amount">
-          <aph-input :isNumeric="true" @blur="amount = $cleanAmount(amount, holding)" placeholder="Amount" :light="true" v-model="amount"></aph-input>
-          <div class="max" v-if="hasAsset" @click="setAmountToMax">Max</div>
-        </div>
-        <button class="deposit-withdraw-btn" @click="submitTransaction"
-          :disabled="shouldDisableDepositWithdrawButton">Submit {{ transactionType }}</button>
       </div>
+      <div class="amount">
+        <aph-input :isNumeric="true" @blur="amount = $cleanAmount(amount, holding)" placeholder="Amount" :light="true" v-model="amount"></aph-input>
+        <div class="max" v-if="hasAsset" @click="setAmountToMax">Max</div>
+      </div>
+      <button class="deposit-withdraw-btn" @click="submitTransaction" :disabled="shouldDisableDepositWithdrawButton">Submit {{ transactionType }}</button>
     </div>
-    <div class="cancel">
+    <template slot="footer">
       <button class="cancel-btn" @click="onCancel()">Cancel</button>
-    </div>
-  </section>
+    </template>
+  </modal-wrapper>
 </template>
 
 <script>
 import { BigNumber } from 'bignumber.js';
 
+import ModalWrapper from './ModalWrapper';
+
 export default {
+  components: {
+    ModalWrapper,
+  },
+
   computed: {
     shouldDisableDepositWithdrawButton() {
       return isNaN(this.amount)
@@ -112,68 +111,18 @@ export default {
 </script>
 
 <style lang="scss">
-.aph-deposit-withdraw-modal {
-  background: rgba($dark, .7);
-  bottom: 0;
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  left: 0;
-  position: fixed;
-  right: 0;
-  top: 0;
-  width: 100%;
-  z-index: 100;
-
-  > .content {
-    display: flex;
-    flex-direction: column;
-    flex: 1;
-    justify-content: center;
-    overflow: hidden;
-    padding: $space;
-
-    .icons {
-      align-items: center;
-      justify-content: center;
-      display: flex;
-      flex: none;
-      position: relative;
-      z-index: 10;
-      margin-bottom: toRem(-50px);
-
-      .hex {
-        height: toRem(100px);
-
-        .fill {
-          fill: $purple;
-        }
-      }
-
-      .aph-icon:last-child {
-        left: 50%;
-        position: absolute;
-        top: 50%;
-        transform: translate(-50%, -50%);
-
-        svg {
-          height: toRem(50px);
-
-          .fill {
-            fill: white;
-          }
-        }
-      }
+#aph-deposit-withdraw-modal {
+  .content {
+    .title {
+      color: $purple;
+      font-family: GilroySemibold;
+      margin-top: $space;
+      text-align: center;
     }
 
     .body {
-      @extend %tile-light;
-
-      color: $dark;
-      display: flex;
-      flex-direction: column;
-      overflow: auto;
-      padding: $space-xxl $space $space;
+      margin-top: $space;
+      text-align: center;
 
       .transaction {
         display: flex;
@@ -206,8 +155,13 @@ export default {
           flex-direction: row;
           margin-top: $space;
 
-          > span {
+          > * {
             flex: 1;
+            text-align: left;
+
+            &.value {
+              text-align: right;
+            }
           }
         }
       }
@@ -226,11 +180,10 @@ export default {
     }
   }
 
-  .cancel {
+  > .footer {
     .cancel-btn {
       @extend %btn-footer-light;
 
-      flex: none;
       width: 100%;
     }
   }
