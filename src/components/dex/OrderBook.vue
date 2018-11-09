@@ -89,7 +89,7 @@ export default {
         flex-direction: row;
         flex: none;
         justify-content: space-between;
-        margin: $space-sm 0;
+        margin: $space 0 $space-xs;
         text-transform: uppercase;
 
         .cell {
