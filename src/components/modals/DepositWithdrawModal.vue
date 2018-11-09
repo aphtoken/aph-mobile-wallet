@@ -24,10 +24,8 @@
           <aph-input :isNumeric="true" @blur="amount = $cleanAmount(amount, holding)" placeholder="Amount" :light="true" v-model="amount"></aph-input>
           <div class="max" v-if="hasAsset" @click="setAmountToMax">Max</div>
         </div>
-        <div class="confirm-btn">
-          <button class="deposit-withdraw-btn" @click="submitTransaction"
-            :disabled="shouldDisableDepositWithdrawButton">Submit {{ transactionType }}</button>
-        </div>
+        <button class="deposit-withdraw-btn" @click="submitTransaction"
+          :disabled="shouldDisableDepositWithdrawButton">Submit {{ transactionType }}</button>
       </div>
     </div>
     <div class="cancel">
@@ -218,17 +216,14 @@ export default {
         margin-bottom: $space;
       }
 
-      .confirm-btn {
+      .deposit-withdraw-btn {
         @extend %btn-footer;
 
+        color: white;
         display: flex;
         flex: none;
         justify-content: center;
-
-        .deposit-withdraw-btn {
-          text-transform: capitalize;
-          color: white;
-        }
+        text-transform: capitalize;
       }
     }
   }
