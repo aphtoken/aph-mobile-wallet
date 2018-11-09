@@ -31,9 +31,3 @@
   font-size: toRem(12px);
   text-transform: uppercase;
 }
-
-%truncate {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap
-}

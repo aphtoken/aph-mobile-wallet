@@ -738,7 +738,6 @@ export default {
 
       .control {
         @extend %small-uppercase-grey-label;
-        @extend %truncate;
 
         border-radius: $border-radius;
         border: $border-width-thin solid $purple;
