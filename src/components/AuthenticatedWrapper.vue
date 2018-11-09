@@ -267,9 +267,7 @@ export default {
 
     background: $dark;
     height: 100%;
-    height: 100%;
     left: 0;
-    overflow: auto;
     position: relative;
     width: 100%;
     z-index: 10;

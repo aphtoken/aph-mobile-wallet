@@ -54,7 +54,7 @@
     </div>
     <div class="footer">
       <div :class="['balance', {active: quoteHolding.symbol === actionableHolding.symbol}]" :title="quoteBalanceToolTip">
-        <div class="label">{{ quoteHolding.symbol }} Balance</div>
+        <div class="label">{{ quoteHolding.symbol }}</div>
         <div @click="showDepositWithdrawModal(quoteHolding)" class="control">{{ $t('depositWithdraw') }}</div>
         <div class="contract">contract</div>
         <div class="contract-value">{{ $formatNumber(quoteHolding.totalBalance) }}</div>
@@ -62,7 +62,7 @@
         <div class="wallet-value">32,431</div>
       </div>
       <div :class="['balance', {active: baseHolding.symbol === actionableHolding.symbol}]" :title="baseBalanceToolTip">
-        <div class="label">{{ baseHolding.symbol }} Balance</div>
+        <div class="label">{{ baseHolding.symbol }}</div>
         <div @click="showDepositWithdrawModal(baseHolding)" class="control">{{ $t('depositWithdraw') }}</div>
         <div class="contract">contract</div>
         <div class="contract-value">{{ $formatNumber(baseHolding.totalBalance) }}</div>
@@ -70,7 +70,7 @@
         <div class="wallet-value">1.21</div>
       </div>
       <div :class="['balance', {active: aphHolding.symbol === actionableHolding.symbol}]" :title="aphBalanceToolTip" v-if="baseHolding.symbol !== 'APH' && quoteHolding.symbol !== 'APH'">
-        <div class="label">APH Balance</div>
+        <div class="label">APH</div>
         <div @click="showDepositWithdrawModal(aphHolding)" class="control">{{ $t('depositWithdraw') }}</div>
         <div class="contract">contract</div>
         <div class="contract-value">{{ $formatNumber(aphHolding.totalBalance) }}</div>
