@@ -199,7 +199,8 @@ export default {
       flex: 1;
       display: flex;
       flex-direction: column;
-      justify-content: space-around;
+      justify-content: space-between;
+      padding-bottom: $space;
 
       .aph-icon > svg {
           &.dashboard {
@@ -255,8 +256,10 @@ export default {
           }
         }
 
-        & + a {
-          margin-top: $space-lg;
+        @include lowRes() {
+          .aph-icon, p {
+            transform: scale(.8);
+          }
         }
       }
     }
