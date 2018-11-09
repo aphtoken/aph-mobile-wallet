@@ -38,7 +38,7 @@ export default {
   flex-direction: column;
   flex: 1;
 
-  .aph-simple-table {
+  .aph-simple-table .error-message {
     margin-top: $space;
   }
 }

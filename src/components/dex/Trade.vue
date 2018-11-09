@@ -15,13 +15,13 @@
         <div class="price" v-if="orderType === 'Limit'">
           <aph-input v-model="$store.state.orderPrice"></aph-input>
           <div class="description">
-            LIMIT PRICE ({{ priceLabel }})
+            limit price ({{ baseHoldingSymbol }})
           </div>
         </div>
         <div class="quantity">
           <aph-input v-model="$store.state.orderQuantity"></aph-input>
           <div class="description">
-            AMOUNT ({{ priceLabel }})
+            amount ({{ quoteHoldingSymbol }})
           </div>
         </div>
         <div class="percentages">
@@ -78,7 +78,7 @@
         <div class="wallet-value">3.21</div>
       </div>
     </div>
-    <order-confirmation-modal v-if="$store.state.showOrderConfirmationModal" :onClose="closeConfirmModal" :onConfirmed="orderConfirmed" />
+    <order-confirmation-modal v-if="$store.state.showOrderConfirmationModal" :onClose="closeConfirmModal" :onConfirm="orderConfirmed" />
     <deposit-withdraw-modal v-if="$store.state.depositWithdrawModalModel" :onConfirmed="depositWithdrawConfirmed" :onCancel="hideDepositWithdrawModal" />
   </section>
 </template>
@@ -147,6 +147,10 @@ export default {
       };
     },
 
+    baseHoldingSymbol() {
+      return _.get(this.baseHolding, 'symbol');
+    },
+
     canPlaceMarketOrder() {
       const currentWallet = this.$services.wallets.getCurrentWallet();
       return currentWallet && !currentWallet.isLedger;
@@ -196,8 +200,8 @@ export default {
       return price;
     },
 
-    priceLabel() {
-      return _.get(this.baseHolding, 'symbol');
+    quoteHoldingSymbol() {
+      return _.get(this.quoteHolding, 'symbol');
     },
 
     quoteBalanceToolTip() {
@@ -323,11 +327,7 @@ export default {
     marketPriceForQuantity(side, quantity) {
       let quantityRemaining = new BigNumber(quantity);
       let totalMultiple = new BigNumber(0);
-      let book = this.$store.state.orderBookAsks;
-
-      if (side === 'Sell') {
-        book = this.$store.state.orderBookBids;
-      }
+      const book = _.get(this.$store.state.orderBook, side === 'Sell' ? 'bids' : 'asks', []);
 
       book.forEach((level) => {
         const takeQuantity = level.quantity.isGreaterThan(quantityRemaining) ? quantityRemaining : level.quantity;
@@ -342,6 +342,8 @@ export default {
     },
 
     orderConfirmed() {
+      this.closeConfirmModal();
+
       if (this.$isPending('placeOrder')) {
         return;
       }
@@ -434,7 +436,7 @@ export default {
         orderPrice = new BigNumber(this.$store.state.orderPrice);
       }
 
-      const book = this.$store.state.orderBookBids;
+      const book = _.get(this.$store.state.orderBook, 'bids', []);
       let willTakeOffers = false;
       if (!orderPrice || orderPrice.isLessThanOrEqualTo(book[0].price)) {
         willTakeOffers = !this.postOnly;

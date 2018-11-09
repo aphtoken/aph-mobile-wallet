@@ -213,7 +213,7 @@ export default {
           display: flex;
           flex: 1;
           font-size: toRem(12px);
-          padding: $space 0;
+          padding: $space-sm 0;
 
           &:first-child {
             padding-left: $space-sm;

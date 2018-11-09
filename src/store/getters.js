@@ -15,8 +15,6 @@ export const lastReceivedBlock = state => state.lastReceivedBlock;
 export const lastSuccessfulRequest = state => state.lastSuccessfulRequest;
 export const latestVersion = state => state.latestVersion;
 export const markets = state => state.markets;
-export const orderBookAsks = state => _.get(state.orderbook, 'asks', []);
-export const orderBookBids = state => _.get(state.orderbook, 'bids', []);
 export const orderPrice = state => state.orderPrice;
 export const orderQuantity = state => state.orderQuantity;
 export const orderToConfirm = state => state.orderToConfirm;
