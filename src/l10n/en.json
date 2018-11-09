@@ -152,6 +152,7 @@
   "deleteWallet": "Yes, Delete Wallet",
   "deletedWallet": "Deleted Wallet {name}",
   "deposit": "Deposit",
+  "depositWithdraw": "Dep/With",
   "depositAPH": "Deposit APH",
   "depth": "Depth",
   "disclaimerUrgent": "Disclaimer - Urgent Instructions",

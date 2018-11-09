@@ -135,19 +135,21 @@ export default {
     flex: 1;
 
     .table-header-row {
+      @extend %small-uppercase-grey-label-dark;
+
       display: flex;
       flex-direction: row;
       flex: none;
       font-size: toRem(10px);
-      padding: $space $space-xs $space $space;
+      padding: $space-sm 0;
 
       .header-cell {
-        color: $darker-grey;
         display: flex;
         flex-basis: auto;
         margin: 0;
         padding: 0;
         user-select: none;
+        white-space: nowrap;
         width: 100%;
 
         &:last-child {
@@ -155,30 +157,28 @@ export default {
         }
 
         .arrow {
-          display: inline-block;
+          display: none;
           height: 0;
+          margin-left: $space-xs;
           margin: auto 0 auto toRem(2px);
-          opacity: 0;
           width: 0;
         }
       }
 
       .header-cell .arrow.asc {
-        border-bottom: 4px solid #fff;
+        border-bottom: 4px solid $dark-grey;
         border-left: 4px solid transparent;
         border-right: 4px solid transparent;
-        opacity: 0;
-        text-transform: uppercase;
       }
 
       .header-cell .arrow.dsc {
         border-left: 4px solid transparent;
         border-right: 4px solid transparent;
-        border-top: 4px solid #fff;
+        border-top: 4px solid $dark-grey;
       }
 
       .header-cell.active .arrow {
-        opacity: .66;
+        display: inline-block;
       }
     }
 

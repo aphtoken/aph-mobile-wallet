@@ -200,7 +200,7 @@ export default {
   }
 
   > .body {
-    background: lighten($dark-purple, 3%);
+    background: lighten($dark-purple, 4%);
     display: flex;
     flex-direction: column;
     flex: 1;

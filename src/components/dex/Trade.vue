@@ -38,11 +38,11 @@
           </div>
         </div>
         <div class="total">
-          <div class="label">TOTAL ({{ baseHolding.symbol }})</div>
+          <div class="label">total ({{ baseHolding.symbol }})</div>
           <div class="value">{{ $formatNumber(total) }}</div>
         </div>
         <div class="estimate">
-          <div class="label">ESTIMATE ({{ $services.settings.getCurrency() }})</div>
+          <div class="label">estimate ({{ $services.settings.getCurrency() }})</div>
           <div class="value">{{ $formatMoney(estimate) }}</div>
         </div>
         <div class="place-order">
@@ -53,25 +53,28 @@
       </div>
     </div>
     <div class="footer">
-      <div @click="showDepositWithdrawModal(quoteHolding)" :class="['balance', {active: quoteHolding.symbol === actionableHolding.symbol}]" :title="quoteBalanceToolTip">
-        <div class="label">{{ quoteHolding.symbol }} Balance</div>
-        <div class="contract">CONTRACT</div>
+      <div :class="['balance', {active: quoteHolding.symbol === actionableHolding.symbol}]" :title="quoteBalanceToolTip">
+        <div class="label">{{ quoteHolding.symbol }}</div>
+        <div @click="showDepositWithdrawModal(quoteHolding)" class="control">{{ $t('depositWithdraw') }}</div>
+        <div class="contract">contract</div>
         <div class="contract-value">{{ $formatNumber(quoteHolding.totalBalance) }}</div>
-        <div class="wallet">WALLET</div>
+        <div class="wallet">wallet</div>
         <div class="wallet-value">32,431</div>
       </div>
-      <div @click="showDepositWithdrawModal(baseHolding)" :class="['balance', {active: baseHolding.symbol === actionableHolding.symbol}]" :title="baseBalanceToolTip">
-        <div class="label">{{ baseHolding.symbol }} Balance</div>
-        <div class="contract">CONTRACT</div>
+      <div :class="['balance', {active: baseHolding.symbol === actionableHolding.symbol}]" :title="baseBalanceToolTip">
+        <div class="label">{{ baseHolding.symbol }}</div>
+        <div @click="showDepositWithdrawModal(baseHolding)" class="control">{{ $t('depositWithdraw') }}</div>
+        <div class="contract">contract</div>
         <div class="contract-value">{{ $formatNumber(baseHolding.totalBalance) }}</div>
-        <div class="wallet">WALLET</div>
+        <div class="wallet">wallet</div>
         <div class="wallet-value">1.21</div>
       </div>
-      <div @click="showDepositWithdrawModal(aphHolding)" :class="['balance', {active: aphHolding.symbol === actionableHolding.symbol}]" :title="aphBalanceToolTip" v-if="baseHolding.symbol !== 'APH' && quoteHolding.symbol !== 'APH'">
-        <div class="label">APH Balance</div>
-        <div class="contract">CONTRACT</div>
+      <div :class="['balance', {active: aphHolding.symbol === actionableHolding.symbol}]" :title="aphBalanceToolTip" v-if="baseHolding.symbol !== 'APH' && quoteHolding.symbol !== 'APH'">
+        <div class="label">APH</div>
+        <div @click="showDepositWithdrawModal(aphHolding)" class="control">{{ $t('depositWithdraw') }}</div>
+        <div class="contract">contract</div>
         <div class="contract-value">{{ $formatNumber(aphHolding.totalBalance) }}</div>
-        <div class="wallet">WALLET</div>
+        <div class="wallet">wallet</div>
         <div class="wallet-value">3.21</div>
       </div>
     </div>
@@ -194,8 +197,7 @@ export default {
     },
 
     priceLabel() {
-      // TODO: This will most likely change when we get live data.
-      return this.currentMarket ? 'GAS' : '';
+      return _.get(this.baseHolding, 'symbol');
     },
 
     quoteBalanceToolTip() {
@@ -616,7 +618,6 @@ export default {
 
     .price, .quantity {
       flex: none;
-      margin-top: $space;
 
       .aph-input {
         border-color: $darker-grey;
@@ -627,8 +628,8 @@ export default {
         }
       }
       .description {
-        color: $darker-grey;
-        font-size: toRem(10px);
+        @extend %small-uppercase-grey-label-dark;
+
         margin-top: $space-sm;
       }
     }
@@ -639,7 +640,6 @@ export default {
       flex-direction: row;
       flex: none;
       justify-content: space-around;
-      margin-top: $space;
       padding: $space 0;
 
       > div {
@@ -661,9 +661,10 @@ export default {
       .option {
         display: flex;
         flex-direction: row;
+        align-items: center;
 
         label {
-          margin: auto $space-sm auto 0;
+          margin-right: $space-sm;
         }
 
         .aph-icon {
@@ -679,15 +680,16 @@ export default {
     }
 
     .total, .estimate {
+      @extend %small-uppercase-grey-label;
+
       display: flex;
       flex-direction: row;
-      font-size: toRem(12px);
       justify-content: space-between;
       flex: none;
       margin-top: $space-sm;
 
-      .label {
-        @extend %small-uppercase-grey-label;
+      .value {
+        color: white;
       }
     }
 
@@ -720,7 +722,6 @@ export default {
     > div {
       display: inline-block;
       margin: 0 $space-sm;
-      padding: $space;
       flex: 1;
 
       &:first-child, &:last-child {
@@ -728,9 +729,22 @@ export default {
       }
 
       .contract, .wallet {
-        color: $darker-grey;
-        font-size: toRem(10px);
+        @extend %small-uppercase-grey-label-dark;
+      }
+
+      .wallet {
         margin-top: $space-sm;
+      }
+
+      .control {
+        @extend %small-uppercase-grey-label;
+
+        border-radius: $border-radius;
+        border: $border-width-thin solid $purple;
+        color: $purple;
+        display: inline-block;
+        margin: $space-sm 0;
+        padding: $space-xs $space-sm;
       }
 
       .contract-value, .wallet-value {

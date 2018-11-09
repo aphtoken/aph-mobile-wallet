@@ -66,9 +66,10 @@ export {
   setWithdrawInProgressModalModel,
   startRequest,
   startSilentRequest,
-  SOCKET_ONOPEN,
   SOCKET_ONCLOSE,
+  SOCKET_ONERROR,
   SOCKET_ONMESSAGE,
+  SOCKET_ONOPEN,
   SOCKET_RECONNECT,
   SOCKET_RECONNECT_ERROR,
 };
@@ -441,6 +442,10 @@ function SOCKET_ONCLOSE(state) {
   if (!state.socket.connectionClosed) {
     state.socket.connectionClosed = moment().utc();
   }
+}
+
+function SOCKET_ONERROR() {
+  // Socket error...
 }
 
 function SOCKET_ONOPEN(state, event) {
