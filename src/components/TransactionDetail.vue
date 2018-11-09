@@ -4,7 +4,7 @@
       <aph-icon name="arrow-down"></aph-icon>
     </div>
     <div class="header">
-        <div class="confirmed" v-if="transaction.details.confirmed">
+        <div class="confirmed" v-if="details.confirmed">
           <aph-icon name="confirmed-big"></aph-icon>
           <div class="label">{{ $t('Confirmed') }}</div>
         </div>
@@ -66,21 +66,21 @@
       <div class="row">
         <div class="col">
           <div class="label">{{ $t('networkFee') }}</div>
-          <div class="value">{{ $t('feeInGas', { fee: $formatNumber(transaction.details.net_fee) }) }}</div>
+          <div class="value">{{ $t('feeInGas', { fee: $formatNumber(details.net_fee) }) }}</div>
         </div>
         <div class="col">
           <div class="label">{{ $t('systemFee') }}</div>
-          <div class="value">{{ $t('systemFeeInGas', { fee: $formatNumber(transaction.details.sys_fee)}) }}</div>
+          <div class="value">{{ $t('systemFeeInGas', { fee: $formatNumber(details.sys_fee)}) }}</div>
         </div>
       </div>
       <div class="row">
         <div class="col">
           <div class="label">{{ $t('Confirmations') }}</div>
-          <div class="value">{{ $formatNumber(transaction.details.confirmations) }}</div>
+          <div class="value">{{ $formatNumber(details.confirmations) }}</div>
         </div>
         <div class="col">
           <div class="label">{{ $t('Size') }}</div>
-          <div class="value">{{ $t('sizeInBytes', { bytes: $formatNumber(transaction.details.size)}) }}</div>
+          <div class="value">{{ $t('sizeInBytes', { bytes: $formatNumber(details.size)}) }}</div>
         </div>
       </div>
     </div>
@@ -89,7 +89,26 @@
 
 <script>
 export default {
-  props: ['onHide', 'show', 'transaction'],
+  computed: {
+    details() {
+      return _.get(this.transaction, 'details', {});
+    },
+  },
+
+  props: {
+    onHide: {
+      required: true,
+      type: Function,
+    },
+
+    show: {
+      type: Boolean,
+    },
+
+    transaction: {
+      type: Object,
+    },
+  },
 };
 </script>
 
@@ -106,9 +125,10 @@ export default {
   position: fixed;
   top: 100vh;
   width: 100%;
-  z-index: 1000;
+  z-index: 9999;
 
   > .control {
+    background: $dark;
     padding: $space;
 
     svg {
@@ -124,6 +144,7 @@ export default {
     display: flex;
     flex-direction: column;
     flex: none;
+    opacity: 0;
     padding: $space 0;
 
     svg {
@@ -166,12 +187,17 @@ export default {
     background: white;
     color: $dark;
     flex: 1;
+    opacity: 0;
     overflow: auto;
     padding: $space;
   }
 
   &.show {
     top: 0vh;
+
+    > .header, > .body {
+      opacity: 1;
+    }
   }
 }
 </style>

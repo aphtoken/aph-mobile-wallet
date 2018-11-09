@@ -10,7 +10,6 @@
     <div class="body">
       <aph-simple-transactions :transactions="transactions" :on-click="showTransaction"></aph-simple-transactions>
     </div>
-    <aph-transaction-detail :on-hide="hideTransactionDetail" :show="showTransactionDetail" :transaction="transactionDetail"></aph-transaction-detail>
   </section>
 </template>
 
@@ -27,21 +26,9 @@ export default {
     },
   },
 
-  data() {
-    return {
-      showTransactionDetail: false,
-      transactionDetail: {},
-    };
-  },
-
   methods: {
-    hideTransactionDetail() {
-      this.showTransactionDetail = false;
-    },
-
     showTransaction(transaction) {
-      this.transactionDetail = transaction;
-      this.showTransactionDetail = true;
+      this.$store.commit('setTransactionDetail', transaction);
     },
   },
 };
@@ -54,7 +41,7 @@ export default {
   height: 100%;
   overflow: hidden;
   position: relative;
-  z-index: 1;
+  z-index: 0;
 
   > .background {
     display: block;

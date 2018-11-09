@@ -61,6 +61,7 @@ export {
   setSystemWithdrawMergeState,
   setTickerDataByMarket,
   setTradeHistory,
+  setTransactionDetail,
   setWalletToBackup,
   setWallets,
   setWithdrawInProgressModalModel,
@@ -204,6 +205,10 @@ function setCommitState(state, commitState) {
 
 function setDepositWithdrawModalModel(state, model) {
   state.depositWithdrawModalModel = model;
+}
+
+function setTransactionDetail(state, transaction) {
+  state.transactionDetail = transaction;
 }
 
 function setWalletToBackup(state, wallet) {
