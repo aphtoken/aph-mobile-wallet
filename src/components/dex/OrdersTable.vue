@@ -10,7 +10,7 @@
     <aph-simple-table v-bind="{ data: formatTableData(filteredOrders), columns: openOrderColumns, hasHeader: false }">
       <div slot="pairAndSide" slot-scope="{value}" class="pair-and-side-cell">
         <div class="pair">
-          {{ value.pair }}
+          {{ value.marketName }}
         </div>
         <div class="side" :class="value.side">
           {{ value.side }}
@@ -20,10 +20,10 @@
         <div class="trade-details">
           <div class="size-base">
             <div class="trade-size">
-              {{ value.amount }}
+              {{ value.quantity }}
             </div>
-            <div class="base-currency">
-              {{ value.base }}
+            <div class="quote-currency">
+              {{ value.quoteSymbol }}
             </div>
           </div>
           <div class="price-cost">
@@ -82,12 +82,6 @@ export default {
       });
 
       return orders;
-    },
-
-    baseCurrency() {
-      return this.$store.state.markets.find(({ marketName }) => {
-        return marketName === this.$store.state.ordersToShow;
-      }).baseCurrency;
     },
 
     baseCurrencyUnitPrice() {
@@ -152,24 +146,25 @@ export default {
     },
 
     formatTableData(tableData) {
-      return tableData.reduce((formattedData, tableEntry) => {
-        const entry = {
+      const quoteSymbol = _.get(this.$store.state, 'currentMarket.quoteCurrency');
+
+      return tableData.map(({ marketName, offerId, price, quantity, side }) => {
+        return {
           pairAndSide: {
-            pair: tableEntry.marketName,
-            side: tableEntry.side.toLowerCase(),
+            marketName,
+            side: side.toLowerCase(),
           },
           details: {
-            amount: tableEntry.quantity,
-            base: this.baseCurrency,
-            price: tableEntry.price,
-            cost: this.$formatNumber(tableEntry.price * this.baseCurrencyUnitPrice),
+            quantity,
+            quoteSymbol,
+            price,
+            cost: this.$formatNumber(price * this.baseCurrencyUnitPrice),
             // These last two are needed here for order cancellation.
-            offerId: tableEntry.offerId,
-            marketName: tableEntry.marketName,
+            offerId,
+            marketName,
           },
         };
-        return formattedData.concat([entry]);
-      }, []);
+      });
     },
 
     handleStatusChange(newStatus) {
@@ -273,7 +268,6 @@ export default {
       display: flex;
       flex: 1;
       flex-direction: column;
-      margin-right: $space;
 
       > div {
         display: flex;
