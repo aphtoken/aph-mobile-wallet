@@ -16,7 +16,7 @@ export default {
       tabOptions: [
         { key: 'my-orders', label: 'My orders' },
         { key: 'order-book', label: 'Order book' },
-        { key: 'trade-history', label: 'Trade history' },
+        { key: 'trade-history', label: 'History' },
       ],
     };
   },
@@ -36,7 +36,6 @@ export default {
   display: flex;
   flex-direction: row;
   flex: none;
-  // margin: $space $space 0;
   overflow: scroll;
   white-space: nowrap;
 
@@ -44,16 +43,19 @@ export default {
     @extend %btn-outline;
 
     flex: none;
-    width: percentage(2/5);
+    padding: 0 $space-lg;
+    width: auto;
 
     &.active {
       @extend %btn;
 
-      width: percentage(2/5);
+      padding: 0 $space-lg;
+      width: auto;
     }
 
     & + .btn {
       margin-left: $space;
+      padding: 0 $space;
     }
   }
 }

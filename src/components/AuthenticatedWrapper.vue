@@ -44,6 +44,7 @@
     <withdraw-in-progress-modal v-if="$store.state.withdrawInProgressModalModel"></withdraw-in-progress-modal>
     <backup-wallet v-if="$store.state.walletToBackup"></backup-wallet>
     <claim-gas-status v-if="$store.state.showClaimGasStatus"></claim-gas-status>
+    <aph-transaction-detail :on-hide="hideTransactionDetail" :show="shouldShowTransactionDetails" :transaction="$store.state.transactionDetail"></aph-transaction-detail>
   </section>
 </template>
 
@@ -92,6 +93,10 @@ export default {
       return _.includes(ROUTES_USING_BACK_BUTTON, this.$route.name);
     },
 
+    shouldShowTransactionDetails() {
+      return !_.isEmpty(this.$store.state.transactionDetail);
+    },
+
     ...mapGetters([
       'websocketUri',
     ]),
@@ -125,6 +130,10 @@ export default {
 
     goBack() {
       this.$router.back();
+    },
+
+    hideTransactionDetail() {
+      this.$store.commit('setTransactionDetail', {});
     },
 
     loadHoldings() {
@@ -276,7 +285,6 @@ export default {
     left: 0;
     position: relative;
     width: 100%;
-    z-index: 10;
 
     &.menu-open {
       left: 40vw;
