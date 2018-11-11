@@ -27,7 +27,6 @@
         </div>
       </div>
     </div>
-    <aph-transaction-detail :on-hide="hideTransactionDetail" :show="showTransactionDetail" :transaction="transactionDetail"></aph-transaction-detail>
   </section>
 </template>
 
@@ -80,24 +79,17 @@ export default {
     return {
       activeTab: 'all',
       fromDate: moment().startOf('day').subtract(7, 'days'),
-      showTransactionDetail: false,
       toDate: null,
-      transactionDetail: {},
     };
   },
 
   methods: {
-    hideTransactionDetail() {
-      this.showTransactionDetail = false;
-    },
-
     loadTransactions() {
       this.$store.dispatch('findTransactions');
     },
 
     showTransaction(transaction) {
-      this.transactionDetail = transaction;
-      this.showTransactionDetail = true;
+      this.$store.commit('setTransactionDetail', transaction);
     },
 
     toggleTransaction({ details }) {

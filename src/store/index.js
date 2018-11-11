@@ -60,6 +60,7 @@ const state = {
   systemWithdraw: null,
   tickerDataByMarket: {},
   tradeHistory: null,
+  transactionDetail: {},
   transactionDetails: {},
   version: pjson.version,
   walletToBackup: null,
