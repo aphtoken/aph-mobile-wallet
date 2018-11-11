@@ -11,10 +11,7 @@
           <li :class="stepClass(4)"><span>{{stepIndicator(4)}}</span>{{step4Label}}</li>
           <li :class="stepClass(5)"><span>{{stepIndicator(5)}}</span>{{step5Label}}</li>
         </ul>
-
-        <div class="error" v-if="error !== null">
-          {{error}}
-        </div>
+        <div class="error" v-if="!!error">{{error}}</div>
       </div>
     </div>
     <template slot="footer">
@@ -30,6 +27,7 @@
       components: {
         ModalWrapper,
       },
+
       computed: {
         closeLabel() {
           if (this.$store.state.systemWithdraw
@@ -48,8 +46,8 @@
 
         step0Label() {
           return this.$t('withdrawStepCalculatingWithdrawInputs');
-        }
-        ,
+        },
+
         step1Label() {
           return this.$t('withdrawStepMarkSystemAsset', this.$store.state.systemWithdraw);
         },
