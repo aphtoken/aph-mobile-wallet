@@ -146,6 +146,8 @@ export default {
     },
 
     formatTableData(tableData) {
+      const quoteSymbol = _.get(this.$store.state, 'currentMarket.quoteCurrency');
+
       return tableData.map(({ marketName, offerId, price, quantity, side }) => {
         return {
           pairAndSide: {
@@ -154,7 +156,7 @@ export default {
           },
           details: {
             quantity,
-            quoteSymbol: _.last(marketName.split('-')),
+            quoteSymbol,
             price,
             cost: this.$formatNumber(price * this.baseCurrencyUnitPrice),
             // These last two are needed here for order cancellation.
