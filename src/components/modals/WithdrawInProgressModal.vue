@@ -1,6 +1,6 @@
  <template>
-  <modal-wrapper id="aph-withdraw-in-progress-modal">
-    <div class="header">{{$t('withdrawSystemAsset', $store.state.systemWithdraw)}}</div>
+  <modal-wrapper id="withdraw-in-progress-modal" icon="dex">
+    <div class="title">{{$t('withdrawSystemAsset', $store.state.systemWithdraw)}}</div>
     <div class="body">
       <div class="checklist">
         <div class="checklist-header">{{$t('steps')}}</div>
@@ -8,8 +8,6 @@
           <li :class="stepClass(0)"><span>{{stepIndicator(0)}}</span>{{step0Label}}</li>
           <li :class="stepClass(1)"><span>{{stepIndicator(1)}}</span>{{step1Label}}</li>
           <li :class="stepClass(2)"><span>{{stepIndicator(2)}}</span>{{step2Label}}</li>
-          <!-- Removed showing this step for now by business decision. -->
-          <!-- <li :class="stepClass(3)"><span>{{stepIndicator(3)}}</span>{{step3Label}}</li> -->
           <li :class="stepClass(4)"><span>{{stepIndicator(4)}}</span>{{step4Label}}</li>
           <li :class="stepClass(5)"><span>{{stepIndicator(5)}}</span>{{step5Label}}</li>
         </ul>
@@ -19,9 +17,9 @@
         </div>
       </div>
     </div>
-    <div class="footer">
+    <template slot="footer">
       <div class="cancel-btn" @click="close">{{closeLabel}}</div>
-    </div>
+    </template>
   </modal-wrapper>
 </template>
 
@@ -40,28 +38,30 @@
           }
           return 'Close (withdraw continues in background)';
         },
+
         error() {
           if (this.$store.state.systemWithdraw && this.$store.state.systemWithdraw.error) {
             return this.$store.state.systemWithdraw.error;
           }
           return null;
         },
+
         step0Label() {
           return this.$t('withdrawStepCalculatingWithdrawInputs');
-        },
+        }
+        ,
         step1Label() {
           return this.$t('withdrawStepMarkSystemAsset', this.$store.state.systemWithdraw);
         },
+
         step2Label() {
           return this.$t('withdrawStepWaitForMarkSystemAsset', this.$store.state.systemWithdraw);
         },
-        /* Removed by business decision.
-        step3Label() {
-          return this.$t('withdrawStepWithdrawSystemAsset', this.$store.state.systemWithdraw);
-        }, */
+
         step4Label() {
           return this.$t('withdrawStepWaitForWithdrawSystemAsset', this.$store.state.systemWithdraw);
         },
+
         step5Label() {
           return this.$t('success');
         },
@@ -70,6 +70,7 @@
         close() {
           this.$store.commit('setWithdrawInProgressModalModel', false);
         },
+
         stepClass(step) {
           if (this.$store.state.systemWithdraw) {
             if (this.$store.state.systemWithdraw.step === step) {
@@ -81,6 +82,7 @@
           }
           return [];
         },
+
         stepIndicator(step) {
           if (!this.$store.state.systemWithdraw || (this.$store.state.systemWithdraw.step <= step
             && this.$store.state.systemWithdraw.step < 5)) {
@@ -94,19 +96,19 @@
 </script>
 
 <style lang="scss">
-#aph-withdraw-in-progress-modal {
+#withdraw-in-progress-modal {
   .content {
-    width: toRem(600px);
-  }
-  .header {
-    font-size: toRem(30px);
-    padding: $space-lg $space-lg 0;
-    text-align: center;
-  }
-  .body {
-    display: block;
-    padding: $space-lg;
-    text-align: center;
+    .title {
+      color: $purple;
+      font-family: GilroySemibold;
+      margin-top: $space;
+      text-align: center;
+    }
+
+    .body {
+      margin-top: $space;
+    }
+
     p {
       margin: 0;
 
@@ -115,31 +117,35 @@
           font-family: GilroySemibold;
         }
       }
+
       & + p {
         margin-top: $space-lg;
       }
     }
     .aph-icon {
       svg {
-        height: $space-xl;
+        height: $space-lg;
       }
+
       & + p {
-        margin-top: $space-xl;
+        margin-top: $space-lg;
       }
     }
     .checklist {
       margin: 0 auto;
       max-width: toRem(400px);
       text-align: left;
+
       .checklist-header {
-        font-size: toRem(20px);
         font-family: GilroyMedium;
-        padding: $space-lg;
         text-align: center;
       }
+
       ul {
-        margin: 0;
         list-style: none;
+        margin: 0;
+        padding: 0;
+
         li {
           color: $grey;
           padding: $space-sm 0;
@@ -147,6 +153,7 @@
           span {
             padding: $space-sm;
           }
+
           &.in-progress {
             color: $dark;
             font-family: GilroySemibold;
@@ -154,6 +161,7 @@
               color: $green;
             }
           }
+
           &.complete {
             color: $dark;
 
@@ -163,6 +171,7 @@
           }
         }
       }
+
       .error {
         color: $red;
         font-size: toRem(15px);
@@ -174,14 +183,19 @@
   }
   .footer {
     display: flex;
+
     > * {
       flex: 1;
     }
   }
+
   .cancel-btn {
     @extend %btn-footer-light;
-    border-bottom-left-radius: $border-radius;
-    border-bottom-right-radius: $border-radius;
+
+    align-items: center;
+    display: flex;
+    font-size: toRem(12px);
+    justify-content: center;
   }
 }
 </style>
