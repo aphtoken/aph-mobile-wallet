@@ -166,8 +166,13 @@ export default {
         }
       }
 
-      .aph-input.is-light {
-        margin-bottom: $space;
+      .max {
+        @extend %small-uppercase-grey-label;
+
+        color: $purple;
+        flex: none;
+        margin: $space-sm 0 $space;
+        text-align: right;
       }
 
       .deposit-withdraw-btn {

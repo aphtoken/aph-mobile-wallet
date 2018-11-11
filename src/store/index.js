@@ -65,7 +65,7 @@ const state = {
   version: pjson.version,
   walletToBackup: null,
   wallets: [],
-  withdrawInProgressModalModel: null,
+  withdrawInProgressModalModel: false,
 };
 
 const store = new Vuex.Store({

@@ -48,11 +48,12 @@ a {
   border: none;
   line-height: $copy-line-height;
   margin: 0;
-  padding: $space;
+  padding: $space-sm;
   word-wrap: break-word;
   position: relative;
 
   .flash__message-content {
+    font-size: toRem(12px);
     text-align: center;
   }
 
@@ -85,6 +86,6 @@ a {
   }
 
   & + .flash__message {
-    margin-top: $space-sm;
+    margin-top: $space-xs;
   }
 }

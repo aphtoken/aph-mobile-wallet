@@ -411,8 +411,8 @@ function setWallets(state, wallets) {
   state.wallets = wallets;
 }
 
-function setWithdrawInProgressModalModel(state, model) {
-  state.withdrawInProgressModalModel = model;
+function setWithdrawInProgressModalModel(state, value) {
+  state.withdrawInProgressModalModel = value;
 }
 
 function setOrdersToShow(state, value) {
