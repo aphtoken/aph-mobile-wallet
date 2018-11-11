@@ -50,8 +50,7 @@ export default {
             };
             store.commit('setSystemWithdraw', systemWithdraw);
             store.commit('setSystemWithdrawMergeState', { step: 3 });
-            store.commit('setWithdrawInProgressModalModel', {
-            });
+            store.commit('setWithdrawInProgressModalModel', true);
           }
 
           const res = await this.withdrawSystemAsset(assetId, unspent.value.toNumber(), unspent.txid, unspent.index);
@@ -1950,8 +1949,7 @@ export default {
 
           store.commit('setSystemWithdraw', systemWithdraw);
 
-          store.commit('setWithdrawInProgressModalModel', {
-          });
+          store.commit('setWithdrawInProgressModalModel', true);
 
           const rejectWithError = (errorMsg) => {
             store.commit('setSystemWithdrawMergeState', { error: errorMsg });

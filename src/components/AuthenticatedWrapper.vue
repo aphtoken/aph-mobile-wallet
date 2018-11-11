@@ -41,6 +41,7 @@
       </div>
       <router-view></router-view>
     </div>
+    <withdraw-in-progress-modal v-if="$store.state.withdrawInProgressModalModel"></withdraw-in-progress-modal>
     <backup-wallet v-if="$store.state.walletToBackup"></backup-wallet>
     <claim-gas-status v-if="$store.state.showClaimGasStatus"></claim-gas-status>
   </section>
@@ -54,6 +55,7 @@ import { store } from '@/store';
 
 import BackupWallet from './BackupWallet';
 import ClaimGasStatus from './ClaimGasStatus';
+import WithdrawInProgressModal from './modals/WithdrawInProgressModal';
 
 let loadRecentTxIntervalId;
 let loadHoldingsIntervalId;
@@ -82,6 +84,7 @@ export default {
   components: {
     BackupWallet,
     ClaimGasStatus,
+    WithdrawInProgressModal,
   },
 
   computed: {
