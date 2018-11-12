@@ -52,33 +52,34 @@ export default {
     },
 
     basePrice() {
-      const tradeHistory = _.get(this.$store.state, `tradeHistory.${this.currentMarketName}`, {});
+      const tradeHistory = this.$store.state.tradeHistory;
       const hasTradeHistory = tradeHistory.trades && tradeHistory.trades.length > 0;
       return this.$formatTokenAmount(hasTradeHistory ? tradeHistory.close24Hour : 0);
     },
 
     change24Hour() {
-      return this.$formatNumber(_.get(this.currentTickerData, 'change24Hour', 0));
+      return this.$formatNumber(_.get(this.currentTickerData, 'last', 0)
+        - _.get(this.currentTickerData, 'open24hr', 0));
     },
 
     close24Hour() {
-      return _.get(this.currentTickerData, 'close24Hour', 0);
+      return _.get(this.currentTickerData, 'last', 0);
     },
 
     high24hr() {
-      return this.$formatMoney(_.get(this.currentTickerData, 'high24hr', 0));
+      return this.$formatNumber(_.get(this.currentTickerData, 'high24hr', 0));
     },
 
     low24hr() {
-      return this.$formatMoney(_.get(this.currentTickerData, 'low24hr', 0));
+      return this.$formatNumber(_.get(this.currentTickerData, 'low24hr', 0));
     },
 
     open24hr() {
-      return this.$formatMoney(_.get(this.currentTickerData, 'open24hr', 0));
+      return this.$formatNumber(_.get(this.currentTickerData, 'open24hr', 0));
     },
 
     percentChangeAbsolute() {
-      return this.$formatNumber(_.get(this.currentTickerData, 'percentChangeAbsolute', 0));
+      return this.$formatNumber(_.get(this.currentTickerData, 'change24hrPercent', 0));
     },
 
     quoteVolume() {

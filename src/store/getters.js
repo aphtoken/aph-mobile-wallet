@@ -29,7 +29,7 @@ export const showClaimGasStatus = state => state.showClaimGasStatus;
 export const showPortfolioHeader = state => state.showPortfolioHeader;
 export const statsToken = state => state.statsToken;
 export const tickerData = state => _.get(state.tickerDataByMarket, `${state.currentMarketName}`, {});
-export const tickerDataByMarket = state => state.ticketDataByMarket;
+export const tickerDataByMarket = state => state.tickerDataByMarket;
 export const tradeHistory = state => state.tradeHistory;
 export const transactionDetail = state => state.transactionDetail;
 export const version = state => state.version;

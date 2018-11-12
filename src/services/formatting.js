@@ -109,8 +109,10 @@ export default {
     if (nullOrUndefined(value)) {
       return defaultValue;
     }
+    const val = toBigNumber(value);
 
-    return accounting.formatMoney(toBigNumber(value), symbol || settings.getCurrencySymbol());
+    const precision = val.isLessThan(1) && !val.isZero() ? 4 : 2;
+    return accounting.formatMoney(val, symbol || settings.getCurrencySymbol(), precision);
   },
 
   formatMoneyWithoutCents(value, symbol, defaultValue = 'N/A') {

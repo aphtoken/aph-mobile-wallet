@@ -98,6 +98,8 @@ export default {
       // services.neo.resetSystemAssetBalanceCache();
     });
 
+
+    this.loadTrades();
     this.$services.neo.promptGASFractureIfNecessary();
   },
 
@@ -124,6 +126,7 @@ export default {
   computed: {
     ...mapGetters([
       'currentMarketName',
+      'currentMarket',
     ]),
   },
 
@@ -157,8 +160,23 @@ export default {
       this.$store.dispatch('fetchTickerData');
     },
 
+    loadTrades() {
+      if (!this.$store.state.currentMarket) {
+        return;
+      }
+
+      this.$store.dispatch('fetchTradeHistory', {
+        marketName: this.$store.state.currentMarket.marketName,
+      });
+    },
+
     setTab(event) {
       this.currentTab = event.target.innerText;
+    },
+  },
+  watch: {
+    currentMarket() {
+      this.loadTrades();
     },
   },
 };
