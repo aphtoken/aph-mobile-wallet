@@ -57,25 +57,25 @@
         <div class="label">{{ quoteHolding.symbol }}</div>
         <div @click="showDepositWithdrawModal(quoteHolding)" class="control">{{ $t('depositWithdraw') }}</div>
         <div class="contract">contract</div>
-        <div class="contract-value">{{ $formatNumber(quoteHolding.totalBalance) }}</div>
+        <div class="contract-value">{{ $formatNumber(quoteHolding.contractBalance) }}</div>
         <div class="wallet">wallet</div>
-        <div class="wallet-value">32,431</div>
+        <div class="wallet-value">{{ $formatNumber(quoteHolding.balance) }}</div>
       </div>
       <div :class="['balance', {active: baseHolding.symbol === actionableHolding.symbol}]" :title="baseBalanceToolTip">
         <div class="label">{{ baseHolding.symbol }}</div>
         <div @click="showDepositWithdrawModal(baseHolding)" class="control">{{ $t('depositWithdraw') }}</div>
         <div class="contract">contract</div>
-        <div class="contract-value">{{ $formatNumber(baseHolding.totalBalance) }}</div>
+        <div class="contract-value">{{ $formatNumber(baseHolding.contractBalance) }}</div>
         <div class="wallet">wallet</div>
-        <div class="wallet-value">1.21</div>
+        <div class="wallet-value">{{ $formatNumber(baseHolding.balance) }}</div>
       </div>
       <div :class="['balance', {active: aphHolding.symbol === actionableHolding.symbol}]" :title="aphBalanceToolTip" v-if="baseHolding.symbol !== 'APH' && quoteHolding.symbol !== 'APH'">
         <div class="label">APH</div>
         <div @click="showDepositWithdrawModal(aphHolding)" class="control">{{ $t('depositWithdraw') }}</div>
         <div class="contract">contract</div>
-        <div class="contract-value">{{ $formatNumber(aphHolding.totalBalance) }}</div>
+        <div class="contract-value">{{ $formatNumber(aphHolding.contractBalance) }}</div>
         <div class="wallet">wallet</div>
-        <div class="wallet-value">3.21</div>
+        <div class="wallet-value">{{ $formatNumber(baseHolding.balance) }}</div>
       </div>
     </div>
     <order-confirmation-modal v-if="$store.state.showOrderConfirmationModal" :onClose="closeConfirmModal" :onConfirm="orderConfirmed" />

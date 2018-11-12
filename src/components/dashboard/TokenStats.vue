@@ -38,7 +38,10 @@
         <div class="inner">
           <div class="title">{{ $t('shareThisWallet') }}</div>
           <vue-qrcode :value="$store.state.currentWallet.address" :options="{ backgroundAlpha: 0, size: 150 }"></vue-qrcode>
-          <div class="address">{{ $store.state.currentWallet.address }}</div>
+          <div class="address">
+            {{ $store.state.currentWallet.address }}
+            <aph-copy-text :text="$store.state.currentWallet.address"></aph-copy-text>
+            </div>
         </div>
       </div>
     </div>
@@ -478,9 +481,19 @@ export default {
         }
 
         .address {
+          display: flex;
+          align-items: center;
           font-family: GilroyMedium;
           font-size: toRem(10px);
           margin-top: $space-xl;
+
+          .aph-copy-text {
+            margin-left: $space-sm;
+
+            svg {
+              height: toRem(14px);
+            }
+          }
         }
       }
     }
