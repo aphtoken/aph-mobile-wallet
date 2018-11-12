@@ -181,6 +181,7 @@ export default {
         display: flex;
         flex: none;
         justify-content: center;
+        margin-top: $space;
       }
     }
   }
