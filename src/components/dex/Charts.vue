@@ -236,15 +236,15 @@ export default {
         this.removeChart();
 
         const symbolName = this.$store.state.currentMarket.marketName;
-        const tradedExchange = 'Aphelion'
-        const fullName = `${tradedExchange}:${symbolName}`
+        const tradedExchange = 'Aphelion';
+        const fullName = `${tradedExchange}:${symbolName}`;
         const symbolInfo = {
-          has_daily: false,
+          has_daily: true,
           has_empty_bars: true,
           has_intraday: true,
           has_no_volume: false,
-          has_weekly_and_monthly: false,
-          intraday_multipliers: ['1'],
+          has_weekly_and_monthly: true,
+          intraday_multipliers: ['1', '5', '15', '30', '60', '360'],
           minmov2: 0,
           minmov: 1,
           name: fullName,
@@ -252,7 +252,12 @@ export default {
           session: '24x7',
           timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
           volume_precision: 5,
-        }
+        };
+
+        const getResolutionInMinutes = (resolution) => 
+          resolution === 'D' ? 60 * 24 :
+          resolution === 'W' ? 7 * 60 * 24 :
+          Number(resolution);
 
         const datafeed = {
           onReady: (callback) => {
@@ -260,7 +265,7 @@ export default {
               callback(
                 {
                   exchanges: [],
-                  supported_resolutions: [1, 5, 15, 30, 60, 360, '1D', '3D'],
+                  supported_resolutions: [1, 5, 15, 30, 60, 360, '1D', '3D', '1W'],
                   supports_group_request: false,
                   supports_marks: false,
                   supports_search: false,
@@ -282,20 +287,30 @@ export default {
           },
 
           getBars: (_symbolInfo, resolution, from, to, onDataCallback, onErrorCallback) => {
-            const marketName = this.$store.state.currentMarket.marketName;
-            const tradeHistory = this.$store.state.tradeHistory[marketName]
-            const bars = tradeHistory && tradeHistory.getBars ?
-              tradeHistory.getBars(tradeHistory, resolution, from, to, this.lastPrice) :
-              [];
-            if (bars.length === 0) {
-              onDataCallback(bars, { noData: true })
-            } else {
-              this.lastPrice = bars[bars.length - 1].close;
-              onDataCallback(bars, { noData: false })
-            }
+            const resolutionInMinutes = getResolutionInMinutes(resolution);
+
+            this.$store.dispatch('fetchTradesBucketed', {
+              marketName: this.$store.state.currentMarket.marketName,
+              interval: resolutionInMinutes,
+              from: from, 
+              to: to,
+              }).then(() => {
+                // Compute and fetch bars on newly populated apiBuckets
+                const bars = this.$store.state.tradeHistory && this.$store.state.tradeHistory.getBars ?
+                  this.$store.state.tradeHistory.getBars(this.$store.state.tradeHistory, resolutionInMinutes, from, to) :
+                  [];
+
+                if (bars.length === 0) {
+                  onDataCallback(bars, { noData: true, nextTime: (to + (resolutionInMinutes * 60)) })
+                } else {
+                  onDataCallback(bars, { noData: false })
+                }
+              });
           },
 
           subscribeBars: (_symbolInfo, resolution, onRealtimeCallback, subscriberUID, onResetCacheNeededCallback) => {
+            const resolutionInMinutes = getResolutionInMinutes(resolution);
+
             let lastBarTime = NaN;
             if (this.barsSubscription) {
               clearInterval(this.barsSubscription);
@@ -305,41 +320,43 @@ export default {
               if (!this.tradingView || !this.tradingView._options) {
                 return;
               }
-              const to = parseInt((new Date().valueOf()) / 1000, 10)
-              const from = to - 120
+              const to = Math.round(new Date().valueOf() / 1000);
+              const from = to - (resolutionInMinutes * 60 * 2); //  back 2x resolutions
 
-              this.tradingView._options.datafeed.getBars(_symbolInfo, resolution, from, to, (bars) => {
-                if (bars.length === 0) {
-                  return;
+              const bars = this.$store.state.tradeHistory && this.$store.state.tradeHistory.getBars ?
+                  this.$store.state.tradeHistory.getBars(this.$store.state.tradeHistory, resolution, from, to) :
+                  [];
+
+              if (bars.length === 0) {
+                return;
+              }
+
+              const lastBar = bars[bars.length - 1];
+
+              if (!Number.isNaN(lastBarTime) && lastBar.time < lastBarTime) {
+                return;
+              }
+
+              const isNewBar = !Number.isNaN(lastBarTime) && lastBar.time > lastBarTime
+
+              if (isNewBar && bars.length >= 2) {
+                const previousBar = bars[bars.length - 2];
+                onRealtimeCallback(previousBar);
+              }
+
+              lastBarTime = lastBar.time;
+
+              try {
+                onRealtimeCallback(lastBar);
+              } catch (err) {
+                // This is a false positive due to using has_empty_bars
+                if (err.message.contains('time order violation')) {
+                  return
                 }
 
-                const lastBar = bars[bars.length - 1];
-
-                if (!Number.isNaN(lastBarTime) && lastBar.time < lastBarTime) {
-                  return;
-                }
-
-                const isNewBar = !Number.isNaN(lastBarTime) && lastBar.time > lastBarTime
-
-                if (isNewBar && bars.length >= 2) {
-                  const previousBar = bars[bars.length - 2]
-                  onRealtimeCallback(previousBar)
-                }
-
-                lastBarTime = lastBar.time;
-
-                try {
-                  onRealtimeCallback(lastBar);
-                } catch (err) {
-                  // This is a false positive due to using has_empty_bars
-                  if (err.message.contains('time order violation')) {
-                    return
-                  }
-
-                  throw err;
-                }
-              })
-            }, 20000)
+                throw err;
+              }
+            }, 10000)
           },
 
           unsubscribeBars: (subscriberUID) => {
@@ -359,7 +376,7 @@ export default {
           enabled_features: [],
           fullscreen: false,
           hide_top_toolbar: false,
-          interval: '5',
+          interval: '15',
           library_path: '/static/charting_library/',
           loading_screen: false,
           locale: "en",
@@ -370,6 +387,8 @@ export default {
             "symbolWatermarkProperties.transparency": 90,
             "scalesProperties.textColor": "#AAA",
             "scalesProperties.backgroundColor": "#171629",
+            "paneProperties.topMargin": 15,
+            "paneProperties.bottomMargin": 10,
           },
           symbol: symbolName,
           toolbar_bg: '#171629',

@@ -25,6 +25,7 @@
 import { mapGetters } from 'vuex';
 import assets from '../services/assets';
 
+let storeUnwatch;
 export default {
   beforeDestroy() {
     this.$store.commit('setShowPortfolioHeader', true);
@@ -32,6 +33,7 @@ export default {
     clearInterval(this.marketsRefreshInterval);
     clearInterval(this.completeSystemAssetWithdrawalsInterval);
     clearInterval(this.tickerRefreshInterval);
+    storeUnwatch();
   },
 
   data() {
@@ -98,6 +100,15 @@ export default {
       // services.neo.resetSystemAssetBalanceCache();
     });
 
+
+    this.loadTrades();
+    storeUnwatch = this.$store.watch(
+      () => {
+        return this.$store.state.currentMarket;
+      }, () => {
+        this.loadTrades();
+      });
+
     this.$services.neo.promptGASFractureIfNecessary();
   },
 
@@ -155,6 +166,16 @@ export default {
 
     loadTickerData() {
       this.$store.dispatch('fetchTickerData');
+    },
+
+    loadTrades() {
+      if (!this.$store.state.currentMarket) {
+        return;
+      }
+
+      this.$store.dispatch('fetchTradeHistory', {
+        marketName: this.$store.state.currentMarket.marketName,
+      });
     },
 
     setTab(event) {

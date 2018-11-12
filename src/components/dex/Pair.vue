@@ -58,19 +58,43 @@ export default {
       );
     },
 
-    quoteVolume() {
-      return this.$formatNumber(_.get(this.currentTickerData, 'quoteVolume', 0));
-    },
-
     tableData() {
       return this.filteredMarkets().map(({ quoteCurrency, marketName }) => {
-        const tradeHistory = _.get(this.$store.state.tradeHistory, marketName, {});
-        const hasTradeHistory = tradeHistory && tradeHistory.trades && tradeHistory.trades.length > 0;
-        const price = {
-          price: this.$formatTokenAmount(hasTradeHistory ? tradeHistory.close24Hour : 0),
-          priceConverted: this.$formatMoney((hasTradeHistory ? tradeHistory.close24Hour : 0) * this.baseCurrencyUnitPrice),
-        };
-        return { asset: quoteCurrency, price, volume: this.quoteVolume, '24H change': this.percentChangeAbsolute };
+        const tickerData = this.tickerDataByMarket[marketName];
+        let price;
+        let quoteVolume;
+        let percentChange;
+        /* NOTE: this doesn't load immediately, just use tickerData
+        if (marketName === this.currentMarket.marketName) {
+          const tradeHistory = this.$store.state.tradeHistory;
+          const hasTradeHistory = tradeHistory && tradeHistory.trades && tradeHistory.trades.length > 0;
+
+          price = {
+            price: this.$formatTokenAmount(hasTradeHistory ? tradeHistory.close24Hour : tickerData.last),
+            priceConverted: this.$formatMoney((hasTradeHistory ? tradeHistory.close24Hour : tickerData.last)
+              * this.baseCurrencyUnitPrice),
+          };
+          quoteVolume = tickerData.quoteVolume;
+        } else */ if (tickerData && tickerData.last) {
+          price = {
+            price: tickerData.last,
+            priceConverted: this.$formatMoney(tickerData.last * this.baseCurrencyUnitPrice),
+          };
+          quoteVolume = tickerData.quoteVolume;
+          percentChange = tickerData.change24hrPercent;
+        } else {
+          price = {
+            price: 0,
+            priceConverted: this.$formatMoney(0),
+          };
+          quoteVolume = 0;
+          percentChange = 0;
+        }
+
+        return { asset: quoteCurrency,
+          price,
+          volume: quoteVolume,
+          '24H change': this.$formatNumber(percentChange) };
       });
     },
   },
@@ -90,12 +114,12 @@ export default {
         .minus(new BigNumber(String(open24hr)));
     },
 
-    getClose24Hour(marketName) {
+    getClose24Hour(tickerData) {
       const tradeHistory = this.$store.state.tradeHistory;
-      return tradeHistory[marketName] &&
-        tradeHistory[marketName].trades &&
-        tradeHistory[marketName].trades.length ?
-        tradeHistory[marketName].trades[0].price : 0;
+      return tradeHistory &&
+        tradeHistory.trades &&
+        tradeHistory.trades.length ?
+        tradeHistory.trades[0].price : tickerData.last;
     },
 
     filteredMarkets() {
@@ -118,12 +142,12 @@ export default {
     setMarketData() {
       this.marketData = _.reduce(this.tickerDataByMarket, (marketData, market, ticker) => {
         const close24Hour = this.getClose24Hour(ticker);
-        const change24Hour = this.getChange24Hour(close24Hour, market.open24hr);
+        const change24Hour = this.getChange24Hour(close24Hour, ticker.open24hr);
 
         marketData[ticker] = {
           close24Hour,
           change24Hour,
-          percentChangeAbsolute: market.open24hr > 0 ? this.getPercentChangeAbsolute(change24Hour, market.open24hr) : 0,
+          percentChangeAbsolute: ticker.open24hr > 0 ? this.getPercentChangeAbsolute(change24Hour, ticker.open24hr) : 0,
         };
         return marketData;
       }, {});

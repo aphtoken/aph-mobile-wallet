@@ -20,6 +20,7 @@ export {
   fetchSystemAssetBalances,
   fetchTickerData,
   fetchTradeHistory,
+  fetchTradesBucketed,
   findTransactions,
   formOrder,
   importWallet,
@@ -216,7 +217,7 @@ function fetchLatestVersion({ commit }) {
     });
 }
 
-async function fetchMarkets({ commit, dispatch, state }) {
+async function fetchMarkets({ commit, state }) {
   commit('startRequest', { identifier: 'fetchMarkets' });
 
   try {
@@ -227,9 +228,6 @@ async function fetchMarkets({ commit, dispatch, state }) {
     if (!state.currentMarket) {
       commit('setCurrentMarket', markets[0]);
     }
-
-    // TODO: do we want really want fetching markets to kick this off?
-    dispatch('fetchTradeHistory', markets);
   } catch (message) {
     alerts.networkException(message);
     commit('failRequest', { identifier: 'fetchMarkets', message });
@@ -288,23 +286,44 @@ async function fetchTickerData({ commit }) {
   }
 }
 
-async function fetchTradeHistory({ commit }, markets) {
-  let marketTradeHistories = [];
-  commit('startRequest', { identifier: 'fetchTradeHistory' });
-  markets.forEach(market => marketTradeHistories.push(dex.fetchTradeHistory(market.marketName)));
-  // TODO: some code needs to fetch the API buckets when a market is selected
-  // dex.fetchTradesBucketed(marketName);
-  // state.tradeHistory.apiBuckets
+async function fetchTradesBucketed({ commit }, { marketName, interval, from, to }) {
+  try {
+    commit('startRequest', { identifier: 'fetchTradesBucketed' });
 
-  // TODO: if there are a large number of markets; probalby can't do all in parallel
-  await Promise.all(marketTradeHistories).then((tradeHistories) => {
-    marketTradeHistories = tradeHistories.reduce((tradeHistoriesObject, tradeHistory) => {
-      tradeHistoriesObject[tradeHistory.marketName] = tradeHistory;
-      return tradeHistoriesObject;
-    }, {});
-    commit('setTradeHistory', marketTradeHistories);
+    const apiBuckets = await dex.fetchTradesBucketed(marketName, interval, from, to);
+
+    commit('setTradesBucketed', apiBuckets);
+    commit('endRequest', { identifier: 'fetchTradesBucketed' });
+  } catch (message) {
+    alerts.networkException(message);
+    commit('failRequest', { identifier: 'fetchTradesBucketed', message });
+  }
+}
+
+async function fetchTradeHistory({ commit, state }, { marketName, isRequestSilent }) {
+  let history;
+  commit(isRequestSilent ? 'startSilentRequest' : 'startRequest',
+    { identifier: 'fetchTradeHistory' });
+
+  try {
+    const tradeHistoryPromise = dex.fetchTradeHistory(marketName);
+    let tradesBucketPromise;
+
+    if (!isRequestSilent) {
+      tradesBucketPromise = dex.fetchTradesBucketed(marketName);
+    }
+
+    history = await tradeHistoryPromise;
+
+    history.apiBuckets = tradesBucketPromise ?
+      await tradesBucketPromise : state.tradeHistory.apiBuckets;
+
+    commit('setTradeHistory', history);
     commit('endRequest', { identifier: 'fetchTradeHistory' });
-  });
+  } catch (message) {
+    alerts.networkException(message);
+    commit('failRequest', { identifier: 'fetchTradeHistory', message });
+  }
 }
 
 async function fetchSystemAssetBalances({ commit }, { forAddress, intents }) {

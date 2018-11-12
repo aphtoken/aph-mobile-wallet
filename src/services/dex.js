@@ -27,6 +27,19 @@ const TX_ATTR_USAGE_WITHDRAW_AMOUNT = 0xA5;
 const TX_ATTR_USAGE_WITHDRAW_VALIDUNTIL = 0xA6;
 const SIGNATUREREQUESTTYPE_WITHDRAWSTEP_MARK = '91';
 const SIGNATUREREQUESTTYPE_WITHDRAWSTEP_WITHDRAW = '92';
+const POSTFIX_USER_ASSET_WITHDRAWING = 'b0';
+
+const binSizeToBinCountMap = {
+  1: 1440, //  1 Min ~ 1 day
+  5: 1440, //  5 Min ~ 5 days
+  15: 1440, // 15 Min ~ 15 days
+  30: 1440, // 30 Min ~ 30 days
+  60: 1440, // 1 Hrs ~ 60 days
+  360: 1440, // 6 Hrs ~ 360 days
+  1440: 1095, // 1 Day ~ 3 yrs
+  4320: 1825, // 3 Days ~ 5 yrs
+  10080: 520, // 1 Week ~ 10 yrs
+};
 
 const DBG_LOG = false;
 const assetUTXOsToIgnore = {};
@@ -68,7 +81,7 @@ export default {
     /* eslint-enable no-await-in-loop */
   },
 
-  async decorateWithUnspentsReservedState(assetId, unspents) {
+  async decorateWithUnspentsReservedState(assetId, unspents, targetAmount) {
     for (let i = 0; i < unspents.length; i += 1) {
       const unspent = unspents[i];
       const utxoKey = `${unspent.txid}_${unspent.index}`;
@@ -77,19 +90,22 @@ export default {
         unspent.reservedFor = _.get(contractUTXOsReservedFor);
       }
 
-      /* eslint-disable no-await-in-loop */
-      if (!unspent.reservedFor) {
-        await this.fetchSystemAssetUTXOReserved(unspent);
-      }
-      /* eslint-enable no-await-in-loop */
+      if (!targetAmount || targetAmount.isEqualTo(unspent.value)) {
+        /* eslint-disable no-await-in-loop */
+        if (!unspent.reservedFor) {
+          await this.fetchSystemAssetUTXOReserved(unspent);
+        }
+        /* eslint-enable no-await-in-loop */
 
-      if (unspent.reservedFor) {
-        if (DBG_LOG) {
-          if (unspent.reservedFor.length >= 40) {
-            console.log(`Tracking reserved utxo ${JSON.stringify(unspent)}`);
-          } else {
-            console.log(`!! decorateWithUnspentsReservedState found available UTXO ${JSON.stringify(unspent)}`);
+        if (unspent.reservedFor) {
+          if (DBG_LOG) {
+            if (unspent.reservedFor.length >= 40) {
+              console.log(`Tracking reserved utxo ${JSON.stringify(unspent)}`);
+            } else {
+              console.log(`!! decorateWithUnspentsReservedState found available UTXO ${JSON.stringify(unspent)}`);
+            }
           }
+          _.set(contractUTXOsReservedFor, utxoKey, unspent.reservedFor);
         }
         _.set(contractUTXOsReservedFor, utxoKey, unspent.reservedFor);
       }
@@ -539,6 +555,19 @@ export default {
   completeSystemAssetWithdrawals() {
     return new Promise(async (resolve, reject) => {
       try {
+        // check if the wallet has an in progress GAS withdraw
+        const markedGasBalance = toBigNumber(await this.getWithdrawInProgressBalance(assets.GAS));
+        // check if the wallet has an in progress NEO withdraw
+        const markedNeoBalance = toBigNumber(await this.getWithdrawInProgressBalance(assets.NEO));
+
+        if (markedGasBalance.plus(markedNeoBalance).isEqualTo(0)) {
+          // nothing in progress to withdraw.
+          if (DBG_LOG) console.log('No NEO or GAS withdraws in progress.');
+          if (!DBG_LOG) return;
+        }
+
+        if (DBG_LOG) console.log(`Detected marked amounts GAS: ${markedGasBalance} NEO: ${markedNeoBalance}`);
+
         const dexAddress = wallet.getAddressFromScriptHash(store.state.currentNetwork.dex_hash);
 
         let dexBalance;
@@ -549,13 +578,13 @@ export default {
           return;
         }
 
-        if (dexBalance.assets.GAS) {
-          await this.decorateWithUnspentsReservedState(assets.GAS, dexBalance.assets.GAS.unspent);
+        if (dexBalance.assets.GAS && markedGasBalance.isGreaterThan(0)) {
+          await this.decorateWithUnspentsReservedState(assets.GAS, dexBalance.assets.GAS.unspent, markedGasBalance);
           if (DBG_LOG) console.log(`Checking for GAS unspents ${JSON.stringify(dexBalance.assets.GAS.unspent)}`);
           await this.completeUnspentWithdraws(assets.GAS, dexBalance.assets.GAS.unspent);
         }
-        if (dexBalance.assets.NEO) {
-          await this.decorateWithUnspentsReservedState(assets.NEO, dexBalance.assets.NEO.unspent);
+        if (dexBalance.assets.NEO && markedNeoBalance.isGreaterThan(0)) {
+          await this.decorateWithUnspentsReservedState(assets.NEO, dexBalance.assets.NEO.unspent, markedNeoBalance);
           if (DBG_LOG) console.log(`Checking for NEO unspents ${JSON.stringify(dexBalance.assets.NEO.unspent)}`);
           await this.completeUnspentWithdraws(assets.NEO, dexBalance.assets.NEO.unspent);
         }
@@ -608,7 +637,7 @@ export default {
   },
 
   depositAsset(assetId, quantity) {
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
       try {
         let neoToSend = 0;
         let gasToSend = 0;
@@ -634,6 +663,15 @@ export default {
           if (holding == null || holding.balance === null || holding.balance.isLessThan(quantity)) {
             reject(`Insufficient balance of asset '${holdingAsset}'.`);
             return;
+          }
+
+          if (assetId === '3a4acd3647086e7c44398aac0349802e6a171129') {
+            const res = await neo.approveNep5Deposit(store.state.currentNetwork.dex_hash,
+              assetId, quantity);
+            if (DBG_LOG) console.log(`Attempting approval of ${assetId}`);
+            await neo.monitorTransactionConfirmation(res.tx, true);
+            alerts.info(`Confirmed approval of ${quantity} ${holding.symbol} for deposit.`);
+            // TODO: wait a few seconds before issuing deposit for UTXOs to settle.
           }
         }
 
@@ -1072,8 +1110,8 @@ export default {
     return new Promise((resolve, reject) => {
       try {
         const currentNetwork = network.getSelectedNetwork();
-        axios.get(`${currentNetwork.aph}/trades/${marketName}?contractScriptHash=${assets.DEX_SCRIPT_HASH}`)
-          .then(async (res) => {
+        axios.get(`${currentNetwork.aph}/trades/${marketName}?contractScriptHash=${currentNetwork.dex_hash}`)
+          .then((res) => {
             if (!res || !res.data || !res.data.trades) {
               resolve({
                 date: moment().unix(),
@@ -1085,7 +1123,6 @@ export default {
             }
 
             const history = {
-              apiBuckets: await this.fetchTradesBucketed(marketName),
               date: res.data.timestamp,
               getBars: this.getTradeHistoryBars,
               marketName,
@@ -1142,11 +1179,24 @@ export default {
     });
   },
 
-  fetchTradesBucketed(marketName, binSize = 1) {
+  fetchTradesBucketed(marketName, binSize = 1, from = null, to = null) {
     return new Promise((resolve, reject) => {
       try {
         const currentNetwork = network.getSelectedNetwork();
-        axios.get(`${currentNetwork.aph}/trades/bucketed/${marketName}?binSize=${binSize}`)
+        const binCount = binSizeToBinCountMap[binSize];
+        let url = `${currentNetwork.aph}/trades/bucketed/${marketName}?binSize=${binSize}&binCount=${binCount}`;
+
+        if (from) {
+          const fromDate = new Date(from * 1000);
+          url = `${url}&startTime=${fromDate.toISOString()}`;
+        }
+
+        if (to) {
+          const toDate = new Date(to * 1000);
+          url = `${url}&endTime=${toDate.toISOString()}`;
+        }
+
+        axios.get(url)
           .then((res) => {
             resolve(res.data.buckets);
           })
@@ -1177,7 +1227,8 @@ export default {
       // limit order
       let depositMakerQuantity = false;
 
-      if (sellAssetHolding.canPull === false && order.quantity.isGreaterThan(0)) {
+      if ((sellAssetHolding.canPull === false || order.assetIdToSell === '3a4acd3647086e7c44398aac0349802e6a171129')
+        && order.quantity.isGreaterThan(0)) {
         // this is an MCT based token that can not be pulled from our DEX contract, have to send a deposit first
         depositMakerQuantity = true;
       } else if (order.offersToTake.length > 0 && order.quantityToMake.isGreaterThan(0)) {
@@ -1273,6 +1324,14 @@ export default {
           order.assetIdToSell = order.market.baseAssetId;
           if (order.price) {
             order.quantityToSell = order.quantity.multipliedBy(order.price).toString();
+          }
+
+          // add token if not already a user asset
+          const userAssets = assets.getUserAssets();
+          if (!_.has(userAssets, order.assetIdToBuy)) {
+            store.dispatch('addToken', {
+              hashOrSymbol: order.assetIdToBuy,
+            });
           }
         }
 
@@ -1399,9 +1458,11 @@ export default {
     return book;
   },
 
-  getTradeHistoryBars(tradeHistory, resolution, from, to, last) {
+  getTradeHistoryBars(tradeHistory, resolution, from, to) {
     const bars = [];
     const trades = tradeHistory.trades.slice(0);
+    const apiBuckets = tradeHistory.apiBuckets;
+
     trades.reverse();
 
     // convert resolution to seconds
@@ -1415,21 +1476,83 @@ export default {
     resolution *= 1000;
 
     let currentBar = {
-      open: last,
-      close: last,
-      high: last,
-      low: last,
+      open: 0,
+      close: 0,
+      high: 0,
+      low: 0,
       volume: 0,
     };
 
-    let apiBucketsIndex = tradeHistory.apiBuckets ? tradeHistory.apiBuckets.length - 1 : 0;
+    let apiBucketsIndex = 0;
     let tradesIndex = 0;
-    const barFrom = (from * 1000) + resolution;
+    const barFrom = (from * 1000);
     const barTo = (to * 1000);
     let barPointer = barFrom;
     let bucket = null;
     let trade = null;
 
+    let needCurrentBar = false;
+    if (apiBuckets.length > 0) {
+      bucket = apiBuckets[0];
+      const bucketTime = bucket.time * 1000;
+      // if 'from' is before the first bucket, set currentBar qualt to firstBucket,
+      if (barFrom < bucketTime) {
+        currentBar = {
+          open: bucket.open,
+          close: bucket.close,
+          high: bucket.high,
+          low: bucket.low,
+          volume: bucket.volume,
+          time: bucketTime,
+        };
+      } else {
+        bucket = _.last(apiBuckets);
+        if (from > bucket.time) {
+          // else from is greater than the last bucket, so need to set it form teh trade array
+          needCurrentBar = true;
+        } else if (DBG_LOG) console.log('Not setting current bar price due to in middle of buckets');
+        // else somewhere in the middle of the buckets, and will be set first time through the while loop.
+      }
+
+      bucket = apiBuckets[0];
+      while (bucket) {
+        if (bucket.time > from - (resolution * 3)) {
+          if (currentBar.time === undefined) {
+            if (DBG_LOG) console.log('Setting need current bar.');
+            needCurrentBar = true;
+          }
+          break;
+        }
+        apiBucketsIndex += 1;
+        bucket = (apiBucketsIndex < apiBuckets.length) ? apiBuckets[apiBucketsIndex] : null;
+      }
+      if (apiBucketsIndex >= apiBuckets.length && currentBar.time === undefined) {
+        if (DBG_LOG) console.log('Setting needCurrentBar.');
+        needCurrentBar = true;
+      } else if (DBG_LOG) console.log(`last bucket has time ${bucket.time}`);
+
+      if (DBG_LOG) console.log(`${from} apiBucketsIndex: ${apiBucketsIndex} ${currentBar.time}`);
+    } else {
+      needCurrentBar = true;
+    }
+
+    if (needCurrentBar && trades.length) {
+      if (DBG_LOG) console.log('Setting current bar from trades');
+      for (let tradeIndex = trades.length - 1; tradeIndex > 0; tradeIndex -= 1) {
+        trade = trades[tradeIndex];
+        currentBar = {
+          open: trade.price,
+          close: trade.price,
+          high: trade.price,
+          low: trade.price,
+          volume: 0,
+        };
+        if (DBG_LOG) console.log(`set current bar price ${currentBar.close}`);
+        if (trade.tradeTime <= from) {
+          break;
+        }
+      }
+    }
 
     while (barPointer < barTo) {
       currentBar = {
@@ -1441,29 +1564,38 @@ export default {
         time: barPointer,
       };
 
-      bucket = apiBucketsIndex < tradeHistory.apiBuckets.length ? tradeHistory.apiBuckets[apiBucketsIndex] : null;
+      bucket = apiBucketsIndex < apiBuckets.length ? apiBuckets[apiBucketsIndex] : null;
       trade = tradesIndex < trades.length ? trades[tradesIndex] : null;
+
       while (trade && trade.tradeTime < from) {
         tradesIndex += 1;
         trade = tradesIndex < trades.length ? trades[tradesIndex] : null;
       }
 
-      if (bucket && bucket.time * 1000 === barPointer) {
+      const bucketTime = bucket ? bucket.time * 1000 : 0;
+      const bucketDistanceToPointer = Math.abs(bucketTime - barPointer);
+
+      if (bucketDistanceToPointer <= resolution) {
         currentBar = {
           open: bucket.open,
           close: bucket.close,
           high: bucket.high,
           low: bucket.low,
           volume: bucket.volume,
-          time: barPointer,
+          time: bucketTime,
         };
-        bars.push(bucket);
+
+        if (bucketDistanceToPointer > 0) {
+          barPointer = bucketTime;
+        }
+
+        bars.push(currentBar);
         apiBucketsIndex += 1;
       } else {
         while (trade
           && trade.tradeTime * 1000 >= barPointer
           && trade.tradeTime * 1000 < barPointer + resolution) {
-          currentBar.volume += trade.quantity;
+          currentBar.volume += Number(trade.quantity);
           currentBar.close = trade.price;
 
           if (currentBar.open === 0) currentBar.open = trade.price;
@@ -1472,13 +1604,32 @@ export default {
           tradesIndex += 1;
           trade = tradesIndex < trades.length ? trades[tradesIndex] : null;
         }
-
         bars.push(currentBar);
       }
 
       barPointer += resolution;
     }
     return bars;
+  },
+
+  async getWithdrawInProgressBalance(assetId) {
+    const currentWallet = wallets.getCurrentWallet();
+    const currentWalletScriptHash = wallet.getScriptHashFromAddress(currentWallet.address);
+    const assetWithdrawingParam
+      = `${u.reverseHex(currentWalletScriptHash)}${u.reverseHex(assetId)}${POSTFIX_USER_ASSET_WITHDRAWING}`;
+
+    if (DBG_LOG) console.log(`assetWithdrawingParam: ${assetWithdrawingParam}`);
+
+    const rpcClient = network.getRpcClient();
+    const res = await rpcClient.query({
+      method: 'getstorage',
+      params: [store.state.currentNetwork.dex_hash, assetWithdrawingParam],
+    });
+    if (!!res.result && res.result.length > 0) {
+      return u.fixed82num(res.result);
+    }
+
+    return 0;
   },
 
   ignoreWithdrawInputs(config) {

@@ -20,6 +20,7 @@ export {
   putTransactionDetail,
   resetRequests,
   setActiveTransaction,
+  setCommitChangeInProgress,
   setCommitState,
   setContacts,
   setCurrency,
@@ -27,7 +28,6 @@ export {
   setCurrentMarket,
   setCurrentNetwork,
   setCurrentWallet,
-  setCommitChangeInProgress,
   setDepositWithdrawModalModel,
   setFractureGasModalModel,
   setGasClaim,
@@ -61,6 +61,7 @@ export {
   setSystemWithdrawMergeState,
   setTickerDataByMarket,
   setTradeHistory,
+  setTradesBucketed,
   setTransactionDetail,
   setWalletToBackup,
   setWallets,
@@ -96,10 +97,6 @@ function addToOrderHistory(state, newOrders) {
 
     state.orderHistory.unshift(newOrders[i]);
   }
-  // TODO: Fix this last code. We don't have 'db'.
-  // const orderHistoryStorageKey
-  //   = `orderhistory.${state.currentWallet.address}.${state.currentNetwork.net}.${state.currentNetwork.dex_hash}`;
-  // db.upsert(orderHistoryStorageKey, JSON.stringify(state.orderHistory));
 }
 
 function clearActiveTransaction(state) {
@@ -160,7 +157,7 @@ function orderBookSnapshotReceived(state, res) {
   const orderBook = dex.formOrderBook(res.asks, res.bids);
   orderBook.pair = res.pair;
 
-  state.orderBook = orderBook;
+  Vue.set(state, 'orderBook', orderBook);
 }
 
 function orderBookUpdateReceived(state, res) {
@@ -284,6 +281,10 @@ function setHoldings(state, holdings) {
     state.statsToken = holdings[0];
   } else if (state.statsToken) {
     state.statsToken = _.find(state.holdings, { symbol: state.statsToken.symbol });
+
+    if (!state.statsToken && !_.isEmpty(holdings)) {
+      state.statsToken = holdings[0];
+    }
   }
 }
 
@@ -301,11 +302,6 @@ function setMarkets(state, markets) {
 
 function setOrderHistory(state, orders) {
   state.orderHistory = orders;
-
-  // NOTE: This code requires ipc-promise which isn't applicable for this app. Not sure what the alternative is.
-  // const orderHistoryStorageKey
-  //   = `orderhistory.${state.currentWallet.address}.${state.currentNetwork.net}.${assets.DEX_SCRIPT_HASH}`;
-  // db.upsert(orderHistoryStorageKey, JSON.stringify(state.orderHistory));
 }
 
 function setOrderPrice(state, price) {
@@ -335,9 +331,10 @@ function setRecentTransactions(state, transactions) {
   const existingIsEmpty = !state.recentTransactions || state.recentTransactions.length === 0;
 
   _.sortBy(transactions, 'block_index').forEach((transaction) => {
-    const existingTransaction = _.find(state.recentTransactions, ({ hash, symbol }) => {
-      return transaction.hash === hash && transaction.symbol === symbol;
-    });
+    const existingTransaction = _.find(
+      state.recentTransactions,
+      { hash: transaction.hash, symbol: transaction.symbol },
+    );
     if (existingTransaction) {
       return;
     }
@@ -441,6 +438,11 @@ function setTradeHistory(state, tradeHistory) {
   state.tradeHistory = tradeHistory;
 }
 
+function setTradesBucketed(state, apiBuckets) {
+  state.tradeHistory.apiBuckets = apiBuckets;
+}
+
+
 function SOCKET_ONCLOSE(state) {
   state.socket.client = null;
   state.socket.isConnected = false;
@@ -469,7 +471,10 @@ function SOCKET_ONOPEN(state, event) {
       });
 
       // Ensure trade history is up-to-date on reconnect. (may have dropped some trades during disconnect)
-      this.dispatch('fetchMarkets');
+      this.dispatch('fetchTradeHistory', {
+        marketName: state.currentMarket.marketName,
+        isRequestSilent: true,
+      });
     }
   }
 }
