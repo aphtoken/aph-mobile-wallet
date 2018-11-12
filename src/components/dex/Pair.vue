@@ -94,7 +94,7 @@ export default {
         return { asset: quoteCurrency,
           price,
           volume: quoteVolume,
-          '24H change': this.$formatNumber(percentChange) };
+          '24H change': this.$formatNumber(percentChange * 100) };
       });
     },
   },

@@ -1,6 +1,6 @@
 {
   "name": "aph-mobile-wallet",
-  "version": "1.4.4",
+  "version": "1.4.5",
   "description": "The Aphelion mobile wallet application",
   "author": "Aphelion <info@aphelion.org>",
   "private": true,

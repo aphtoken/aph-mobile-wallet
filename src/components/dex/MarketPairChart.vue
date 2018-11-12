@@ -79,7 +79,7 @@ export default {
     },
 
     percentChangeAbsolute() {
-      return this.$formatNumber(_.get(this.currentTickerData, 'change24hrPercent', 0));
+      return this.$formatNumber(_.get(this.currentTickerData, 'change24hrPercent', 0) * 100);
     },
 
     quoteVolume() {
