@@ -111,10 +111,7 @@ export default {
     }
     const val = toBigNumber(value);
 
-    let precision = 2;
-    if (val.isLessThan(1) && !val.isZero()) {
-      precision = 4;
-    }
+    const precision = val.isLessThan(1) && !val.isZero() ? 4 : 2;
     return accounting.formatMoney(val, symbol || settings.getCurrencySymbol(), precision);
   },
 
