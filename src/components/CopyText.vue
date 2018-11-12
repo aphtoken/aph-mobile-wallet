@@ -1,5 +1,5 @@
 <template>
-  <span class="aph-copy-text" @click.stop="copy" :title="$t('copyToClipboard')">
+  <span class="aph-copy-text" @click.stop="copy" :title="$t('copyToClipboard')" ref="wrapper">
     <aph-icon name="copy" ref="icon" v-if="icon"></aph-icon>
     <span v-else class="text-label">{{ $t('Copy') }}</span>
     <span :class="['aph-copy-text--confirmation-text', {show: showConfirmationText}]" ref="confirmationText" v-dom-portal>{{ $t('Copied') }}</span>
@@ -24,6 +24,14 @@ export default {
   },
 
   methods: {
+    createTextarea() {
+      const $textarea = document.createElement('textarea');
+      $textarea.value = this.text;
+      this.$refs.wrapper.appendChild($textarea);
+
+      return $textarea;
+    },
+
     copy(event) {
       this.position(event);
       this.copyToClipboard();
@@ -38,20 +46,48 @@ export default {
     },
 
     copyToClipboard() {
-      const el = document.createElement('textarea');
+      try {
+        const $textarea = this.createTextarea();
 
-      el.value = this.text;
-      document.body.appendChild(el);
-      el.select();
-      document.execCommand('copy');
-      document.body.removeChild(el);
+        if (this.isIOS()) {
+          this.selectIOS($textarea);
+        } else {
+          $textarea.select();
+        }
+
+        document.execCommand('copy');
+        this.$refs.wrapper.removeChild($textarea);
+      } catch ({ message }) {
+        this.$alerts.error(message);
+      }
+    },
+
+    isIOS() {
+      return navigator.userAgent.match(/ipad|iphone/i);
     },
 
     position({ clientX, clientY }) {
-      const $confirmationText = this.$refs.confirmationText;
+      try {
+        const $confirmationText = this.$refs.confirmationText;
 
-      $confirmationText.style.left = `${clientX}px`;
-      $confirmationText.style.top = `${clientY}px`;
+        $confirmationText.style.left = `${clientX}px`;
+        $confirmationText.style.top = `${clientY}px`;
+      } catch ({ message }) {
+        this.$alerts.error(message);
+      }
+    },
+
+    selectIOS($textarea) {
+      $textarea.contentEditable = true;
+      $textarea.readOnly = false;
+
+      const range = document.createRange();
+      range.selectNodeContents($textarea);
+
+      const selection = window.getSelection();
+      selection.removeAllRanges();
+      selection.addRange(range);
+      $textarea.setSelectionRange(0, 999999);
     },
   },
 
