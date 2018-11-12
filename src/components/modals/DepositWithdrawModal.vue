@@ -60,11 +60,13 @@ export default {
 
       return balance > 0;
     },
+    isDeposit() {
+      return this.transactionType === 'deposit';
+    },
   },
 
   data() {
     return {
-      isDeposit: false,
       amount: '',
       transactionType: 'deposit',
     };
@@ -88,12 +90,6 @@ export default {
 
       this.amount = this.$cleanAmount(this.amount, this.holding);
     },
-  },
-
-  mounted() {
-    if (this.$store.state.depositWithdrawModalModel) {
-      this.isDeposit = this.$store.state.depositWithdrawModalModel.isDeposit;
-    }
   },
 
   props: {
