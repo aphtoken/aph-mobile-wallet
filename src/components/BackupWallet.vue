@@ -13,17 +13,23 @@
       <div class="keys">
         <div class="row">
           <div class="label">{{ $t('PrivateKey') }}</div>
-          <div class="value">{{ $store.state.currentWallet.privateKey }}</div>
+          <div class="value">
+            <textarea :value="$store.state.currentWallet.privateKey" readonly></textarea>
+          </div>
           <aph-copy-text :text="$store.state.currentWallet.privateKey" :icon="false"></aph-copy-text>
         </div>
         <div class="row">
           <div class="label">{{ $t('EncryptedKey') }}</div>
-          <div class="value">{{ $store.state.currentWallet.encryptedWIF }}</div>
+          <div class="value">
+            <textarea :value="$store.state.currentWallet.encryptedWIF" readonly></textarea>
+          </div>
           <aph-copy-text :text="$store.state.currentWallet.encryptedWIF" :icon="false"></aph-copy-text>
         </div>
         <div class="row">
           <div class="label">WIF</div>
-          <div class="value">{{ $store.state.currentWallet.wif }}</div>
+          <div class="value">
+            <textarea :value="$store.state.currentWallet.wif" readonly></textarea>
+          </div>
           <aph-copy-text :text="$store.state.currentWallet.wif" :icon="false"></aph-copy-text>
         </div>
         <div class="qr-codes-btn" @click="showQrCodes = true">{{ $t('viewQRCodes') }}</div>
@@ -129,8 +135,19 @@ export default {
 
       .value {
         border-bottom: $border-width solid $purple;
-        padding: $space 0 $space-sm;
+        margin: $space 0 0;
+        padding-bottom: $space-sm;
         overflow-wrap: break-word;
+
+        > textarea {
+          appearance: none;
+          background: transparent;
+          border: none;
+          color: white;
+          outline: none;
+          padding: 0;
+          width: 100%;
+        }
       }
 
       .aph-copy-text {
