@@ -42,7 +42,9 @@ export default {
   > .btn {
     @extend %btn-outline;
 
+    display: inline-block;
     flex: none;
+    min-width: percentage(1/3);
     padding: 0 $space-lg;
     width: auto;
 
