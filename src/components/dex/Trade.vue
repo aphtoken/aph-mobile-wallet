@@ -3,8 +3,8 @@
     <div class="body">
       <div class="controls">
         <div class="side">
-          <button @click="setSide('Buy')" :class="['buy-btn', {selected: side === 'Buy'}]">Buy</button>
-          <button @click="setSide('Sell')" :class="['sell-btn', {selected: side === 'Sell'}]">Sell</button>
+          <button @click="setSide('Buy')" :class="['buy-btn', {selected: side === 'Buy'}]">Buy {{ quoteHolding.symbol }}</button>
+          <button @click="setSide('Sell')" :class="['sell-btn', {selected: side === 'Sell'}]">Sell {{ quoteHolding.symbol }}</button>
         </div>
         <div class="order-type">
           <button @click="setOrderType('Limit')" :class="['limit-btn', {selected: orderType === 'Limit'}]">Limit</button>
