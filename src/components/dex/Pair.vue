@@ -43,11 +43,6 @@ export default {
       return _.uniq(_.map(this.$store.state.markets, 'baseCurrency'));
     },
 
-    baseCurrencyUnitPrice() {
-      return this.$store.state.currentMarket && this.$store.state.holdings.length ?
-        this.$services.neo.getHolding(this.$store.state.currentMarket.baseAssetId).unitValue : 0;
-    },
-
     currentTickerData() {
       return _.get(this.tickerDataByMarket, this.currentMarketName, {});
     },
@@ -59,11 +54,13 @@ export default {
     },
 
     tableData() {
-      return this.filteredMarkets().map(({ quoteCurrency, marketName }) => {
+      return this.filteredMarkets().map(({ baseAssetId, quoteCurrency, marketName }) => {
         const tickerData = this.tickerDataByMarket[marketName];
         let price;
         let baseVolume;
         let percentChange;
+        const baseCurrencyUnitPrice = this.$store.state.holdings.length ?
+          this.$services.neo.getHolding(baseAssetId).unitValue : 0;
         /* NOTE: this doesn't load immediately, just use tickerData
         if (marketName === this.currentMarket.marketName) {
           const tradeHistory = this.$store.state.tradeHistory;
@@ -72,13 +69,13 @@ export default {
           price = {
             price: this.$formatTokenAmount(hasTradeHistory ? tradeHistory.close24Hour : tickerData.last),
             priceConverted: this.$formatMoney((hasTradeHistory ? tradeHistory.close24Hour : tickerData.last)
-              * this.baseCurrencyUnitPrice),
+              * baseCurrencyUnitPrice),
           };
           quoteVolume = tickerData.quoteVolume;
         } else */ if (tickerData && tickerData.last) {
           price = {
             price: tickerData.last,
-            priceConverted: this.$formatMoney(tickerData.last * this.baseCurrencyUnitPrice),
+            priceConverted: this.$formatMoney(tickerData.last * baseCurrencyUnitPrice),
           };
           baseVolume = tickerData.baseVolume;
           percentChange = tickerData.change24hrPercent;
@@ -94,7 +91,7 @@ export default {
         percentChange = Math.round(percentChange * 10000) / 100;
         return { asset: quoteCurrency,
           price,
-          volume: this.$formatMoney(baseVolume * this.baseCurrencyUnitPrice),
+          volume: this.$formatMoney(baseVolume * baseCurrencyUnitPrice),
           '24H change': this.$formatNumber(percentChange) };
       });
     },
