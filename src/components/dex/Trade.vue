@@ -55,7 +55,7 @@
     <div class="footer">
       <div :class="['balance', {active: quoteHolding.symbol === actionableHolding.symbol}]" :title="quoteBalanceToolTip">
         <div class="label">{{ quoteHolding.symbol }}</div>
-        <div @click="showDepositWithdrawModal(quoteHolding)" class="control">{{ $t('depositWithdraw') }}</div>
+        <button @click="showDepositWithdrawModal(quoteHolding)" :disabled="disableDepositWithdrawButton(quoteHolding.symbol)" class="deposit-withdraw-btn">{{ $t('depositWithdraw') }}</button>
         <div class="contract">contract</div>
         <div class="contract-value">{{ $formatNumber(quoteHolding.contractBalance) }}</div>
         <div class="wallet">wallet</div>
@@ -63,7 +63,7 @@
       </div>
       <div :class="['balance', {active: baseHolding.symbol === actionableHolding.symbol}]" :title="baseBalanceToolTip">
         <div class="label">{{ baseHolding.symbol }}</div>
-        <div @click="showDepositWithdrawModal(baseHolding)" class="control">{{ $t('depositWithdraw') }}</div>
+        <button @click="showDepositWithdrawModal(baseHolding)" :disabled="disableDepositWithdrawButton(baseHolding.symbol)" class="deposit-withdraw-btn">{{ $t('depositWithdraw') }}</button>
         <div class="contract">contract</div>
         <div class="contract-value">{{ $formatNumber(baseHolding.contractBalance) }}</div>
         <div class="wallet">wallet</div>
@@ -71,7 +71,7 @@
       </div>
       <div :class="['balance', {active: aphHolding.symbol === actionableHolding.symbol}]" :title="aphBalanceToolTip" v-if="baseHolding.symbol !== 'APH' && quoteHolding.symbol !== 'APH'">
         <div class="label">APH</div>
-        <div @click="showDepositWithdrawModal(aphHolding)" class="control">{{ $t('depositWithdraw') }}</div>
+        <button @click="showDepositWithdrawModal(aphHolding)" class="deposit-withdraw-btn">{{ $t('depositWithdraw') }}</button>
         <div class="contract">contract</div>
         <div class="contract-value">{{ $formatNumber(aphHolding.contractBalance) }}</div>
         <div class="wallet">wallet</div>
@@ -310,6 +310,10 @@ export default {
         });
 
       this.hideDepositWithdrawModal();
+    },
+
+    disableDepositWithdrawButton(symbol) {
+      return ! _.includes(this.$store.state.holdingSymbols, symbol);
     },
 
     hideDepositWithdrawModal() {
@@ -737,16 +741,21 @@ export default {
         margin-top: $space-sm;
       }
 
-      .control {
-        @extend %small-uppercase-grey-label;
+      .deposit-withdraw-btn {
+        @extend %btn-outline;
+        @extend %small-uppercase-grey-label-dark;
 
-        border-radius: $border-radius;
-        border: $border-width-thin solid $purple;
         color: $purple;
-        display: inline-block;
         margin: $space-sm 0;
         padding: $space-px $space-xs;
         font-size: toRem(10px);
+        height: auto;
+        width: auto;
+
+        &:disabled {
+          border-color: $dark-grey;
+          color: $dark-grey;
+        }
       }
 
       .contract-value, .wallet-value {
