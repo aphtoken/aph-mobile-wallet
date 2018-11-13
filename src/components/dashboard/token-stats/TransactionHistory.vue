@@ -23,13 +23,13 @@ export default {
   computed: {
     received() {
       return this.$store.state.recentTransactions.filter(({ value, symbol }) => {
-        return value > 0 && this.symbol === symbol;
+        return value.isGreaterThan(0) && this.symbol === symbol;
       });
     },
 
     sent() {
       return this.$store.state.recentTransactions.filter(({ value, symbol }) => {
-        return value < 0 && this.symbol === symbol;
+        return value.isLessThan(0) && this.symbol === symbol;
       });
     },
   },
@@ -52,6 +52,8 @@ export default {
       this.showTransactionDetail = true;
     },
   },
+
+  props: ['symbol'],
 };
 </script>
 
