@@ -14,8 +14,8 @@ export default {
   data() {
     return {
       tabOptions: [
-        { key: 'my-orders', label: 'My orders' },
-        { key: 'order-book', label: 'Order book' },
+        { key: 'my-orders', label: 'My Orders' },
+        { key: 'order-book', label: 'Order Book' },
         { key: 'trade-history', label: 'History' },
       ],
     };
@@ -42,22 +42,33 @@ export default {
   > .btn {
     @extend %btn-outline;
 
-    display: inline-block;
-    flex: none;
-    min-width: percentage(1/3);
-    padding: 0 $space-lg;
+    border-radius: 0;
+    flex: 1;
     width: auto;
 
     &.active {
       @extend %btn;
 
-      padding: 0 $space-lg;
+      border-radius: 0;
       width: auto;
     }
 
     & + .btn {
-      margin-left: $space;
-      padding: 0 $space;
+      border-left: none;
+    }
+
+    &:first-child {
+      border-bottom-left-radius: $border-radius;
+      border-top-left-radius: $border-radius;
+    }
+
+    &:last-child {
+      border-bottom-right-radius: $border-radius;
+      border-top-right-radius: $border-radius;
+    }
+
+    @include lowRes() {
+      font-size: toRem(12px);
     }
   }
 }
