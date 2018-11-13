@@ -40,7 +40,8 @@ export default {
     },
 
     shouldDisableCommitButton() {
-      return !this.amount.length || this.amount <= 0 || this.aphHolding.balance.isLessThan(this.amount);
+      return !this.amount.length || this.amount <= 0
+        || this.aphHolding.balance.plus(this.aphHolding.contractBalance).isLessThan(this.amount);
     },
   },
 
@@ -58,7 +59,7 @@ export default {
 
     setAmountToMax() {
       if (this.aphHolding) {
-        this.amount = this.aphHolding.balance.toString();
+        this.amount = this.aphHolding.balance.plus(this.aphHolding.contractBalance).toString();
       }
     },
   },
