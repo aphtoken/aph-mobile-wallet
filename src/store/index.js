@@ -26,6 +26,7 @@ const state = {
   gasClaim: null,
   gasFracture: null,
   holdings: [],
+  holdingSymbols: [],
   lastReceivedBlock: null,
   lastSuccessfulRequest: null,
   latestVersion: null,

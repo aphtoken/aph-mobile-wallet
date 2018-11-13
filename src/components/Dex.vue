@@ -239,7 +239,7 @@ export default {
       display: flex;
       flex-direction: column;
       flex: 1;
-      height: toRem(60px);
+      height: $footer-tab-height;
       justify-content: center;
 
       div {

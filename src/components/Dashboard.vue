@@ -47,15 +47,15 @@ export default {
       display: flex;
       flex-direction: column;
       flex: 1;
-      height: toRem(60px);
+      height: $footer-tab-height;
       justify-content: center;
 
       .aph-icon {
         svg {
-          height: toRem(30px);
+          height: toRem(26px);
 
           &.transactions {
-            height: toRem(18px);
+            height: toRem(16px);
           }
         }
       }

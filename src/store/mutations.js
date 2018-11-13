@@ -286,6 +286,8 @@ function setHoldings(state, holdings) {
       state.statsToken = holdings[0];
     }
   }
+
+  state.holdingSymbols = _.map(state.holdings, 'symbol');
 }
 
 function setLastReceivedBlock(state) {

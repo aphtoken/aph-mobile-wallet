@@ -270,7 +270,7 @@ export default {
           margin-right: $space;
 
           svg {
-            height: toRem(20px);
+            height: toRem(16px);
 
             .fill {
               fill: $purple;
@@ -383,10 +383,10 @@ export default {
     .import-btn {
       @extend %btn-circle;
 
-      bottom: $space-lg;
+      bottom: $space-sm;
       box-shadow: $box-shadow;
       position: fixed;
-      right: $space-lg;
+      right: $space-sm;
     }
   }
 

@@ -114,7 +114,7 @@ export default {
     @include transitionFast(all);
 
     color: white;
-    padding-top: toRem(20px);
+    padding-top: toRem(15px);
     pointer-events: none;
     position: absolute;
     top: 0;
