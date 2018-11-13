@@ -142,8 +142,8 @@ async function fetchBlockHeaderByHash({ state, commit }, { blockHash, done, fail
       console.log(e);
       if (failed) {
         failed(e);
-        const message = e.toString();
-        commit('failRequest', { identifier: 'fetchBlockHeaderByHash', message });
+        // Don't pass the failure message when failing the request, otherwise it will pop an alert.
+        commit('failRequest', { identifier: 'fetchBlockHeaderByHash' });
       }
       return;
     }
