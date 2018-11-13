@@ -36,21 +36,20 @@ export default {
   display: flex;
   flex-direction: row;
   flex: none;
+  margin-bottom: $space;
   overflow: scroll;
   white-space: nowrap;
 
   > .btn {
-    @extend %btn-outline;
+    @extend %btn;
 
     border-radius: 0;
     flex: 1;
     width: auto;
 
-    &.active {
-      @extend %btn;
-
-      border-radius: 0;
-      width: auto;
+    &:not(.active) {
+      background-color: $dark-purple;
+      border-color: $dark-purple;
     }
 
     & + .btn {
