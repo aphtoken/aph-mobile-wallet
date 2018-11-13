@@ -313,7 +313,7 @@ export default {
     },
 
     disableDepositWithdrawButton(symbol) {
-      return ! _.includes(this.$store.state.holdingSymbols, symbol);
+      return !_.includes(this.$store.state.holdingSymbols, symbol);
     },
 
     hideDepositWithdrawModal() {
