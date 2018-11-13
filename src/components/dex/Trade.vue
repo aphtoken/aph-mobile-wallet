@@ -616,22 +616,7 @@ export default {
     }
 
     .order-type {
-      // display: flex;
-      // flex: none;
       margin-top: $space;
-
-
-      // > button {
-      //   @extend %btn-outline;
-
-      //   &.selected {
-      //     @extend %btn;
-      //   }
-
-      //   & + button {
-      //     margin-left: $space;
-      //   }
-      // }
     }
 
     .price, .quantity {
