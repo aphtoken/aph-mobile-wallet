@@ -19,7 +19,7 @@
           <preview v-touch:swipe.left="goToClaimGas" :symbol="symbol"></preview>
           <claim-gas v-touch:swipe.left="goToStats" v-touch:swipe.right="goToPreview" :symbol="symbol"></claim-gas>
           <stats v-touch:swipe.left="goToTransactionHistory" v-touch:swipe.right="goToClaimGas" :high="high" :low="low" :volume="volume"></stats>
-          <transaction-history v-touch:swipe.right="goToStats"></transaction-history>
+          <transaction-history :symbol="symbol" v-touch:swipe.right="goToStats"></transaction-history>
         </div>
       </div>
       <div class="controls">
