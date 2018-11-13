@@ -463,6 +463,7 @@ export default {
       > button {
         @extend %btn;
 
+        border-color: transparent;
         border-radius: 0;
         flex: 1;
         width: auto;
