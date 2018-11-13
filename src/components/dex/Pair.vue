@@ -62,7 +62,7 @@ export default {
       return this.filteredMarkets().map(({ quoteCurrency, marketName }) => {
         const tickerData = this.tickerDataByMarket[marketName];
         let price;
-        let quoteVolume;
+        let baseVolume;
         let percentChange;
         /* NOTE: this doesn't load immediately, just use tickerData
         if (marketName === this.currentMarket.marketName) {
@@ -80,21 +80,22 @@ export default {
             price: tickerData.last,
             priceConverted: this.$formatMoney(tickerData.last * this.baseCurrencyUnitPrice),
           };
-          quoteVolume = tickerData.quoteVolume;
+          baseVolume = tickerData.baseVolume;
           percentChange = tickerData.change24hrPercent;
         } else {
           price = {
             price: 0,
             priceConverted: this.$formatMoney(0),
           };
-          quoteVolume = 0;
+          baseVolume = 0;
           percentChange = 0;
         }
 
+        percentChange = Math.round(percentChange * 10000) / 100;
         return { asset: quoteCurrency,
           price,
-          volume: quoteVolume,
-          '24H change': this.$formatNumber(percentChange * 100) };
+          volume: this.$formatMoney(baseVolume * this.baseCurrencyUnitPrice),
+          '24H change': this.$formatNumber(percentChange) };
       });
     },
   },
@@ -123,13 +124,34 @@ export default {
     },
 
     filteredMarkets() {
-      return this.$store.state.markets.filter((market) => {
+      let markets = this.$store.state.markets.filter((market) => {
         if (this.searchBy.length > 0) {
           const isSearchMatch = _.includes(market.quoteCurrency, this.searchBy.toUpperCase());
           return market.baseCurrency === this.baseCurrency && isSearchMatch;
         }
         return market.baseCurrency === this.baseCurrency;
       });
+
+      if (!markets || !markets.length) return markets;
+
+      let nonZeroVolumeItems = 0;
+      markets.forEach((market) => {
+        const baseAsset = this.$services.neo.getHolding(market.baseAssetId);
+        const unitValue = baseAsset ? baseAsset.unitValue : 0;
+        market.baseVolume = _.get(this.$store.state.tickerDataByMarket, `${market.marketName}.baseVolume`);
+        market.volume = market.baseVolume * unitValue;
+        if (market.volume > 0) {
+          nonZeroVolumeItems += 1;
+        }
+      });
+
+      const aphMarket = _.remove(markets, { quoteCurrency: 'APH' });
+      markets = aphMarket.concat(_.orderBy(markets, 'volume', 'desc'));
+      const marketsToShowByVolume = nonZeroVolumeItems > 10 ? 10 : nonZeroVolumeItems;
+      markets = markets.slice(0, marketsToShowByVolume).concat(
+        _.orderBy(markets.slice(marketsToShowByVolume), 'quoteCurrency', 'asc'));
+
+      return markets;
     },
 
     formatEntry(value, entry, key) {
