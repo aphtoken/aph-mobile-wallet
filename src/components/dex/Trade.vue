@@ -45,11 +45,11 @@
           <div class="label">estimate ({{ $services.settings.getCurrency() }})</div>
           <div class="value">{{ $formatMoney(estimate) }}</div>
         </div>
-        <div class="place-order">
-          <button @click="confirmOrder" :disabled="shouldDisableOrderButton" :class="['order-btn', { 'buy-btn': side === 'Buy', 'sell-btn': side === 'Sell'}]">
-            Place {{ side }} order
-          </button>
-        </div>
+      </div>
+      <div class="place-order">
+        <button @click="confirmOrder" :disabled="shouldDisableOrderButton" :class="['order-btn', { 'buy-btn': side === 'Buy', 'sell-btn': side === 'Sell'}]">
+          Place {{ side }} order
+        </button>
       </div>
     </div>
     <div class="footer">
@@ -552,8 +552,7 @@ export default {
     display: flex;
     flex-direction: column;
     flex: 1;
-    justify-content: space-around;
-    overflow: hidden;
+    overflow: auto;
 
     .controls {
       flex: none;
@@ -601,8 +600,7 @@ export default {
 
       flex: 1;
       margin-top: $space;
-      overflow: auto;
-      padding: $space;
+      padding: 0 $space $space;
     }
 
     .side {
@@ -697,7 +695,7 @@ export default {
     }
 
     .place-order {
-      flex: 1;
+      flex: none;
       margin-top: $space;
 
       .order-btn {
@@ -747,7 +745,8 @@ export default {
         color: $purple;
         display: inline-block;
         margin: $space-sm 0;
-        padding: $space-xs $space-sm;
+        padding: $space-px $space-xs;
+        font-size: toRem(10px);
       }
 
       .contract-value, .wallet-value {

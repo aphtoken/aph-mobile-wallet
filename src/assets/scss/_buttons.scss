@@ -1,4 +1,4 @@
-$btn-circle-size: toRem(65px);
+$btn-circle-size: toRem(55px);
 
 button, input, optgroup, select, textarea {
   line-height: normal;
@@ -38,7 +38,7 @@ button, input, optgroup, select, textarea {
   font-size: toRem(14px);
   height: $button-height;
   outline: none;
-  padding: toRem(14px) 0;
+  padding: toRem(10px) 0;
   text-align: center;
   user-select: none;
   vertical-align: middle;
@@ -125,7 +125,7 @@ button, input, optgroup, select, textarea {
   font-size: toRem(16px);
   height: $button-height;
   outline: none;
-  padding: toRem(16px) 0;
+  padding: toRem(12px) 0;
   text-align: center;
 
   &.disabled, &:disabled {

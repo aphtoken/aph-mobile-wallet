@@ -71,6 +71,7 @@ export default {
 .tile.stats {
   > .inner {
     flex-direction: column;
+    position: relative;
 
     .header {
       align-items: center;
@@ -100,16 +101,16 @@ export default {
       flex: 1;
       padding: $space;
     }
-  }
 
-  .expand-btn {
-    @extend %btn-circle;
+    .expand-btn {
+      @extend %btn-circle;
 
-    position: absolute;
-    right: 0;
-    bottom: 0;
-    box-shadow: $box-shadow-lg;
-    transform: translate(-50%, 50%)
+      bottom: 0;
+      box-shadow: $box-shadow-lg;
+      position: absolute;
+      right: 0;
+      transform: translate(10%, 10%);
+    }
   }
 }
 </style>

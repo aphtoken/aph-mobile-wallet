@@ -167,10 +167,10 @@ export default {
     .add-btn {
       @extend %btn-circle;
 
-      bottom: $space-lg;
+      bottom: $space-sm;
       box-shadow: $box-shadow;
       position: fixed;
-      right: $space-lg;
+      right: $space-sm;
     }
   }
 

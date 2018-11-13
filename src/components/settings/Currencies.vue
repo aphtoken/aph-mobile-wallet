@@ -98,7 +98,7 @@ export default {
           margin-right: $space;
 
           svg {
-            height: toRem(20px);
+            height: toRem(16px);
 
             .fill {
               fill: $purple;
