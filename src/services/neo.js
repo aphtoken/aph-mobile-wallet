@@ -342,8 +342,6 @@ export default {
             const transactionPromises = [];
 
             if (transaction.confirmations > 0) {
-              transaction.confirmed = true;
-
               // Look up the block from the blockhash
               transactionPromises.push(new Promise((resolve, reject) => {
                 store.dispatch('fetchBlockHeaderByHash', {
@@ -354,9 +352,14 @@ export default {
                   failed: e => reject(e),
                 });
               }).then((blockHeader) => {
+                transaction.confirmed = true;
                 transaction.block = blockHeader.index;
                 transaction.currentBlockHeight = transaction.confirmations + blockHeader.index;
-              }).catch(e => reject(e)));
+              }).catch((e) => {
+                if (DBG_LOG) console.log(`Error fetching block header when fetching tx details: ${e}`);
+                // leave transaction unconfirmed so it will try to determine the block later.
+                transaction.confirmed = false;
+              }));
             } else {
               transaction.confirmed = false;
             }
@@ -876,10 +879,6 @@ export default {
 
     return store.dispatch('fetchSystemAssetBalances', { forAddress: currentWallet.address })
       .then((balance) => {
-        if (balance.net !== currentNetwork.net) {
-          alerts.error('Unable to read address balance from neonDB or neoscan api. Please try again later.');
-          return null;
-        }
         const config = {
           net: currentNetwork.net,
           url: currentNetwork.rpc,
@@ -931,6 +930,54 @@ export default {
         ],
       },
       fees: currentNetwork.fee || 0,
+      gas: 0,
+    };
+
+    if (currentWallet.isLedger === true) {
+      config.signingFunction = ledger.signWithLedger;
+      config.address = currentWallet.address;
+
+      return api.doInvoke(config)
+        .then(res => res)
+        .catch((e) => {
+          alerts.exception(e);
+        });
+    }
+
+    const account = new wallet.Account(currentWallet.wif);
+    config.account = account;
+
+    return api.doInvoke(config)
+      .then(res => res)
+      .catch((e) => {
+        alerts.exception(e);
+      });
+  },
+
+  // TODO: maybe unify code some with sendNep5Transfer
+  approveNep5Deposit(scriptHashToAllow, assetId, amount) {
+    const currentNetwork = network.getSelectedNetwork();
+    const currentWallet = wallets.getCurrentWallet();
+
+    const token = assets.getNetworkAsset(assetId);
+    if (token.decimals >= 0 && token.decimals < 8) {
+      // Adjust for the token's number of decimals.
+      amount = toBigNumber(amount).dividedBy(10 ** (8 - token.decimals));
+    }
+
+    const config = {
+      net: currentNetwork.net,
+      url: currentNetwork.rpc,
+      script: {
+        scriptHash: assetId,
+        operation: 'approve',
+        args: [
+          u.reverseHex(wallet.getScriptHashFromAddress(currentWallet.address)),
+          u.reverseHex(scriptHashToAllow),
+          new u.Fixed8(amount).toReverseHex(),
+        ],
+      },
+      fees: currentNetwork.fee,
       gas: 0,
     };
 
