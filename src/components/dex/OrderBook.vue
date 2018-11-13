@@ -114,6 +114,14 @@ export default {
           .cell {
             flex: 1;
             font-size: toRem(12px);
+            &.price {
+              &.green {
+                color: $green;
+              }
+              &.red {
+                color: $red;
+              }
+            }
 
             &.graph {
               font-size: 0;
