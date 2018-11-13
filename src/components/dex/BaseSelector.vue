@@ -23,25 +23,40 @@ export default {
 
 <style lang="scss">
 #dex--base-selector {
-  @extend %tile-dark;
-
   align-items: center;
   display: flex;
   flex-direction: row;
   margin-top: $space;
-  padding: $space;
 
   > .currency {
-    @extend %btn-outline;
+    @extend %btn;
 
+    border-color: transparent;
+    border-radius: 0;
     flex: 1;
+    width: auto;
 
-    &.active {
-      @extend %btn;
+    &:not(.active) {
+      background-color: $dark-purple;
+      border-color: $dark-purple;
     }
 
-    & + .currency {
-      margin-left: $space;
+    & + button {
+      border-left: none;
+    }
+
+    &:first-child {
+      border-bottom-left-radius: $border-radius;
+      border-top-left-radius: $border-radius;
+    }
+
+    &:last-child {
+      border-bottom-right-radius: $border-radius;
+      border-top-right-radius: $border-radius;
+    }
+
+    @include lowRes() {
+      font-size: toRem(12px);
     }
   }
 }

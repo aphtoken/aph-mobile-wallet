@@ -52,8 +52,9 @@ export default {
     },
 
     basePrice() {
-      const tradeHistory = this.$store.state.tradeHistory;
+      const tradeHistory = _.get(this.$store.state, tradeHistory, {});
       const hasTradeHistory = tradeHistory.trades && tradeHistory.trades.length > 0;
+
       return this.$formatTokenAmount(hasTradeHistory ? tradeHistory.close24Hour : 0);
     },
 

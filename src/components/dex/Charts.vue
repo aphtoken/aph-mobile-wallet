@@ -254,7 +254,7 @@ export default {
           volume_precision: 5,
         };
 
-        const getResolutionInMinutes = (resolution) => 
+        const getResolutionInMinutes = (resolution) =>
           resolution === 'D' ? 60 * 24 :
           resolution === 'W' ? 7 * 60 * 24 :
           Number(resolution);
@@ -292,7 +292,7 @@ export default {
             this.$store.dispatch('fetchTradesBucketed', {
               marketName: this.$store.state.currentMarket.marketName,
               interval: resolutionInMinutes,
-              from: from, 
+              from: from,
               to: to,
               }).then(() => {
                 // Compute and fetch bars on newly populated apiBuckets
@@ -463,13 +463,32 @@ export default {
       > button {
         @extend %btn;
 
+        border-color: transparent;
+        border-radius: 0;
+        flex: 1;
+        width: auto;
+
         &:not(.active) {
           background-color: $dark-purple;
           border-color: $dark-purple;
         }
 
         & + button {
-          margin-left: $space;
+          border-left: none;
+        }
+
+        &:first-child {
+          border-bottom-left-radius: $border-radius;
+          border-top-left-radius: $border-radius;
+        }
+
+        &:last-child {
+          border-bottom-right-radius: $border-radius;
+          border-top-right-radius: $border-radius;
+        }
+
+        @include lowRes() {
+          font-size: toRem(12px);
         }
       }
     }

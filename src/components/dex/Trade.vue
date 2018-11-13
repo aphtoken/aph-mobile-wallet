@@ -3,12 +3,12 @@
     <div class="body">
       <div class="controls">
         <div class="side">
-          <button @click="setSide('Buy')" :class="['buy-btn', {selected: side === 'Buy'}]">Buy {{ quoteHolding.symbol }}</button>
-          <button @click="setSide('Sell')" :class="['sell-btn', {selected: side === 'Sell'}]">Sell {{ quoteHolding.symbol }}</button>
+          <button @click="setSide('Buy')" :class="['buy-btn', {active: side === 'Buy'}]">Buy {{ quoteHolding.symbol }}</button>
+          <button @click="setSide('Sell')" :class="['sell-btn', {active: side === 'Sell'}]">Sell {{ quoteHolding.symbol }}</button>
         </div>
         <div class="order-type">
-          <button @click="setOrderType('Limit')" :class="['limit-btn', {selected: orderType === 'Limit'}]">Limit</button>
-          <button @click="setOrderType('Market')" :class="['market-btn', {selected: orderType === 'Market'}]">Market</button>
+          <button @click="setOrderType('Limit')" :class="['limit-btn', {active: orderType === 'Limit'}]">Limit</button>
+          <button @click="setOrderType('Market')" :class="['market-btn', {active: orderType === 'Market'}]">Market</button>
         </div>
       </div>
       <div class="form">
@@ -557,6 +557,43 @@ export default {
 
     .controls {
       flex: none;
+
+      > * {
+        display: flex;
+        flex: none;
+
+        > button {
+          @extend %btn;
+
+          border-color: transparent;
+          border-radius: 0;
+          flex: 1;
+          width: auto;
+
+          &:not(.active) {
+            background-color: $dark-purple;
+            border-color: $dark-purple;
+          }
+
+          & + button {
+            border-left: none;
+          }
+
+          &:first-child {
+            border-bottom-left-radius: $border-radius;
+            border-top-left-radius: $border-radius;
+          }
+
+          &:last-child {
+            border-bottom-right-radius: $border-radius;
+            border-top-right-radius: $border-radius;
+          }
+
+          @include lowRes() {
+            font-size: toRem(12px);
+          }
+        }
+      }
     }
 
     .form {
@@ -569,53 +606,17 @@ export default {
     }
 
     .side {
-      display: flex;
-      flex: none;
+      .sell-btn.active {
+        background: $red;
+      }
 
-      > button {
-        @extend %btn-outline;
-
-        &.buy-btn {
-          border-color: $green;
-
-          &:hover, &.selected {
-            background-color: $green;
-          }
-        }
-
-        &.sell-btn {
-          border-color: $red;
-          margin-left: $space;
-
-          &:hover, &.selected {
-            background-color: $red;
-          }
-        }
-
-        &:disabled {
-          background: transparent !important;
-          border-color: $grey;
-        }
+      .buy-btn.active {
+        background: $green;
       }
     }
 
     .order-type {
-      display: flex;
-      flex: none;
       margin-top: $space;
-
-
-      > button {
-        @extend %btn-outline;
-
-        &.selected {
-          @extend %btn;
-        }
-
-        & + button {
-          margin-left: $space;
-        }
-      }
     }
 
     .price, .quantity {
