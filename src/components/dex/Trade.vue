@@ -558,6 +558,7 @@ export default {
     flex-direction: column;
     flex: 1;
     overflow: auto;
+    position: relative;
 
     .controls {
       flex: none;
