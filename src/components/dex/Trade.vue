@@ -550,6 +550,7 @@ export default {
   display: flex;
   flex-direction: column;
   flex: 1;
+  height: 100%;
   overflow: hidden;
 
   > .body {
