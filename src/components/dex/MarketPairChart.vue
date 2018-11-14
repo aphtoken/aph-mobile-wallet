@@ -79,6 +79,11 @@ export default {
       return this.$formatNumber(_.get(this.currentTickerData, 'open24hr', 0));
     },
 
+    baseCurrencyUnitPrice() {
+      return this.$store.state.currentMarket && this.$store.state.holdings.length ?
+        this.$services.neo.getHolding(this.$store.state.currentMarket.baseAssetId).unitValue : 0;
+    },
+
     percentChangeAbsolute() {
       let percentChange = _.get(this.currentTickerData, 'change24hrPercent', 0);
       percentChange = Math.round(percentChange * 10000) / 100;
@@ -97,11 +102,6 @@ export default {
   },
 
   props: {
-    baseCurrencyUnitPrice: {
-      default: 0,
-      type: Number,
-    },
-
     marketData: {
       default: {},
       type: Object,

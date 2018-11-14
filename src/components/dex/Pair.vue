@@ -1,7 +1,7 @@
 <template>
   <section id="dex--pair">
     <div class="body">
-      <market-pair-chart v-bind="{ marketData, baseCurrencyUnitPrice }"></market-pair-chart>
+      <market-pair-chart v-bind="{ marketData }"></market-pair-chart>
       <base-selector v-model="baseCurrency" v-bind="{ baseCurrencies }"></base-selector>
       <aph-search-bar v-model="searchBy"></aph-search-bar>
       <aph-simple-table v-bind="{ columns, data: tableData, formatEntry, injectCellStyling: getRelativeChange, injectRowStyling, handleRowClick: handleMarketSelection }">
@@ -45,12 +45,6 @@ export default {
 
     currentTickerData() {
       return _.get(this.tickerDataByMarket, this.currentMarketName, {});
-    },
-
-    percentChangeAbsolute() {
-      return this.$formatNumber(
-        _.get(this.currentTickerData, 'percentChangeAbsolute', 0) * this.baseCurrencyUnitPrice,
-      );
     },
 
     tableData() {
