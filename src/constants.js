@@ -63,6 +63,7 @@ const formats = {
   FRACTIONAL_NUMBER: '[.]0[00000000]',
   MONEY: '$0,0.00',
   TIME: 'H:mm',
+  TRADE_ORDER: 'MM-DD HH:mm:ss',
   WEEKDAY_AND_TIME: 'dd H:ss',
   WHOLE_NUMBER: '0,0',
   WHOLE_NUMBER_NO_COMMAS: '0[.]0[00000000]',
