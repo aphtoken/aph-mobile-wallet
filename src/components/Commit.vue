@@ -17,10 +17,10 @@
               </div>
               <div class="content">
                 <div class="title">{{ $t('totalFeesCollectedByDex') }}</div>
-                <div class="highlight">{{ $formatNumber($store.state.commitState.totalFeesCollected) }} APH</div>
+                <div class="highlight">{{ $formatNumber(getCommitStateNumericalField('totalFeesCollected')) }} APH</div>
                 <div class="pair">
                   <div class="label">{{ $t('estimated') }} ({{ $store.state.currency }})</div>
-                  <div class="value">{{ $formatNumber(aphHolding ? aphHolding.unitValue * $store.state.commitState.totalFeesCollected : 0) }}</div>
+                  <div class="value">{{ $formatNumber(aphHolding ? aphHolding.unitValue * getCommitStateNumericalField('totalFeesCollected') : 0) }}</div>
                 </div>
               </div>
             </div>
@@ -31,10 +31,10 @@
               </div>
               <div class="content">
                 <div class="title">{{ $t('totalFeesCollectedSinceCommit') }}</div>
-                <div class="highlight">{{ $formatNumber($store.state.commitState.feesCollectedSinceCommit) }} APH</div>
+                <div class="highlight">{{ $formatNumber(getCommitStateNumericalField('feesCollectedSinceCommit')) }} APH</div>
                 <div class="pair">
                   <div class="label">{{ $t('estimated') }} ({{ $store.state.currency }})</div>
-                  <div class="value">{{ $formatNumber(aphHolding ? aphHolding.unitValue * $store.state.commitState.feesCollectedSinceCommit : 0) }}</div>
+                  <div class="value">{{ $formatNumber(aphHolding ? aphHolding.unitValue * getCommitStateNumericalField('feesCollectedSinceCommit') : 0) }}</div>
                 </div>
               </div>
             </div>
@@ -51,48 +51,48 @@
             <div class="slide amount-committed" v-touch:swipe.left="goToDateCommitted">
               <div class="content">
                 <h1 class="underlined">{{ $t('amountCommitted') }}</h1>
-                <div class="highlight">{{ $formatNumber($store.state.commitState.quantityCommitted) }} APH</div>
+                <div class="highlight">{{ $formatNumber(getCommitStateNumericalField('quantityCommitted')) }} APH</div>
                 <div class="pair">
                   <div class="label">{{ $t('estimated') }} ({{ $store.state.currency }})</div>
-                  <div class="value">{{ $formatNumber(aphHolding ? aphHolding.unitValue * $store.state.commitState.quantityCommitted : 0) }}</div>
+                  <div class="value">{{ $formatNumber(aphHolding ? aphHolding.unitValue * getCommitStateNumericalField('quantityCommitted') : 0) }}</div>
                 </div>
               </div>
             </div>
             <div class="slide date-committed" v-touch:swipe.left="goToMyWeight" v-touch:swipe.right="goToAmountCommitted">
               <div class="content">
                 <h1 class="underlined">{{ $t('dateCommitted') }}</h1>
-                <div class="highlight">{{ $formatDate($store.state.commitState.contributionTimestamp) }}</div>
+                <div class="highlight">{{ $formatDate(getCommitStateNumericalField('contributionTimestamp')) }}</div>
                 <div class="pair">
                   <div class="label">{{ $t('time') }}</div>
-                  <div class="value">{{ $formatTime($store.state.commitState.contributionTimestamp) }}</div>
+                  <div class="value">{{ $formatTime(getCommitStateNumericalField('contributionTimestamp')) }}</div>
                 </div>
                 <div class="pair">
                   <div class="label">{{ $t('block') }}</div>
-                  <div class="value">{{ $store.state.commitState.contributionHeight || '--' }}</div>
+                  <div class="value">{{ getCommitStateNumericalField('contributionHeight') || '--' }}</div>
                 </div>
               </div>
             </div>
             <div class="slide my-weight" v-touch:swipe.left="goToFeesEarned"  v-touch:swipe.right="goToDateCommitted">
               <div class="content">
                 <h1 class="underlined">{{ $t('myWeight') }}</h1>
-                <div class="highlight">{{ $formatNumber($store.state.commitState.weightPercentage) }}%</div>
+                <div class="highlight">{{ $formatNumber(getCommitStateNumericalField('weightPercentage')) }}%</div>
                 <div class="pair">
                   <div class="label">{{ $t('myWeight') }}</div>
-                  <div class="value">{{ $abbreviateNumber($store.state.commitState.userWeight) }}</div>
+                  <div class="value">{{ $abbreviateNumber(getCommitStateNumericalField('userWeight')) }}</div>
                 </div>
                 <div class="pair">
                   <div class="label">{{ $t('networkWeight') }}</div>
-                  <div class="value">{{ $abbreviateNumber($store.state.commitState.networkWeight) }}</div>
+                  <div class="value">{{ $abbreviateNumber(getCommitStateNumericalField('networkWeight')) }}</div>
                 </div>
               </div>
             </div>
             <div class="slide fees-earned" v-touch:swipe.right="goToMyWeight">
               <div class="content">
                 <h1 class="underlined">{{ $t('feesEarned') }}</h1>
-                <div class="highlight">~{{ $store.state.commitState.availableToClaim }} APH</div>
+                <div class="highlight">~{{ getCommitStateNumericalField('availableToClaim') }} APH</div>
                 <div class="pair">
                   <div class="label">{{ $t('estimated') }} ({{ $store.state.currency }})</div>
-                  <div class="value">{{ $formatNumber(aphHolding ? aphHolding.unitValue * $store.state.commitState.availableToClaim : 0) }}</div>
+                  <div class="value">{{ $formatNumber(aphHolding ? aphHolding.unitValue * getCommitStateNumericalField('availableToClaim') : 0) }}</div>
                 </div>
               </div>
             </div>
@@ -106,14 +106,14 @@
         </div>
       </div>
       <div class="bottom">
-        <template v-if="$store.state.commitState.quantityCommitted > 0">
-          <div class="inner" v-if="$store.state.commitState.ableToClaimHeight > currentBlock">
-            <div class="header">{{ $store.state.commitState.ableToClaimHeight - currentBlock }}</div>
-            <div class="copy">{{ $t('blocksUntilClaim') }} ({{ $store.state.commitState.ableToCompoundHeight }})</div>
+        <template v-if="getCommitStateNumericalField('quantityCommitted') > 0">
+          <div class="inner" v-if="getCommitStateNumericalField('ableToClaimHeight') > currentBlock">
+            <div class="header">{{ getCommitStateNumericalField('ableToClaimHeight') - currentBlock }}</div>
+            <div class="copy">{{ $t('blocksUntilClaim') }} ({{ getCommitStateNumericalField('ableToCompoundHeight') }})</div>
           </div>
-          <div class="inner" v-else-if="$store.state.commitState.ableToCompoundHeight > currentBlock">
+          <div class="inner" v-else-if="getCommitStateNumericalField('ableToCompoundHeight') > currentBlock">
             <div class="header">{{ $store.state.commitState.ableToCompoundHeight - currentBlock }}</div>
-            <div class="copy">{{ $t('blocksUntilClaim') }} ({{ $store.state.commitState.ableToCompoundHeight }})</div>
+            <div class="copy">{{ $t('blocksUntilClaim') }} ({{ getCommitStateNumericalField('ableToCompoundHeight') }})</div>
           </div>
           <div class="inner" v-else>
             <div class="line"></div>
@@ -215,19 +215,31 @@ export default {
     },
 
     shouldDisableCommitButton() {
+      if (!this.$store.state.commitState) {
+        return true;
+      }
       return this.$store.state.commitChangeInProgress;
     },
 
     shouldDisableClaimButton() {
+      if (!this.$store.state.commitState) {
+        return true;
+      }
       return this.$store.state.commitState.quantityCommitted <= 0 || this.$store.state.commitChangeInProgress;
     },
 
     shouldDisableCompoundButton() {
+      if (!this.$store.state.commitState) {
+        return true;
+      }
       return this.$store.state.commitState.quantityCommitted <= 0
         || this.$store.state.commitState.ableToCompoundHeight > this.currentBlock || this.$store.state.commitChangeInProgress;
     },
 
     shouldShowCommitButton() {
+      if (!this.$store.state.commitState) {
+        return true;
+      }
       return this.$store.state.commitState.quantityCommitted <= 0;
     },
   },
@@ -269,6 +281,13 @@ export default {
 
     goToTotalDexFees() {
       this.activeTopSlide = 'total-dex-fees';
+    },
+
+    getCommitStateNumericalField(fieldName) {
+      if (!this.$store.state.commitState) {
+        return 0;
+      }
+      return this.$store.state.commitState[fieldName] ? this.$store.state.commitState[fieldName] : 0;
     },
   },
 
