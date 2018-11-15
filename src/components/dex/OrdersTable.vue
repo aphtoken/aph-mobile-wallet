@@ -35,9 +35,7 @@
             </div>
           </div>
         </div>
-        <div v-if="selectedStatus === 'open'" @click="cancelOrder(value)" class="cancel-btn">
-          <aph-icon name="cancel" />
-        </div>
+        <aph-icon v-if="selectedStatus === 'open'" @click="cancelOrder(value)" class="cancel-btn" name="cancel" />
       </div>
     </aph-simple-table>
   </section>
