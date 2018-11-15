@@ -1,5 +1,5 @@
 <template>
-  <div class="aph-icon">
+  <div class="aph-icon" v-on="$listeners">
     <!-- logo -->
     <svg class="icon logo" v-if="name === 'logo'" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
       viewBox="0 0 324 406.9" style="enable-background:new 0 0 324 406.9;" xml:space="preserve">
@@ -239,6 +239,14 @@
       <path class="fill cls-1" d="M18.4,13.12h-5a.88.88,0,1,0,0,1.75h5a.88.88,0,1,0,0-1.75Z" transform="translate(-1.23 -4.12)" />
       <path class="fill cls-1" d="M10.9,16.12h-2a.88.88,0,1,0,0,1.75h2a.88.88,0,0,0,0-1.75Z" transform="translate(-1.23 -4.12)" />
       <path class="fill cls-1" d="M18.4,16.12h-5a.88.88,0,1,0,0,1.75h5a.88.88,0,1,0,0-1.75Z" transform="translate(-1.23 -4.12)" />
+    </svg>
+
+    <!-- cancel -->
+    <svg class="icon cancel" v-if="name === 'cancel'" viewBox="0 0 22 24" xmlns="http://www.w3.org/2000/svg">
+      <g class="fill">
+        <path class="x" d="m10.5 7.6v3.9h-3.9a.5.5 0 0 0 0 1h3.9v3.9a.5.5 0 0 0 1 0v-3.9h3.9a.5.5 0 0 0 0-1h-3.9v-3.9a.5.5 0 0 0 -1 0z" />
+        <path d="m21.73 5.56-10.5-5.5a.47.47 0 0 0 -.46 0l-10.5 5.5a.48.48 0 0 0 -.27.44v12a.48.48 0 0 0 .27.44l10.5 5.5a.47.47 0 0 0 .46 0l10.5-5.5a.48.48 0 0 0 .27-.44v-12a.48.48 0 0 0 -.27-.44zm-.73 12.14-10 5.24-10-5.24v-11.4l10-5.24 10 5.24z" />
+      </g>
     </svg>
 
     <!-- search -->
@@ -614,6 +622,15 @@ export default {
   .arrow-right {
     path {
       transform: rotate(180deg) translate(-21px, -17px);
+    }
+  }
+
+  .cancel {
+    path {
+      &.x {
+        transform-origin: center;
+        transform: rotate(-45deg);
+      }
     }
   }
 

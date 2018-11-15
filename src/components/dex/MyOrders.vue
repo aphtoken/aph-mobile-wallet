@@ -11,23 +11,6 @@ export default {
   components: {
     OrdersTable,
   },
-
-  computed: {
-  },
-
-  data() {
-    return {
-    };
-  },
-
-  methods: {
-  },
-
-  mounted() {
-  },
-
-  watch: {
-  },
 };
 
 </script>
