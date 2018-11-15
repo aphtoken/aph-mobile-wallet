@@ -37,6 +37,9 @@ export default {
     },
 
     onBlur() {
+      if (this.$listeners.blur) {
+        this.$listeners.blur();
+      }
       this.isFocused = false;
     },
 
@@ -45,6 +48,9 @@ export default {
     },
 
     onFocus() {
+      if (this.$listeners.focus) {
+        this.$listeners.focus();
+      }
       this.isFocused = true;
     },
 

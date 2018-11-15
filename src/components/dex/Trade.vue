@@ -13,13 +13,13 @@
       </div>
       <div class="form">
         <div class="price" v-if="orderType === 'Limit'">
-          <aph-input v-model="$store.state.orderPrice"></aph-input>
+          <aph-input ref="inputPrice" v-model="$store.state.orderPrice" @focus="priceHasFocus=true" @blur="priceHasFocus=false"></aph-input>
           <div class="description">
             limit price ({{ baseHoldingSymbol }})
           </div>
         </div>
         <div class="quantity">
-          <aph-input v-model="$store.state.orderQuantity"></aph-input>
+          <aph-input ref="inputQuantity" v-model="$store.state.orderQuantity" @focus="quantityHasFocus=true" @blur="quantityHasFocus=false"></aph-input>
           <div class="description">
             amount ({{ quoteHoldingSymbol }})
           </div>
@@ -52,7 +52,7 @@
         </button>
       </div>
     </div>
-    <div class="footer">
+    <div v-if="shouldShowFooter" class="footer">
       <div :class="['balance', {active: quoteHolding.symbol === actionableHolding.symbol}]" :title="quoteBalanceToolTip">
         <div class="label">{{ quoteHolding.symbol }}</div>
         <button @click="showDepositWithdrawModal(quoteHolding)" :disabled="disableDepositWithdrawButton(quoteHolding.symbol)" class="deposit-withdraw-btn">{{ $t('depositWithdraw') }}</button>
@@ -235,6 +235,18 @@ export default {
       return !this.$store.state.orderQuantity || !this.$store.state.orderPrice || this.$isPending('placeOrder');
     },
 
+    shouldShowFooter() {
+      return !this.priceHasFocus && !this.quantityHasFocus;
+      /*
+      if (!this.$refs) {
+        return false;
+      }
+      console.log(this.$refs);
+      console.log(_.get(this.$refs, 'inputPrice'));
+      return !this.$refs.inputPrice;
+      */
+    },
+
     total() {
       if (!this.$store.state.orderQuantity) {
         return 0;
@@ -266,6 +278,8 @@ export default {
       postOnly: false,
       selectedPercent: null,
       side: 'Buy',
+      priceHasFocus: false,
+      quantityHasFocus: false,
     };
   },
 
