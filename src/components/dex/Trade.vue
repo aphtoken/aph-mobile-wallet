@@ -13,13 +13,13 @@
       </div>
       <div class="form">
         <div class="price" v-if="orderType === 'Limit'">
-          <aph-input ref="inputPrice" v-model="$store.state.orderPrice" @focus="priceHasFocus=true" @blur="priceHasFocus=false"></aph-input>
+          <aph-input v-model="$store.state.orderPrice" @focus="priceHasFocus=true" @blur="priceHasFocus=false"></aph-input>
           <div class="description">
             limit price ({{ baseHoldingSymbol }})
           </div>
         </div>
         <div class="quantity">
-          <aph-input ref="inputQuantity" v-model="$store.state.orderQuantity" @focus="quantityHasFocus=true" @blur="quantityHasFocus=false"></aph-input>
+          <aph-input v-model="$store.state.orderQuantity" @focus="quantityHasFocus=true" @blur="quantityHasFocus=false"></aph-input>
           <div class="description">
             amount ({{ quoteHoldingSymbol }})
           </div>
@@ -237,14 +237,6 @@ export default {
 
     shouldShowFooter() {
       return !this.priceHasFocus && !this.quantityHasFocus;
-      /*
-      if (!this.$refs) {
-        return false;
-      }
-      console.log(this.$refs);
-      console.log(_.get(this.$refs, 'inputPrice'));
-      return !this.$refs.inputPrice;
-      */
     },
 
     total() {
