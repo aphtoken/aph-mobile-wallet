@@ -35,8 +35,8 @@
             </div>
           </div>
         </div>
-        <div v-if="selectedStatus === 'open'" class="cancel-btn" @click="cancelOrder(value)">
-          X
+        <div v-if="selectedStatus === 'open'" @click="cancelOrder(value)" class="cancel-btn">
+          <aph-icon name="cancel" />
         </div>
       </div>
     </aph-simple-table>
@@ -288,10 +288,15 @@ export default {
       }
     }
 
+    .aph-icon {
+
+      svg {
+        height: toRem(20px);
+      }
+    }
+
     .cancel-btn {
-      border-radius: 50%;
-      border: 1px $darker-grey solid;
-      margin: auto 0 auto $space;
+      margin: auto 0 auto $space-sm;
       padding: $space-sm
     }
   }

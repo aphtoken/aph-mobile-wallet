@@ -241,6 +241,14 @@
       <path class="fill cls-1" d="M18.4,16.12h-5a.88.88,0,1,0,0,1.75h5a.88.88,0,1,0,0-1.75Z" transform="translate(-1.23 -4.12)" />
     </svg>
 
+    <!-- cancel -->
+    <svg class="icon cancel" v-if="name === 'cancel'" viewBox="0 0 22 24" xmlns="http://www.w3.org/2000/svg">
+      <g class="fill">
+        <path class="x" d="m10.5 7.6v3.9h-3.9a.5.5 0 0 0 0 1h3.9v3.9a.5.5 0 0 0 1 0v-3.9h3.9a.5.5 0 0 0 0-1h-3.9v-3.9a.5.5 0 0 0 -1 0z" />
+        <path d="m21.73 5.56-10.5-5.5a.47.47 0 0 0 -.46 0l-10.5 5.5a.48.48 0 0 0 -.27.44v12a.48.48 0 0 0 .27.44l10.5 5.5a.47.47 0 0 0 .46 0l10.5-5.5a.48.48 0 0 0 .27-.44v-12a.48.48 0 0 0 -.27-.44zm-.73 12.14-10 5.24-10-5.24v-11.4l10-5.24 10 5.24z" />
+      </g>
+    </svg>
+
     <!-- search -->
     <svg class="icon search" v-if="name === 'search'" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 8.99 10.89">
       <path class="fill cls-1" d="M17,7.46,15,4.15a.48.48,0,0,0-.43-.25H10.52a.5.5,0,0,0-.44.26L8.13,7.73a.5.5,0,0,0,0,.5l2,3.31a.5.5,0,0,0,.43.25h3.78L16,14.55a.47.47,0,0,0,.42.24.49.49,0,0,0,.43-.75l-1.64-2.77L17,8A.5.5,0,0,0,17,7.46ZM14.3,10.78H10.82L9.14,8,10.81,4.9H14.3L16,7.72Z"
@@ -614,6 +622,15 @@ export default {
   .arrow-right {
     path {
       transform: rotate(180deg) translate(-21px, -17px);
+    }
+  }
+
+  .cancel {
+    path {
+      &.x {
+        transform-origin: center;
+        transform: rotate(-45deg);
+      }
     }
   }
 
