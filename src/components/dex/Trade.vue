@@ -48,7 +48,7 @@
       </div>
       <div class="place-order">
         <button @click="confirmOrder" :disabled="shouldDisableOrderButton" :class="['order-btn', { 'buy-btn': side === 'Buy', 'sell-btn': side === 'Sell'}]">
-          Place {{ side }} order
+          Place {{ side }} Order
         </button>
       </div>
     </div>
@@ -381,7 +381,7 @@ export default {
       const baseAssetQuantity = this.baseHolding.availableBalance;
 
       let newQuantity = new BigNumber(0);
-      const book = this.$store.state.orderBookAsks;
+      const book = _.get(this.$store.state.orderBook, 'asks', []);
       let orderPrice = null;
       if (this.orderType !== 'Market' && this.$store.state.orderPrice !== '') {
         orderPrice = new BigNumber(this.$store.state.orderPrice);
