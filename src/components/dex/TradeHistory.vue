@@ -2,13 +2,13 @@
   <section id="dex--trade-history">
     <div class="trade-history-table">
       <div class="table-header">
-        <div class="cell">price ({{ $store.state.currentMarket ? $store.state.currentMarket.baseCurrency : '' }})</div>
+        <div class="cell price">price ({{ $store.state.currentMarket ? $store.state.currentMarket.baseCurrency : '' }})</div>
         <div class="cell volume">volume</div>
         <div class="cell time">time</div>
       </div>
       <div class="table-body">
         <div class="row" v-for="(trade, index) in trades" :key="index">
-          <div :class="['cell', {green: trade.side === 'Buy', red: trade.side === 'Sell'}]">
+          <div :class="['cell', 'price', {green: trade.side === 'Buy', red: trade.side === 'Sell'}]">
             <aph-icon :name="trade.side === 'Buy' ? 'chevron-up' : 'chevron-down'"></aph-icon>
             {{ $formatNumber(trade.price) }}
           </div>
@@ -29,11 +29,6 @@ export default {
       return this.$store.state.tradeHistory && this.$store.state.tradeHistory.trades
         && this.$store.state.tradeHistory.trades.length ? this.$store.state.tradeHistory.trades : [];
     },
-  },
-
-  data() {
-    return {
-    };
   },
 };
 
@@ -56,10 +51,10 @@ export default {
       flex-direction: row;
       flex: none;
       justify-content: space-between;
+      margin: $space $space 0;
 
     .cell {
       color: $darker-grey;
-      margin: $space;
       text-transform: uppercase;
       }
     }
@@ -68,15 +63,17 @@ export default {
       display: flex;
       flex-direction: column;
       flex: 1;
+      margin: $space;
 
       .row {
         display: flex;
         flex-direction: row;
         flex: none;
         justify-content: space-between;
+        margin-top: $space-sm;
 
         .cell {
-          margin: $space-xs $space;
+          font-family: FreeMono;
 
           &.green {
             color: $green;
@@ -111,8 +108,16 @@ export default {
       flex: 1;
       font-size: toRem(11px);
 
+      &.time {
+        flex: 3;
+      }
+
       &.volume {
-        padding-left: toRem(30px);
+        flex: 1;
+      }
+
+      &.price {
+        flex: 2;
       }
 
       &:last-child {

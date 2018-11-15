@@ -136,7 +136,7 @@ export default {
       return defaultValue;
     }
 
-    return moment.unix(timestamp).format(formats.TIME);
+    return moment.unix(timestamp).format(formats.TRADE_ORDER);
   },
 
   formatWeekdayAndTime(timestamp, defaultValue = '--') {
