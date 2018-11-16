@@ -238,7 +238,10 @@ export default {
   &.minimized {
     > .header {
       .aph-token-icon {
-        display: none;
+        img {
+          height: toRem(16px);
+          width: toRem(16px);
+        }
       }
 
       .aph-icon {
