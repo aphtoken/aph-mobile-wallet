@@ -16,6 +16,10 @@ html, body {
   overscroll-behavior-y: none;
 }
 
+body {
+  position: relative;
+}
+
 * {
   box-sizing: border-box;
   letter-spacing: $letter-spacing;

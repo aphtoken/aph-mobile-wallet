@@ -1,8 +1,9 @@
 <template>
-  <section id="dex--market-pair-chart">
-    <div class="header">
+  <section id="dex--market-pair-chart" :class="[{'minimized': statsAreMinimized}]">
+    <div @click="statsAreMinimized = !statsAreMinimized" class="header">
       <aph-token-icon class="icon" v-if="$store.state.currentMarket && $store.state.currentMarket.quoteCurrency" :symbol="$store.state.currentMarket.quoteCurrency"></aph-token-icon>
-      <span>{{ currentMarketName }}</span>
+      <span class="market-name">{{ currentMarketName }}</span>
+      <aph-icon :name="statsAreMinimized ? 'chevron-down' : 'chevron-up'"></aph-icon>
     </div>
     <div class="body">
       <div class="chart">
@@ -101,6 +102,12 @@ export default {
     ]),
   },
 
+  data() {
+    return {
+      statsAreMinimized: false,
+    };
+  },
+
   props: {
     marketData: {
       default: {},
@@ -119,6 +126,7 @@ export default {
   flex: none;
   flex-direction: column;
   padding: $space;
+  position: relative;
 
   > .header {
     align-items: center;
@@ -130,6 +138,20 @@ export default {
 
       &.aph-token-icon {
         margin-right: $space;
+      }
+    }
+
+    > .aph-icon {
+      position: absolute;
+      right: $space;
+      top: $space;
+
+      svg {
+        height: toRem(6px);
+      }
+
+      .fill {
+        fill: $grey;
       }
     }
   }
@@ -210,6 +232,29 @@ export default {
           }
         }
       }
+    }
+  }
+
+  &.minimized {
+    > .header {
+      .aph-token-icon {
+        img {
+          height: toRem(16px);
+          width: toRem(16px);
+        }
+      }
+
+      .aph-icon {
+        position: static;
+      }
+
+      .market-name {
+        flex: 1;
+      }
+    }
+
+    > .body {
+      display: none;
     }
   }
 }
