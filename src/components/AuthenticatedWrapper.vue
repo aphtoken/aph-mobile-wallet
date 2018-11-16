@@ -1,6 +1,6 @@
 <template>
   <section id="authenticated-wrapper">
-    <aside id="sidebar">
+    <aside id="sidebar" ref="sidebar">
       <div class="logo">
         <aph-icon name="logo-mark"></aph-icon>
       </div>
@@ -35,7 +35,7 @@
       <div id="back-button" @click="goBack" v-if="shouldShowBackButton">
         <aph-icon name="arrow-left"></aph-icon>
       </div>
-      <div id="menu-toggle" :class="[{open: menuOpen}]" @click="toggleMenu" v-else>
+      <div id="menu-toggle" ref="menuToggle" :class="[{open: menuOpen}]" @click="toggleMenu" v-else>
         <span></span>
         <span></span>
       </div>
@@ -76,10 +76,14 @@ export default {
     clearInterval(loadHoldingsIntervalId);
     clearInterval(loadRecentTxIntervalId);
     this.$disconnect(); // Disconnect websocket
+
+    document.removeEventListener('click', this.handleDocumentClick);
   },
 
   beforeMount() {
     this.connectWebsocket();
+
+    document.addEventListener('click', this.handleDocumentClick);
   },
 
   components: {
@@ -109,6 +113,12 @@ export default {
   },
 
   methods: {
+    handleDocumentClick({ target }) {
+      if (!(this.$refs.sidebar.contains(target) || this.$refs.menuToggle.contains(target))) {
+        this.menuOpen = false;
+      }
+    },
+
     connectWebsocket() {
       const index = Vue._installedPlugins.indexOf(VueNativeSock);
       // Remove the Websocket plugin if it is already installed, so we can re-init and change the uri.
