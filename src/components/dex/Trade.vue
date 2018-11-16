@@ -52,30 +52,36 @@
         </button>
       </div>
     </div>
-    <div v-if="shouldShowFooter" class="footer">
-      <div :class="['balance', {active: quoteHolding.symbol === actionableHolding.symbol}]" :title="quoteBalanceToolTip">
-        <div class="label">{{ quoteHolding.symbol }}</div>
-        <button @click="showDepositWithdrawModal(quoteHolding)" :disabled="disableDepositWithdrawButton(quoteHolding.symbol)" class="deposit-withdraw-btn">{{ $t('depositWithdraw') }}</button>
-        <div class="contract">contract</div>
-        <div class="contract-value">{{ $formatNumber(quoteHolding.contractBalance) }}</div>
-        <div class="wallet">wallet</div>
-        <div class="wallet-value">{{ $formatNumber(quoteHolding.balance) }}</div>
+    <div v-if="shouldShowFooter" :class="['footer', {'minimized': footerIsMinimized}]">
+      <div @click="footerIsMinimized = !footerIsMinimized" class="toggle">
+        <div class="title">{{ $t('assetBalances') }}</div>
+        <aph-icon :name="footerIsMinimized ? 'chevron-up' : 'chevron-down'"></aph-icon>
       </div>
-      <div :class="['balance', {active: baseHolding.symbol === actionableHolding.symbol}]" :title="baseBalanceToolTip">
-        <div class="label">{{ baseHolding.symbol }}</div>
-        <button @click="showDepositWithdrawModal(baseHolding)" :disabled="disableDepositWithdrawButton(baseHolding.symbol)" class="deposit-withdraw-btn">{{ $t('depositWithdraw') }}</button>
-        <div class="contract">contract</div>
-        <div class="contract-value">{{ $formatNumber(baseHolding.contractBalance) }}</div>
-        <div class="wallet">wallet</div>
-        <div class="wallet-value">{{ $formatNumber(baseHolding.balance) }}</div>
-      </div>
-      <div :class="['balance', {active: aphHolding.symbol === actionableHolding.symbol}]" :title="aphBalanceToolTip" v-if="baseHolding.symbol !== 'APH' && quoteHolding.symbol !== 'APH'">
-        <div class="label">APH</div>
-        <button @click="showDepositWithdrawModal(aphHolding)" class="deposit-withdraw-btn">{{ $t('depositWithdraw') }}</button>
-        <div class="contract">contract</div>
-        <div class="contract-value">{{ $formatNumber(aphHolding.contractBalance) }}</div>
-        <div class="wallet">wallet</div>
-        <div class="wallet-value">{{ $formatNumber(baseHolding.balance) }}</div>
+      <div class="stats">
+        <div :class="['balance', {active: quoteHolding.symbol === actionableHolding.symbol}]" :title="quoteBalanceToolTip">
+          <div class="label">{{ quoteHolding.symbol }}</div>
+          <button @click="showDepositWithdrawModal(quoteHolding)" :disabled="disableDepositWithdrawButton(quoteHolding.symbol)" class="deposit-withdraw-btn">{{ $t('depositWithdraw') }}</button>
+          <div class="contract">contract</div>
+          <div class="contract-value">{{ $formatNumber(quoteHolding.contractBalance) }}</div>
+          <div class="wallet">wallet</div>
+          <div class="wallet-value">{{ $formatNumber(quoteHolding.balance) }}</div>
+        </div>
+        <div :class="['balance', {active: baseHolding.symbol === actionableHolding.symbol}]" :title="baseBalanceToolTip">
+          <div class="label">{{ baseHolding.symbol }}</div>
+          <button @click="showDepositWithdrawModal(baseHolding)" :disabled="disableDepositWithdrawButton(baseHolding.symbol)" class="deposit-withdraw-btn">{{ $t('depositWithdraw') }}</button>
+          <div class="contract">contract</div>
+          <div class="contract-value">{{ $formatNumber(baseHolding.contractBalance) }}</div>
+          <div class="wallet">wallet</div>
+          <div class="wallet-value">{{ $formatNumber(baseHolding.balance) }}</div>
+        </div>
+        <div :class="['balance', {active: aphHolding.symbol === actionableHolding.symbol}]" :title="aphBalanceToolTip" v-if="baseHolding.symbol !== 'APH' && quoteHolding.symbol !== 'APH'">
+          <div class="label">APH</div>
+          <button @click="showDepositWithdrawModal(aphHolding)" class="deposit-withdraw-btn">{{ $t('depositWithdraw') }}</button>
+          <div class="contract">contract</div>
+          <div class="contract-value">{{ $formatNumber(aphHolding.contractBalance) }}</div>
+          <div class="wallet">wallet</div>
+          <div class="wallet-value">{{ $formatNumber(baseHolding.balance) }}</div>
+        </div>
       </div>
     </div>
     <order-confirmation-modal v-if="$store.state.showOrderConfirmationModal" :onClose="closeConfirmModal" :onConfirm="orderConfirmed" />
@@ -266,12 +272,13 @@ export default {
   data() {
     return {
       actionableHolding: '',
+      footerIsMinimized: false,
       orderType: 'Limit',
       postOnly: false,
-      selectedPercent: null,
-      side: 'Buy',
       priceHasFocus: false,
       quantityHasFocus: false,
+      selectedPercent: null,
+      side: 'Buy',
     };
   },
 
@@ -727,48 +734,104 @@ export default {
   > .footer {
     @extend %tile-dark;
 
-    display: flex;
     flex: none;
     margin-top: $space;
     padding: $space;
+    position: relative;
 
-    > div {
-      display: inline-block;
-      margin: 0 $space-sm;
-      flex: 1;
+    > .toggle {
+      left: 0;
+      padding: $space;
+      position: absolute;
+      right: 0;
+      text-align: right;
+      top: 0;
+      width: 100%;
+      z-index: 10;
 
-      &:first-child, &:last-child {
-        margin: 0;
+      .title {
+        @extend %small-uppercase-grey-label;
+
+        color: white;
+        display: none;
       }
 
-      .contract, .wallet {
-        @extend %small-uppercase-grey-label-dark;
+      .aph-icon {
+        svg {
+          height: toRem(6px);
+        }
+
+        .fill {
+          fill: $grey;
+        }
       }
+    }
 
-      .wallet {
-        margin-top: $space-sm;
+    .stats {
+      display: flex;
+      overflow: hidden;
+
+      > div {
+        display: inline-block;
+        margin: 0 $space-sm;
+        flex: 1;
+
+        &:first-child, &:last-child {
+          margin: 0;
+        }
+
+        .contract, .wallet {
+          @extend %small-uppercase-grey-label-dark;
+        }
+
+        .wallet {
+          margin-top: $space-sm;
+        }
+
+        .deposit-withdraw-btn {
+          @extend %btn-outline;
+          @extend %small-uppercase-grey-label-dark;
+
+          color: $purple;
+          margin: $space-sm 0;
+          padding: $space-px $space-xs;
+          font-size: toRem(10px);
+          height: auto;
+          width: auto;
+
+          &:disabled {
+            border-color: $dark-grey;
+            color: $dark-grey;
+          }
+        }
+
+        .contract-value, .wallet-value {
+          font-size: toRem(10px);
+          margin-top: $space-xs;
+        }
       }
+    }
 
-      .deposit-withdraw-btn {
-        @extend %btn-outline;
-        @extend %small-uppercase-grey-label-dark;
+    &.minimized {
+      .toggle {
+        align-items: center;
+        display: flex;
+        position: static;
+        padding: 0;
+        text-align: inherit;
 
-        color: $purple;
-        margin: $space-sm 0;
-        padding: $space-px $space-xs;
-        font-size: toRem(10px);
-        height: auto;
-        width: auto;
+        .title {
+          flex: 1;
+          display: block;
+        }
 
-        &:disabled {
-          border-color: $dark-grey;
-          color: $dark-grey;
+        .aph-icon {
+          flex: none;
         }
       }
 
-      .contract-value, .wallet-value {
-        font-size: toRem(10px);
-        margin-top: $space-xs;
+      .stats {
+        display: none;
       }
     }
   }
