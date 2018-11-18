@@ -207,7 +207,11 @@ export default {
   },
 
   setLastWallet(wallet) {
-    storage.set(LAST_WALLET_STORAGE_KEY, wallet);
+    const lastWallet = _.cloneDeep(wallet);
+    lastWallet.wif = undefined;
+    lastWallet.privateKey = undefined;
+    lastWallet.passphrase = undefined;
+    storage.set(LAST_WALLET_STORAGE_KEY, lastWallet);
   },
 
   sync() {
