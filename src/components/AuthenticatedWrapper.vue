@@ -9,11 +9,11 @@
           <aph-icon name="dashboard"></aph-icon>
           <p>{{ $t('Dashboard') }}</p>
         </router-link>
-        <router-link to="/authenticated/dex">
+        <router-link v-if="shouldShowDexLink" to="/authenticated/dex">
           <aph-icon name="dex"></aph-icon>
           <p>{{ $t('tradeDEX') }}</p>
         </router-link>
-        <router-link to="/authenticated/commit">
+        <router-link v-if="shouldShowCommitLink" to="/authenticated/commit">
           <aph-icon name="commit"></aph-icon>
           <p>{{ $t('commit') }}</p>
         </router-link>
@@ -49,10 +49,7 @@
 </template>
 
 <script>
-import Vue from 'vue';
-import VueNativeSock from 'vue-native-websocket';
 import { mapGetters } from 'vuex';
-import { store } from '@/store';
 
 import BackupWallet from './BackupWallet';
 import ClaimGasStatus from './ClaimGasStatus';
@@ -97,6 +94,14 @@ export default {
       return _.includes(ROUTES_USING_BACK_BUTTON, this.$route.name);
     },
 
+    shouldShowCommitLink() {
+      return this.$store.state.currentNetwork.net !== 'MainNet';
+    },
+
+    shouldShowDexLink() {
+      return this.$store.state.currentNetwork.net !== 'MainNet';
+    },
+
     shouldShowTransactionDetails() {
       return !_.isEmpty(this.$store.state.transactionDetail);
     },
@@ -120,22 +125,7 @@ export default {
     },
 
     connectWebsocket() {
-      const index = Vue._installedPlugins.indexOf(VueNativeSock);
-      // Remove the Websocket plugin if it is already installed, so we can re-init and change the uri.
-      if (index > -1) {
-        this.$disconnect();
-        Vue._installedPlugins.splice(index, 1);
-      }
-
-      Vue.use(VueNativeSock, this.websocketUri, {
-        connectManually: true,
-        format: 'json',
-        reconnection: true,
-        reconnectionDelay: 3000,
-        store,
-      });
-
-      this.$connect();
+      this.$connect(this.websocketUri);
     },
 
     goBack() {
@@ -180,6 +170,7 @@ export default {
   watch: {
     websocketUri(newVal, oldVal) {
       if (newVal !== oldVal) {
+        this.$disconnect();
         this.connectWebsocket();
       }
     },
