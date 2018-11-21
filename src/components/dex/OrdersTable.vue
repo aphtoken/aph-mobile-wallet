@@ -20,7 +20,7 @@
         <div class="trade-details">
           <div class="size-base">
             <div class="trade-size">
-              {{ value.quantity }}
+              {{ value.filled }} / {{ value.quantity }}
             </div>
             <div class="quote-currency">
               {{ value.quoteSymbol }}
@@ -146,7 +146,7 @@ export default {
     formatTableData(tableData) {
       const quoteSymbol = _.get(this.$store.state, 'currentMarket.quoteCurrency');
 
-      return tableData.map(({ marketName, offerId, price, quantity, side }) => {
+      return tableData.map(({ marketName, offerId, price, quantity, quantityRemaining, side }) => {
         return {
           pairAndSide: {
             marketName,
@@ -158,6 +158,7 @@ export default {
             price,
             cost: this.$formatNumber(price * this.baseCurrencyUnitPrice),
             // These last two are needed here for order cancellation.
+            filled: this.$formatNumber(quantity - quantityRemaining),
             offerId,
             marketName,
           },
