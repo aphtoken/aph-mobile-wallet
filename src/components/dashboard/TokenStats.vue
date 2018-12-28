@@ -213,7 +213,7 @@ export default {
       this.sendInProgress = true;
       setTimeout(() => {
         this.$services.neo.sendFunds(this.address, this.$store.state.statsToken.assetId,
-          this.amount, this.$store.state.statsToken.isNep5)
+          this.amount, this.$store.state.statsToken.isNep5, null, true)
           .then(() => {
             this.sendInProgress = false;
             this.showSendConfirmation = false;
