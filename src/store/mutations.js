@@ -33,6 +33,7 @@ export {
   setGasClaim,
   setGasFracture,
   setHoldings,
+  setKycInProgressModalModel,
   setLastReceivedBlock,
   setLastSuccessfulRequest,
   setLatestVersion,
@@ -288,6 +289,10 @@ function setHoldings(state, holdings) {
   }
 
   state.holdingSymbols = _.map(state.holdings, 'symbol');
+}
+
+function setKycInProgressModalModel(state, model) {
+  state.kycInProgressModalModel = model;
 }
 
 function setLastReceivedBlock(state) {

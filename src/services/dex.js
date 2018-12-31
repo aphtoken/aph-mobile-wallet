@@ -17,7 +17,7 @@ import { store } from '../store';
 import { toBigNumber } from './formatting.js';
 import { claiming, intervals } from '../constants';
 
-const TX_ATTR_USAGE_SCRIPT = 0x20;
+const TX_ATTR_USAGE_VERIFICATION = 0x20;
 const TX_ATTR_USAGE_HEIGHT = 0xf0;
 const TX_ATTR_USAGE_SIGNATURE_REQUEST_TYPE = 0xA1;
 const TX_ATTR_USAGE_WITHDRAW_ADDRESS = 0xA2;
@@ -46,12 +46,11 @@ const assetUTXOsToIgnore = {};
 const contractUTXOsReservedFor = {};
 
 export default {
-  async completeUnspentWithdraws(assetId, unspents) {
+  async completeUnspentWithdraws(assetId, unspents, withdrawWalletAddress) {
     /* eslint-disable no-await-in-loop */
     for (let i = 0; i < unspents.length; i += 1) {
       const unspent = unspents[i];
-      const currentWallet = wallets.getCurrentWallet();
-      const currentWalletScriptHash = wallet.getScriptHashFromAddress(currentWallet.address);
+      const currentWalletScriptHash = wallet.getScriptHashFromAddress(withdrawWalletAddress);
       if (unspent.reservedFor === currentWalletScriptHash) {
         if (DBG_LOG) console.log(`Completing withdraw for ${JSON.stringify(unspent)}`);
         try {
@@ -66,10 +65,11 @@ export default {
             store.commit('setWithdrawInProgressModalModel', true);
           }
 
-          const res = await this.withdrawSystemAsset(assetId, unspent.value.toNumber(), unspent.txid, unspent.index);
+          const res = await this.withdrawSystemAsset(assetId, unspent.value.toNumber(), unspent.txid, unspent.index,
+            withdrawWalletAddress);
           store.commit('setSystemWithdrawMergeState', { step: 4 });
           await neo.monitorTransactionConfirmation(res.tx, true);
-          neo.applyTxToAddressSystemAssetBalance(currentWallet.address, res.tx, true);
+          neo.applyTxToAddressSystemAssetBalance(withdrawWalletAddress, res.tx, true);
           store.commit('setSystemWithdrawMergeState', { step: 5 });
         } catch (e) {
           const errMsg = `Attempt to complete previous withdraw failed. ${e}`;
@@ -223,7 +223,7 @@ export default {
     });
   },
 
-  buildContractTransaction(operation, parameters, neoToSend, gasToSend) {
+  buildContractTransaction(operation, parameters, neoToSend, gasToSend, bringDexOnAsWitness = false) {
     return new Promise(async (resolve, reject) => {
       try {
         const currentNetwork = network.getSelectedNetwork();
@@ -287,11 +287,27 @@ export default {
           configResponse = await api.createTx(configResponse, 'invocation');
 
           const senderScriptHash = u.reverseHex(wallet.getScriptHashFromAddress(currentWallet.address));
-          configResponse.tx.addAttribute(TX_ATTR_USAGE_SCRIPT, senderScriptHash);
+          configResponse.tx.addAttribute(TX_ATTR_USAGE_VERIFICATION, senderScriptHash);
           configResponse.tx.addAttribute(TX_ATTR_USAGE_HEIGHT,
             u.num2fixed8(currentNetwork.bestBlock != null ? currentNetwork.bestBlock.index : 0).padEnd(64, '0'));
+          if (bringDexOnAsWitness) configResponse.tx.addAttribute(TX_ATTR_USAGE_VERIFICATION, u.reverseHex(currentNetwork.dex_hash));
 
           configResponse = await api.signTx(configResponse);
+
+          if (bringDexOnAsWitness) {
+            const attachInvokedContract = {
+              invocationScript: ('00').repeat(2),
+              verificationScript: '',
+            };
+            const acct = configResponse.privateKey ? new wallet.Account(configResponse.privateKey) : new wallet.Account(configResponse.publicKey);
+            // We need to order this for the VM. The vm pulls out the verification script hashes added as attributes
+            // in order lexicographically and expects the witness verification scripts to match that order.
+            if (parseInt(currentNetwork.dex_hash, 16) > parseInt(acct.scriptHash, 16)) {
+              configResponse.tx.scripts.push(attachInvokedContract);
+            } else {
+              configResponse.tx.scripts.unshift(attachInvokedContract);
+            }
+          }
         } catch (e) {
           if (DBG_LOG) console.log(`Failed creating or signing transaction. Error: ${e}`);
           // Rip off the actual exception message it is likely something werid we don't want users to see.
@@ -306,25 +322,11 @@ export default {
     });
   },
 
-  calculateFeeAmount(quoteQuantity, minimumTradeSize, baseFee) {
-    if (quoteQuantity < minimumTradeSize) {
-      return baseFee;
-    }
-    // Earlier checks guarantee that quoteQuantity > 0
-    return this.flooredLogBase2(
-      quoteQuantity
-        .multipliedBy(2)
-        .dividedBy(minimumTradeSize)
-        .decimalPlaces(0, BigNumber.ROUND_DOWN))
-      .multipliedBy(baseFee);
-  },
-
-  calculateWithdrawInputsAndOutputs(config, assetId, quantity) {
+  calculateWithdrawInputsAndOutputs(config, assetId, quantity, withdawingAddress) {
     return new Promise(async (resolve, reject) => {
       try {
-        const currentWallet = wallets.getCurrentWallet();
         const currentNetwork = network.getSelectedNetwork();
-        const currentWalletScriptHash = wallet.getScriptHashFromAddress(currentWallet.address);
+        const withdrawingWalletScriptHash = wallet.getScriptHashFromAddress(withdawingAddress);
 
         const dexAddress = wallet.getAddressFromScriptHash(currentNetwork.dex_hash);
 
@@ -342,7 +344,7 @@ export default {
         const pickedUnspents = [];
         let quantitySumOfPickedInputs = new BigNumber(0);
         _.orderBy(unspents, [unspent => parseFloat(unspent.value.toString())], ['desc']).some((currentUnspent) => {
-          if (currentUnspent.reservedFor === currentWalletScriptHash) {
+          if (currentUnspent.reservedFor === withdrawingWalletScriptHash) {
             this.completeSystemAssetWithdrawals();
             reject('Already have a UTXO reserved for your address. Completing open withdraw.');
             return false;
@@ -467,7 +469,7 @@ export default {
           .decimalPlaces(8, BigNumber.ROUND_DOWN);
 
         store.commit('setCommitChangeInProgress', {});
-        const res = await this.executeContractTransaction('claim', []);
+        const res = await this.executeContractTransaction('claim', [], undefined, undefined, true);
         if (!res.success) {
           reject('Transaction rejected');
           return;
@@ -476,17 +478,8 @@ export default {
         alerts.success('Claim relayed, waiting for confirmation...');
         neo.monitorTransactionConfirmation(res.tx, true)
           .then(async () => {
-            alerts.success(`Claimed ${withdrawAmountAfterClaim.toString()} APH to Contract Balance.`);
+            alerts.success(`Claimed ${withdrawAmountAfterClaim.toString()} APH to Wallet Balance.`);
 
-            try {
-              await this.withdrawAsset(store.state.currentNetwork.aph_hash, Number(withdrawAmountAfterClaim));
-
-              alerts.success(`Submitted Withdraw of ${withdrawAmountAfterClaim.toString()} APH.`);
-            } catch (e) {
-              const errMsg = typeof e === 'string' ? e : e.message;
-              const alertMsg = `Failed to withdraw claimed APH. It remains in contract balance. Error: ${errMsg}`;
-              alerts.exception(alertMsg);
-            }
             try {
               await store.dispatch('fetchCommitState');
             } catch (e) {
@@ -552,13 +545,15 @@ export default {
     });
   },
 
-  completeSystemAssetWithdrawals() {
+  completeSystemAssetWithdrawals(optionalWithdrawAddress) {
     return new Promise(async (resolve, reject) => {
       try {
+        const withdrawWalletAddress = optionalWithdrawAddress || wallets.getCurrentWallet().address;
+        const withdrawScriptHash = wallet.getScriptHashFromAddress(withdrawWalletAddress);
         // check if the wallet has an in progress GAS withdraw
-        const markedGasBalance = toBigNumber(await this.getWithdrawInProgressBalance(assets.GAS));
+        const markedGasBalance = toBigNumber(await this.getWithdrawInProgressBalance(assets.GAS, withdrawScriptHash));
         // check if the wallet has an in progress NEO withdraw
-        const markedNeoBalance = toBigNumber(await this.getWithdrawInProgressBalance(assets.NEO));
+        const markedNeoBalance = toBigNumber(await this.getWithdrawInProgressBalance(assets.NEO, withdrawScriptHash));
 
         if (markedGasBalance.plus(markedNeoBalance).isEqualTo(0)) {
           // nothing in progress to withdraw.
@@ -581,12 +576,12 @@ export default {
         if (dexBalance.assets.GAS && markedGasBalance.isGreaterThan(0)) {
           await this.decorateWithUnspentsReservedState(assets.GAS, dexBalance.assets.GAS.unspent, markedGasBalance);
           if (DBG_LOG) console.log(`Checking for GAS unspents ${JSON.stringify(dexBalance.assets.GAS.unspent)}`);
-          await this.completeUnspentWithdraws(assets.GAS, dexBalance.assets.GAS.unspent);
+          await this.completeUnspentWithdraws(assets.GAS, dexBalance.assets.GAS.unspent, withdrawWalletAddress);
         }
         if (dexBalance.assets.NEO && markedNeoBalance.isGreaterThan(0)) {
           await this.decorateWithUnspentsReservedState(assets.NEO, dexBalance.assets.NEO.unspent, markedNeoBalance);
           if (DBG_LOG) console.log(`Checking for NEO unspents ${JSON.stringify(dexBalance.assets.NEO.unspent)}`);
-          await this.completeUnspentWithdraws(assets.NEO, dexBalance.assets.NEO.unspent);
+          await this.completeUnspentWithdraws(assets.NEO, dexBalance.assets.NEO.unspent, withdrawWalletAddress);
         }
       } catch (e) {
         alerts.error(`Failed to fetch reserved UTXOs. ${e.message}`);
@@ -717,10 +712,10 @@ export default {
     });
   },
 
-  executeContractTransaction(operation, parameters, neoToSend, gasToSend) {
+  executeContractTransaction(operation, parameters, neoToSend, gasToSend, bringDexOnAsWitness = false) {
     return new Promise((resolve, reject) => {
       try {
-        this.buildContractTransaction(operation, parameters, neoToSend, gasToSend)
+        this.buildContractTransaction(operation, parameters, neoToSend, gasToSend, bringDexOnAsWitness)
           .then((configResponse) => {
             if (DBG_LOG) console.log(`executeContractTransaction ${JSON.stringify(configResponse)}`);
             return api.sendTx(configResponse);
@@ -1065,8 +1060,6 @@ export default {
 
         const utxoParam = `${u.reverseHex(prevTxHash)}${u.num2hexstring(prevTxIndex, 2, true)}`;
 
-        if (DBG_LOG) console.log(`utxoParam: ${utxoParam}`);
-
         const rpcClient = network.getRpcClient();
 
         // Use a shorter timeout to fail fast.
@@ -1080,6 +1073,7 @@ export default {
         } else {
           input.reservedFor = 'none';
         }
+        if (DBG_LOG) console.log(`utxoParam: ${utxoParam} reservedFor: ${input.reservedFor} value: ${input.value}`);
         resolve(input);
       } catch (e) {
         if (retries > 0) {
@@ -1136,47 +1130,15 @@ export default {
               marketName,
               trades: res.data.trades,
             };
-            const todayCutoff = moment().startOf('day').unix();
-            const todayTrades = _.filter(history.trades, (trade) => {
-              return trade.tradeTime >= todayCutoff;
-            });
-            if (todayTrades.length > 0) {
-              history.change24Hour = history.close24Hour - history.open24Hour;
-              history.change24HourPercent = Math.round(((history.close24Hour - history.open24Hour)
-                / history.open24Hour) * 10000) / 100;
-              history.close24Hour = todayTrades[0].price;
-              history.high24Hour = _.maxBy(todayTrades, 'price').price;
-              history.low24Hour = _.minBy(todayTrades, 'price').price;
-              history.open24Hour = todayTrades[todayTrades.length - 1].price;
-              history.volume24Hour = _.sumBy(todayTrades, 'quantity');
-            } else {
-              if (history.trades.length > 0) {
-                history.close24Hour = history.trades[0].price;
-                history.high24Hour = history.trades[0].price;
-                history.low24Hour = history.trades[0].price;
-                history.open24Hour = history.trades[0].price;
-              }
-              history.change24Hour = 0;
-              history.change24HourPercent = 0;
-              history.volume24Hour = 0;
-            }
             resolve(history);
           })
           .catch((e) => {
             alerts.exception(`APH API Error: ${e}`);
             const history = {
-              apiBuckets: [],
-              change24Hour: 0,
-              change24HourPercent: 0,
-              close24Hour: 0,
               date: 0,
               getBars: this.getTradeHistoryBars,
-              high24Hour: 0,
-              low24Hour: 0,
               marketName,
-              open24Hour: 0,
               trades: [],
-              volume24Hour: 0,
             };
             // resolve with default values in case api fails
             resolve(history);
@@ -1217,15 +1179,6 @@ export default {
     });
   },
 
-  // Expects a BigNumber
-  flooredLogBase2(number) {
-    let power = new BigNumber(0);
-    for (; number.isGreaterThan(0); number = number.dividedBy(2).decimalPlaces(0, BigNumber.ROUND_DOWN)) {
-      power = power.plus(1);
-    }
-    return power.minus(1);
-  },
-
   formDepositsForOrder(order) {
     let totalQuantityToSell = new BigNumber(0);
     let totalFees = new BigNumber(0);
@@ -1251,10 +1204,9 @@ export default {
 
     order.offersToTake.forEach((offer) => {
       if (offer.isBackupOffer !== true) {
-        totalQuantityToSell = totalQuantityToSell.plus(order.side === 'Buy' ? offer.quantity.multipliedBy(offer.price) : offer.quantity);
-        const baseFee = order.side === 'Buy' ? order.market.buyFee : order.market.sellFee;
-        const fee = this.calculateFeeAmount(offer.quantity, order.market.minimumSize, baseFee);
-        totalFees = totalFees.plus(fee);
+        const baseQuantity = offer.quantity.multipliedBy(offer.price);
+        totalQuantityToSell = totalQuantityToSell.plus(order.side === 'Buy' ? baseQuantity : offer.quantity);
+        totalFees = totalFees.plus(offer.fee);
       }
     });
 
@@ -1620,11 +1572,9 @@ export default {
     return bars;
   },
 
-  async getWithdrawInProgressBalance(assetId) {
-    const currentWallet = wallets.getCurrentWallet();
-    const currentWalletScriptHash = wallet.getScriptHashFromAddress(currentWallet.address);
+  async getWithdrawInProgressBalance(assetId, walletScriptHash) {
     const assetWithdrawingParam
-      = `${u.reverseHex(currentWalletScriptHash)}${u.reverseHex(assetId)}${POSTFIX_USER_ASSET_WITHDRAWING}`;
+      = `${u.reverseHex(walletScriptHash)}${u.reverseHex(assetId)}${POSTFIX_USER_ASSET_WITHDRAWING}`;
 
     if (DBG_LOG) console.log(`assetWithdrawingParam: ${assetWithdrawingParam}`);
 
@@ -1693,7 +1643,7 @@ export default {
     });
   },
 
-  markWithdraw(assetId, quantity, tryCount = 1) {
+  markWithdraw(assetId, quantity, overrideAddress, tryCount = 1) {
     return new Promise(async (resolve, reject) => {
       const currentNetwork = network.getSelectedNetwork();
       const currentWallet = wallets.getCurrentWallet();
@@ -1714,7 +1664,7 @@ export default {
       const handleRetry = () => {
         setTimeout(() => {
           this.ignoreWithdrawInputs(config);
-          this.markWithdraw(assetId, quantity, tryCount + 1)
+          this.markWithdraw(assetId, quantity, overrideAddress, tryCount + 1)
             .then((res) => {
               resolve(res);
             })
@@ -1765,7 +1715,8 @@ export default {
 
         try {
           // This decorates the configResponse with the appropriate inputs
-          await this.calculateWithdrawInputsAndOutputs(configResponse, assetId, quantity);
+          await this.calculateWithdrawInputsAndOutputs(configResponse, assetId, quantity, overrideAddress
+            || currentWallet.address);
         } catch (e) {
           const errMsg = `Failed to calculate withdraw inputs and outputs. ${e.message || e}`;
           if (DBG_LOG) console.log(errMsg);
@@ -1773,7 +1724,8 @@ export default {
         }
 
         store.commit('setSystemWithdrawMergeState', { utxoCount: configResponse.tx.inputs.length - inputsFromGasFee, step: 1 });
-        const senderScriptHash = u.reverseHex(wallet.getScriptHashFromAddress(currentWallet.address));
+        const senderScriptHash = u.reverseHex(wallet.getScriptHashFromAddress(overrideAddress || currentWallet.address));
+        const verificationScriptHash = u.reverseHex(wallet.getScriptHashFromAddress(currentWallet.address));
         configResponse.tx.addAttribute(TX_ATTR_USAGE_SIGNATURE_REQUEST_TYPE, SIGNATUREREQUESTTYPE_WITHDRAWSTEP_MARK.padEnd(64, '0'));
         configResponse.tx.addAttribute(TX_ATTR_USAGE_WITHDRAW_ADDRESS, senderScriptHash.padEnd(64, '0'));
         configResponse.tx.addAttribute(TX_ATTR_USAGE_WITHDRAW_SYSTEM_ASSET_ID, u.reverseHex(assetId).padEnd(64, '0'));
@@ -1782,7 +1734,7 @@ export default {
         configResponse.tx.addAttribute(TX_ATTR_USAGE_WITHDRAW_VALIDUNTIL,
           u.num2fixed8(validUntilValue).padEnd(64, '0'));
 
-        configResponse.tx.addAttribute(TX_ATTR_USAGE_SCRIPT, senderScriptHash);
+        configResponse.tx.addAttribute(TX_ATTR_USAGE_VERIFICATION, verificationScriptHash);
 
         configResponse = await api.signTx(configResponse);
 
@@ -1851,12 +1803,13 @@ export default {
           if (waitForDeposits) {
             // We have deposits pending, wait for our balance to reflect
             setTimeout(() => {
+              // TODO: this should be switched to not be recursive, because this grows the stack.
               this.placeOrder(order, true)
                 .then((innerOrder) => {
                   resolve(innerOrder);
                 })
                 .catch((error) => {
-                  reject(`Error sending order. Error: ${error}`);
+                  reject(error);
                 });
             }, 5000);
             return;
@@ -1870,7 +1823,7 @@ export default {
                     resolve(innerOrder);
                   })
                   .catch((error) => {
-                    reject(`Error sending order. Error: ${error}`);
+                    reject(error);
                   });
               }, 500);
             })
@@ -2096,9 +2049,12 @@ export default {
     return book;
   },
 
-  withdrawAsset(assetId, quantity) {
+  withdrawAsset(assetId, quantity, overrideAddress, skipMonitoring = false) {
     return new Promise((resolve, reject) => {
       try {
+        // TODO: should pass this through the whole way instead of getting again in case they switch wallets somehow
+        const currentWallet = wallets.getCurrentWallet();
+
         if (assetId === assets.NEO || assetId === assets.GAS) {
           const systemWithdraw = {
             step: 0,
@@ -2114,10 +2070,8 @@ export default {
             store.commit('setSystemWithdrawMergeState', { error: errorMsg });
             reject(errorMsg);
           };
-          // TODO: should pass this through the whole way instead of getting again in case they switch wallets somehow
-          const currentWallet = wallets.getCurrentWallet();
 
-          this.markWithdraw(assetId, quantity)
+          this.markWithdraw(assetId, quantity, overrideAddress)
             .then((res) => {
               if (res.success !== true) {
                 rejectWithError('Withdraw Mark Step rejected');
@@ -2134,14 +2088,14 @@ export default {
                   neo.applyTxToAddressSystemAssetBalance(dexAddress, res.tx, true);
 
                   setTimeout(() => {
-                    this.withdrawSystemAsset(assetId, quantity, res.tx.hash, res.utxoIndex)
+                    this.withdrawSystemAsset(assetId, quantity, res.tx.hash, res.utxoIndex, overrideAddress)
                       .then((res) => {
                         if (res.success) {
                           store.commit('setSystemWithdrawMergeState', { step: 4 });
 
                           neo.monitorTransactionConfirmation(res.tx, true)
                             .then(() => {
-                              neo.applyTxToAddressSystemAssetBalance(currentWallet.address, res.tx, true);
+                              if (!overrideAddress) neo.applyTxToAddressSystemAssetBalance(currentWallet.address, res.tx, true);
                               store.commit('setSystemWithdrawMergeState', { step: 5 });
                               resolve(res.tx);
                             })
@@ -2170,17 +2124,23 @@ export default {
           return;
         }
 
-        this.withdrawNEP5(assetId, quantity)
+        this.withdrawNEP5(assetId, quantity, overrideAddress)
           .then((res) => {
             if (res.success) {
               alerts.success('Withdraw Relayed.');
-              neo.monitorTransactionConfirmation(res.tx, true)
-                .then(() => {
-                  resolve(res.tx);
-                })
-                .catch((e) => {
-                  reject(`Failed to monitor transaction for confirmation. ${e}`);
-                });
+              if (skipMonitoring) {
+                resolve(res.tx);
+              } else {
+                neo.monitorTransactionConfirmation(res.tx, true)
+                  .then(() => {
+                    neo.applyTxToAddressSystemAssetBalance(currentWallet.address, res.tx, true);
+                    resolve(res.tx);
+                  })
+                  .catch((e) => {
+                    // resolve(res.tx); // Temporarily resolve to finish automated withdraws.
+                    reject(`Failed to monitor transaction for confirmation. ${e}`);
+                  });
+              }
             } else {
               reject('Withdraw rejected');
             }
@@ -2194,7 +2154,7 @@ export default {
     });
   },
 
-  withdrawNEP5(assetId, quantity) {
+  withdrawNEP5(assetId, quantity, overrideAddress) {
     return new Promise(async (resolve, reject) => {
       try {
         const currentNetwork = network.getSelectedNetwork();
@@ -2245,16 +2205,17 @@ export default {
         configResponse.sendingFromSmartContract = true;
         api.createTx(configResponse, 'invocation')
           .then((configResponse) => {
-            const senderScriptHash = u.reverseHex(wallet.getScriptHashFromAddress(currentWallet.address));
+            const senderScriptHash = u.reverseHex(wallet.getScriptHashFromAddress(overrideAddress || currentWallet.address));
+            const verificationScriptHash = u.reverseHex(wallet.getScriptHashFromAddress(currentWallet.address));
             configResponse.tx.addAttribute(TX_ATTR_USAGE_SIGNATURE_REQUEST_TYPE, SIGNATUREREQUESTTYPE_WITHDRAWSTEP_WITHDRAW.padEnd(64, '0'));
             configResponse.tx.addAttribute(TX_ATTR_USAGE_WITHDRAW_ADDRESS, senderScriptHash.padEnd(64, '0'));
             configResponse.tx.addAttribute(TX_ATTR_USAGE_WITHDRAW_NEP5_ASSET_ID, u.reverseHex(assetId).padEnd(64, '0'));
             configResponse.tx.addAttribute(TX_ATTR_USAGE_WITHDRAW_AMOUNT, u.num2fixed8(quantity).padEnd(64, '0'));
             configResponse.tx.addAttribute(TX_ATTR_USAGE_WITHDRAW_VALIDUNTIL, u.num2fixed8(validUntilValue).padEnd(64, '0'));
-            configResponse.tx.addAttribute(TX_ATTR_USAGE_SCRIPT, senderScriptHash);
+            configResponse.tx.addAttribute(TX_ATTR_USAGE_VERIFICATION, verificationScriptHash);
 
             if (token.canPull !== false) {
-              configResponse.tx.addAttribute(TX_ATTR_USAGE_SCRIPT, u.reverseHex(currentNetwork.dex_hash));
+              configResponse.tx.addAttribute(TX_ATTR_USAGE_VERIFICATION, u.reverseHex(currentNetwork.dex_hash));
             }
 
             if (DBG_LOG) console.log(`block index; ${blockIndex} validUntil: ${validUntilValue}`);
@@ -2269,7 +2230,6 @@ export default {
               };
               const acct = configResponse.privateKey ? new wallet.Account(configResponse.privateKey) : new wallet.Account(configResponse.publicKey);
               // We need to order this for the VM.
-              // TODO: Revisit this, it shouldn't be needed and if it is, is this correct?
               if (parseInt(currentNetwork.dex_hash, 16) > parseInt(acct.scriptHash, 16)) {
                 configResponse.tx.scripts.push(attachInvokedContract);
               } else {
@@ -2295,7 +2255,7 @@ export default {
     });
   },
 
-  withdrawSystemAsset(assetId, quantity, utxoTxHash, utxoIndex, tryCount = 1) {
+  withdrawSystemAsset(assetId, quantity, utxoTxHash, utxoIndex, overrideAddress, tryCount = 1) {
     return new Promise(async (resolve, reject) => {
       try {
         const currentNetwork = network.getSelectedNetwork();
@@ -2371,7 +2331,7 @@ export default {
 
         configResponse.tx.outputs.push({
           assetId,
-          scriptHash: wallet.getScriptHashFromAddress(currentWallet.address),
+          scriptHash: wallet.getScriptHashFromAddress(overrideAddress || currentWallet.address),
           value: input.value,
         });
 
@@ -2382,7 +2342,8 @@ export default {
         const blockIndex = currentNetwork.bestBlock.index;
         const validUntilValue = (blockIndex + 20) * 0.00000001;
 
-        const senderScriptHash = u.reverseHex(wallet.getScriptHashFromAddress(currentWallet.address));
+        const senderScriptHash = u.reverseHex(wallet.getScriptHashFromAddress(overrideAddress || currentWallet.address));
+        const verificationScriptHash = u.reverseHex(wallet.getScriptHashFromAddress(currentWallet.address));
         configResponse.tx.addAttribute(TX_ATTR_USAGE_SIGNATURE_REQUEST_TYPE, SIGNATUREREQUESTTYPE_WITHDRAWSTEP_WITHDRAW.padEnd(64, '0'));
         configResponse.tx.addAttribute(TX_ATTR_USAGE_WITHDRAW_ADDRESS, senderScriptHash.padEnd(64, '0'));
         configResponse.tx.addAttribute(TX_ATTR_USAGE_WITHDRAW_SYSTEM_ASSET_ID, u.reverseHex(assetId).padEnd(64, '0'));
@@ -2390,7 +2351,7 @@ export default {
         configResponse.tx.addAttribute(TX_ATTR_USAGE_WITHDRAW_VALIDUNTIL,
           u.num2fixed8(validUntilValue).padEnd(64, '0'));
 
-        configResponse.tx.addAttribute(TX_ATTR_USAGE_SCRIPT, senderScriptHash);
+        configResponse.tx.addAttribute(TX_ATTR_USAGE_VERIFICATION, verificationScriptHash);
 
         configResponse = await api.signTx(configResponse);
 
@@ -2430,7 +2391,7 @@ export default {
         if (tryCount < 3) {
           alerts.error(`Withdraw failed. Error: ${errMsg} Retrying...`);
           setTimeout(() => {
-            this.withdrawSystemAsset(assetId, quantity, utxoTxHash, utxoIndex, tryCount + 1)
+            this.withdrawSystemAsset(assetId, quantity, utxoTxHash, utxoIndex, overrideAddress, tryCount + 1)
               .then((res) => {
                 resolve(res);
               })
@@ -2443,5 +2404,22 @@ export default {
         reject(`Failed to send asset withdraw transaction. ${errMsg}`);
       }
     });
+  },
+  async getKycUserId(address) {
+    const currentNetwork = network.getSelectedNetwork();
+
+    // TODO: add retries
+    const res = await axios.get(`${currentNetwork.aph}/kyc/getuserid?address=${address}`);
+    // console.log(`${JSON.stringify(res)}`);
+    return res.data.userId;
+  },
+
+  async getKycStatus(address) {
+    const currentNetwork = network.getSelectedNetwork();
+
+    // TODO: add reties
+    const res = await axios.get(`${currentNetwork.aph}/kyc/kycstatus?address=${address}`);
+    // console.log(`${JSON.stringify(res)}`);
+    return res.data.kycStatus;
   },
 };

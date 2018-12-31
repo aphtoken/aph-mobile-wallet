@@ -95,6 +95,8 @@ import { mapGetters } from 'vuex';
 import OrderConfirmationModal from '../modals/OrderConfirmationModal';
 import DepositWithdrawModal from '../modals/DepositWithdrawModal';
 
+const whitelistedAddresses = {};
+
 export default {
   components: {
     DepositWithdrawModal,
@@ -311,9 +313,14 @@ export default {
       });
     },
 
-    depositWithdrawConfirmed(transactionType, holding, amount) {
+    async depositWithdrawConfirmed(transactionType, holding, amount) {
       const message = `${amount} ${holding.symbol} ${transactionType} Completed.`;
       const services = this.$services;
+      if (`${transactionType}` === 'deposit') {
+        if (await this.launchKycIfNeeded()) {
+          return;
+        }
+      }
       services.dex[`${transactionType}Asset`](holding.assetId, Number(amount))
         .then(() => {
           services.alerts.success(message);
@@ -339,6 +346,27 @@ export default {
 
     loadHoldingsSilently() {
       this.$store.dispatch('fetchHoldings', { isRequestSilent: true });
+    },
+
+    async launchKycIfNeeded() {
+      const services = this.$services;
+      try {
+        const address = services.wallets.getCurrentWallet().address;
+        if (whitelistedAddresses[address]) return false;
+
+        const kycStatus = await services.dex.getKycStatus(address);
+        if (kycStatus !== 'whitelisted') {
+          this.$store.commit('setKycInProgressModalModel', { kycStatus, address });
+          return true;
+        }
+
+        // Remember that our address is whitelisted.
+        whitelistedAddresses[address] = address;
+      } catch (e) {
+        services.alerts.error("Can't retrieve KYC status.");
+        return true;
+      }
+      return false;
     },
 
     marketPriceForQuantity(side, quantity) {

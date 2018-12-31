@@ -42,6 +42,7 @@
       <router-view></router-view>
     </div>
     <withdraw-in-progress-modal v-if="$store.state.withdrawInProgressModalModel"></withdraw-in-progress-modal>
+    <aph-kyc-modal v-if="$store.state.kycInProgressModalModel"></aph-kyc-modal>
     <backup-wallet v-if="$store.state.walletToBackup"></backup-wallet>
     <claim-gas-status v-if="$store.state.showClaimGasStatus"></claim-gas-status>
     <aph-transaction-detail :on-hide="hideTransactionDetail" :show="shouldShowTransactionDetails" :transaction="$store.state.transactionDetail"></aph-transaction-detail>
@@ -51,6 +52,7 @@
 <script>
 import { mapGetters } from 'vuex';
 
+import AphKycModal from './modals/KycModal';
 import BackupWallet from './BackupWallet';
 import ClaimGasStatus from './ClaimGasStatus';
 import WithdrawInProgressModal from './modals/WithdrawInProgressModal';
@@ -84,6 +86,7 @@ export default {
   },
 
   components: {
+    AphKycModal,
     BackupWallet,
     ClaimGasStatus,
     WithdrawInProgressModal,

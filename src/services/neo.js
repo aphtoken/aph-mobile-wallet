@@ -5,7 +5,6 @@ import {
 } from '@cityofzion/neon-js';
 import _ from 'lodash';
 import { BigNumber } from 'bignumber.js';
-import Async from 'async';
 
 import alerts from './alerts';
 import assets from './assets';
@@ -1366,7 +1365,7 @@ export default {
             if (targetNumberOfOutputs > 10 && currentNetwork.fee < 0.002) {
               feeForSplit = 0.002;
             } else {
-              feeForSplit = currentNetwork.fee;
+              feeForSplit = currentNetwork.fee || 0;
             }
 
             api.fillKeys(config)
@@ -1381,7 +1380,7 @@ export default {
                 let totalInputs = new BigNumber(0);
                 config.tx.inputs = [];
                 config.tx.outputs = [];
-                config.fees = currentNetwork.fee || 0;
+                config.fees = feeForSplit;
 
                 sortedUnspents.forEach((unspent) => {
                   totalInputs = totalInputs.plus(unspent.value);

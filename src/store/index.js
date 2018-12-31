@@ -27,6 +27,7 @@ const state = {
   gasFracture: null,
   holdings: [],
   holdingSymbols: [],
+  kycInProgressModalModel: null,
   lastReceivedBlock: null,
   lastSuccessfulRequest: null,
   latestVersion: null,
