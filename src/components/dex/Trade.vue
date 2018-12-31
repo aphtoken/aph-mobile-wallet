@@ -289,7 +289,11 @@ export default {
       this.$store.commit('setShowOrderConfirmationModal', false);
     },
 
-    confirmOrder() {
+    async confirmOrder() {
+      if (await this.launchKycIfNeeded()) {
+        return;
+      }
+
       this.validateQuantity();
 
       if (this.orderType === 'Market') {
@@ -443,8 +447,7 @@ export default {
 
           let spendAtThisLevel = levelCost.isGreaterThan(leftToSpend) ? leftToSpend : levelCost;
           if (this.baseHolding.assetId === this.$store.state.currentNetwork.aph_hash) {
-            const maxLots = spendAtThisLevel.dividedBy(level.price).dividedBy(this.currentMarket.minimumSize);
-            leftToSpend = leftToSpend.minus(maxLots.multipliedBy(this.currentMarket.buyFee));
+            leftToSpend = leftToSpend.minus(spendAtThisLevel.multipliedBy(this.currentMarket.buyFee));
           }
 
           spendAtThisLevel = levelCost.isGreaterThan(leftToSpend) ? leftToSpend : levelCost;
@@ -504,8 +507,8 @@ export default {
 
           let spendAtThisLevel = levelCost.isGreaterThan(leftToSpend) ? leftToSpend : levelCost;
           if (this.quoteHolding.assetId === this.$store.state.currentNetwork.aph_hash) {
-            const maxLots = spendAtThisLevel.dividedBy(this.currentMarket.minimumSize);
-            leftToSpend = leftToSpend.minus(maxLots.multipliedBy(this.currentMarket.sellFee));
+            leftToSpend = leftToSpend.minus(
+              spendAtThisLevel.multipliedBy(level.price).multipliedBy(this.currentMarket.sellFee));
           }
 
           spendAtThisLevel = levelCost.isGreaterThan(leftToSpend) ? leftToSpend : levelCost;
