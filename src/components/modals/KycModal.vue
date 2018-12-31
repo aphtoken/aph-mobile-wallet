@@ -21,6 +21,10 @@
           <p>Unfortunately your KYC Application was denied.</p>
           <p>You must wait an additional {{ deniedRemainingMinutes }} minutes in order to try again.</p>
         </div>
+        <div v-if="kycStatus.startsWith('disabled')">
+          <p>We are temporarily not accepting KYC applications.</p>
+          <p>This issue should be remedied in the near future. Please be patient and try again later. </p>
+        </div>
       </div>
 
       <template slot="footer">
@@ -92,7 +96,10 @@
       handleKycStatus(kycStatus) {
         console.log(`kycStatus: ${kycStatus}`);
         let updatedStatus = kycStatus;
-        const content = document.getElementById('aph-kyc-modal').getElementsByClassName('content')[0];
+        const modal = document.getElementById('aph-kyc-modal');
+        if (modal == null) return;
+        const content = modal.getElementsByClassName('content')[0];
+        if (content == null) return;
 
         if (kycStatus.startsWith('accepted')) {
           this.title = 'KYC Accepted (whitelisting in progress...)';
@@ -114,7 +121,10 @@
             updatedStatus = 'kycneeded';
             console.log(`set status to kyc status to ${this.kycStatus}`);
           }
+        } else if (kycStatus.startsWith('disabled')) {
+          this.title = 'KYC Temporarily Disabled';
         }
+        
         if (updatedStatus === 'kycneeded') {
           this.title = 'Proof of Non-US Resident';
           content.style.height = '100%';
