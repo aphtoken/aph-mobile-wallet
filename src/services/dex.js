@@ -44,6 +44,7 @@ const binSizeToBinCountMap = {
 const DBG_LOG = false;
 const assetUTXOsToIgnore = {};
 const contractUTXOsReservedFor = {};
+const userIds = {};
 
 export default {
   async completeUnspentWithdraws(assetId, unspents, withdrawWalletAddress) {
@@ -2408,10 +2409,16 @@ export default {
   async getKycUserId(address) {
     const currentNetwork = network.getSelectedNetwork();
 
+    if (userIds[address]) return userIds[address];
+
     // TODO: add retries
     const res = await axios.get(`${currentNetwork.aph}/kyc/getuserid?address=${address}`);
     // console.log(`${JSON.stringify(res)}`);
-    return res.data.userId;
+    const userId = res.data.userId;
+    if (userId) {
+      userIds[address] = userId;
+    }
+    return userId;
   },
 
   async getKycStatus(address) {

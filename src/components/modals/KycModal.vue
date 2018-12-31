@@ -86,7 +86,7 @@
     },
     methods: {
       getKycUrl() {
-        return `https://regtech.identitymind.store/viewform/z3wy8/?user_id=${this.userId}`;
+        return `${this.$store.state.currentNetwork.kycUrl}?user_id=${this.userId}`;
       },
 
       handleKycStatus(kycStatus) {

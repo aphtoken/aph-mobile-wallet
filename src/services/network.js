@@ -18,6 +18,7 @@ const NETWORKS = [
       rpc: 'https://mainneo.aphelion-neo.com:10331',
       fee: 0,
       websocketUri: 'wss://mainnet.aphelion-neo.com:62443/ws',
+      kycUrl: 'https://regtech.identitymind.store/viewform/mc99c/',
     },
   },
   {
@@ -31,6 +32,7 @@ const NETWORKS = [
       rpc: 'https://testneo.aphelion-neo.com:20331',
       fee: 0,
       websocketUri: 'wss://testnet.aphelion-neo.com:62443/ws',
+      kycUrl: 'https://regtech.identitymind.store/viewform/z3wy8/',
     },
   },
 ];
@@ -136,6 +138,7 @@ export default {
     network.dex_hash = defaultForNetwork.dex_hash;
     network.aph_hash = defaultForNetwork.aph_hash;
     network.websocketUri = defaultForNetwork.websocketUri;
+    network.kycUrl = defaultForNetwork.kycUrl;
 
     return this;
   },
