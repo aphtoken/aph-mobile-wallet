@@ -182,12 +182,17 @@
         width: 100%;
         height: 100%;
         overflow: auto;
+        overflow-y: scroll;
+        -webkit-overflow-scrolling:touch;
       }
       .kyc-iframe {
         margin-left: -3%;
         width: 100%;
         height: 100%;
         border: none;
+        overflow: auto;
+        overflow-y: scroll;
+        -webkit-overflow-scrolling:touch;
       }
     }
   }
