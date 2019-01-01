@@ -98,11 +98,11 @@ export default {
     },
 
     shouldShowCommitLink() {
-      return this.$store.state.currentNetwork.net !== 'MainNet';
+      return true;
     },
 
     shouldShowDexLink() {
-      return this.$store.state.currentNetwork.net !== 'MainNet';
+      return true;
     },
 
     shouldShowTransactionDetails() {
