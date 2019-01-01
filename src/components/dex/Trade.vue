@@ -95,7 +95,7 @@ import { mapGetters } from 'vuex';
 import OrderConfirmationModal from '../modals/OrderConfirmationModal';
 import DepositWithdrawModal from '../modals/DepositWithdrawModal';
 
-const whitelistedAddresses = {};
+const whitelistedAddressesByNetwork = { MainNet: { }, TestNet: { } };
 
 export default {
   components: {
@@ -354,9 +354,10 @@ export default {
 
     async launchKycIfNeeded() {
       const services = this.$services;
+      const state = this.$store.state;
       try {
         const address = services.wallets.getCurrentWallet().address;
-        if (whitelistedAddresses[address]) return false;
+        if (whitelistedAddressesByNetwork[state.currentNetwork.net][address]) return false;
 
         const kycStatus = await services.dex.getKycStatus(address);
         if (kycStatus !== 'whitelisted') {
@@ -365,7 +366,7 @@ export default {
         }
 
         // Remember that our address is whitelisted.
-        whitelistedAddresses[address] = address;
+        whitelistedAddressesByNetwork[state.currentNetwork.net][address] = address;
       } catch (e) {
         services.alerts.error("Can't retrieve KYC status.");
         return true;
