@@ -124,7 +124,7 @@
         } else if (kycStatus.startsWith('disabled')) {
           this.title = 'KYC Temporarily Disabled';
         }
-        
+
         if (updatedStatus === 'kycneeded') {
           this.title = 'Proof of Non-US Resident';
           content.style.height = '100%';
