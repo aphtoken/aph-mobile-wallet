@@ -87,7 +87,7 @@ export default {
     storage.set(ASSETS_STORAGE_KEY(currentNetwork.net), assets);
 
     if (addToUserAssets && !this.userAssetExists(asset.assetId)) {
-      this.addUserAsset(asset.assetId);
+      assets.addUserAsset(asset.assetId);
     }
   },
 

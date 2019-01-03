@@ -128,7 +128,7 @@ export default {
       let nonZeroVolumeItems = 0;
       markets.forEach((market) => {
         const baseAsset = this.$services.neo.getHolding(market.baseAssetId);
-        const unitValue = baseAsset ? baseAsset.unitValue : 0;
+        const unitValue = baseAsset && baseAsset.unitValue ? baseAsset.unitValue : 0;
         market.baseVolume = _.get(this.$store.state.tickerDataByMarket, `${market.marketName}.baseVolume`);
         market.volume = market.baseVolume * unitValue;
         if (market.volume > 0) {
