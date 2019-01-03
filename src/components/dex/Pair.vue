@@ -53,8 +53,8 @@ export default {
         let price;
         let baseVolume;
         let percentChange;
-        const baseCurrencyUnitPrice = this.$store.state.holdings.length ?
-          this.$services.neo.getHolding(baseAssetId).unitValue : 0;
+        const baseAssetHolding = this.$services.neo.getHolding(baseAssetId);
+        const baseCurrencyUnitPrice = baseAssetHolding && baseAssetHolding.unitValue ? baseAssetHolding.unitValue : 0;
         /* NOTE: this doesn't load immediately, just use tickerData
         if (marketName === this.currentMarket.marketName) {
           const tradeHistory = this.$store.state.tradeHistory;

@@ -165,13 +165,14 @@ export default {
     },
 
     estimate() {
-      const holding = this.currentMarket ?
-        this.$services.neo.getHolding(this.currentMarket.baseAssetId).unitValue :
-        0;
+      if (!this.currentMarket) return 0;
+
+      const baseHolding = this.$services.neo.getHolding(this.currentMarket.baseAssetId);
+      const unitValue = baseHolding && baseHolding.unitValue ? baseHolding.unitValue : 0;
 
       try {
         return new BigNumber(this.total).multipliedBy(
-          new BigNumber(holding));
+          new BigNumber(unitValue));
       } catch (e) {
         console.log(e);
         return 0;
