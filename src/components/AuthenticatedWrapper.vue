@@ -122,7 +122,7 @@ export default {
 
   methods: {
     handleDocumentClick({ target }) {
-      if (!(this.$refs.sidebar.contains(target) || this.$refs.menuToggle.contains(target))) {
+      if (this.$refs.sidebar && !(this.$refs.sidebar.contains(target) || this.$refs.menuToggle.contains(target))) {
         this.menuOpen = false;
       }
     },

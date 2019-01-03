@@ -41,6 +41,13 @@
 
   let watchInterval;
 
+  const hostAndNetworkToKycUrl = {
+    'mobilewallet.aphelion.org': {
+      TestNet: 'https://regtech.identitymind.store/viewform/54sde/', MainNet: 'https://regtech.identitymind.store/viewform/byvsw/' },
+    'mobilewallet.aphelion-neo.com': {
+      TestNet: 'https://regtech.identitymind.store/viewform/z3wy8/', MainNet: 'https://regtech.identitymind.store/viewform/mc99c/' },
+  };
+
   export default {
     components: {
       ModalWrapper,
@@ -90,7 +97,16 @@
     },
     methods: {
       getKycUrl() {
-        return `${this.$store.state.currentNetwork.kycUrl}?user_id=${this.userId}`;
+        console.log(JSON.stringify(window.location.hostname));
+        const windowHostname = window.location.hostname;
+        const networksForHost = hostAndNetworkToKycUrl[windowHostname];
+        let kycUrl;
+        if (networksForHost) {
+          kycUrl = networksForHost[this.$store.state.currentNetwork.net];
+        }
+        if (!kycUrl) kycUrl = this.$store.state.currentNetwork.kycUrl;
+
+        return `${kycUrl}?user_id=${this.userId}`;
       },
 
       handleKycStatus(kycStatus) {
