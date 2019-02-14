@@ -844,8 +844,10 @@ export default {
             return this.monitorTransactionConfirmation(res.tx, checkRpcForDetails)
               .then(() => {
                 if (isNep5 === false) {
-                  // Make change immediately available to spend.
-                  this.applyTxToAddressSystemAssetBalance(store.state.currentWallet.address, res.tx, true);
+                  // TODO: verify this only makes the change available to spend and doesn't try to add the other
+                  // TODO: utxo outputs too
+                  // this.applyTxToAddressSystemAssetBalance(store.state.currentWallet.address, res.tx, true);
+                  // Make change immediately available to spend
                 }
                 return resolve(res.tx);
               })
@@ -938,7 +940,12 @@ export default {
       config.address = currentWallet.address;
 
       return api.doInvoke(config)
-        .then(res => res)
+        .then((res) => {
+          // api.doInvoke already applies the transaction to the balance, but if a block has passed and
+          // fetchSystemAssetBalances() retrieved balance again the cached object changes, so we need to apply again.
+          this.applyTxToAddressSystemAssetBalance(currentWallet.address, res.tx, false);
+          return res;
+        })
         .catch((e) => {
           alerts.exception(e);
         });
@@ -948,7 +955,10 @@ export default {
     config.account = account;
 
     return api.doInvoke(config)
-      .then(res => res)
+      .then((res) => {
+        this.applyTxToAddressSystemAssetBalance(currentWallet.address, res.tx, false);
+        return res;
+      })
       .catch((e) => {
         alerts.exception(e);
       });
@@ -986,7 +996,10 @@ export default {
       config.address = currentWallet.address;
 
       return api.doInvoke(config)
-        .then(res => res)
+        .then((res) => {
+          this.applyTxToAddressSystemAssetBalance(currentWallet.address, res.tx, false);
+          return res;
+        })
         .catch((e) => {
           alerts.exception(e);
         });
@@ -996,7 +1009,10 @@ export default {
     config.account = account;
 
     return api.doInvoke(config)
-      .then(res => res)
+      .then((res) => {
+        this.applyTxToAddressSystemAssetBalance(currentWallet.address, res.tx, false);
+        return res;
+      })
       .catch((e) => {
         alerts.exception(e);
       });
@@ -1552,7 +1568,7 @@ export default {
               setTimeout(() => {
                 // send the claim gas
                 this.sendClaimGas(gasClaim);
-              }, 30 * 1000);
+              }, 15 * 1000);
             })
             .catch((e) => {
               gasClaim.error = e;

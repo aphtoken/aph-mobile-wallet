@@ -175,7 +175,7 @@ export default {
 
         if (order.assetIdToSell === assets.NEO) {
           const neoHolding = neo.getHolding(assets.NEO);
-          if (neoHolding.contractBalance < order.quantityToSell) {
+          if (neoHolding.contractBalance.isLessThan(order.quantityToSell)) {
             neoToSend = toBigNumber(order.quantityToSell).minus(neoHolding.contractBalance);
 
             const toDepositTruncated = new BigNumber(neoToSend.toFixed(0));
@@ -194,7 +194,7 @@ export default {
 
         if (order.assetIdToSell === assets.GAS) {
           const gasHolding = neo.getHolding(assets.GAS);
-          if (gasHolding.contractBalance < order.quantityToSell) {
+          if (gasHolding.contractBalance.isLessThan(order.quantityToSell)) {
             gasToSend = toBigNumber(order.quantityToSell).minus(gasHolding.contractBalance);
             if (gasToSend.isGreaterThan(gasHolding.balance)) {
               reject('Insufficient GAS.');
@@ -224,7 +224,8 @@ export default {
     });
   },
 
-  buildContractTransaction(operation, parameters, neoToSend, gasToSend, bringDexOnAsWitness = false) {
+  buildContractTransaction(operation, parameters, neoToSend, gasToSend, bringDexOnAsWitness = false,
+    overrideAddress = null) {
     return new Promise(async (resolve, reject) => {
       try {
         const currentNetwork = network.getSelectedNetwork();
@@ -287,8 +288,11 @@ export default {
         try {
           configResponse = await api.createTx(configResponse, 'invocation');
 
-          const senderScriptHash = u.reverseHex(wallet.getScriptHashFromAddress(currentWallet.address));
-          configResponse.tx.addAttribute(TX_ATTR_USAGE_VERIFICATION, senderScriptHash);
+          const senderScriptHash = wallet.getScriptHashFromAddress(currentWallet.address);
+          configResponse.tx.addAttribute(TX_ATTR_USAGE_VERIFICATION, u.reverseHex(senderScriptHash).padEnd(40, '0'));
+          if (overrideAddress) {
+            configResponse.tx.addAttribute(TX_ATTR_USAGE_WITHDRAW_ADDRESS, u.reverseHex(overrideAddress).padEnd(64, '0'));
+          }
           configResponse.tx.addAttribute(TX_ATTR_USAGE_HEIGHT,
             u.num2fixed8(currentNetwork.bestBlock != null ? currentNetwork.bestBlock.index : 0).padEnd(64, '0'));
           if (bringDexOnAsWitness) configResponse.tx.addAttribute(TX_ATTR_USAGE_VERIFICATION, u.reverseHex(currentNetwork.dex_hash));
@@ -300,10 +304,9 @@ export default {
               invocationScript: ('00').repeat(2),
               verificationScript: '',
             };
-            const acct = configResponse.privateKey ? new wallet.Account(configResponse.privateKey) : new wallet.Account(configResponse.publicKey);
             // We need to order this for the VM. The vm pulls out the verification script hashes added as attributes
             // in order lexicographically and expects the witness verification scripts to match that order.
-            if (parseInt(currentNetwork.dex_hash, 16) > parseInt(acct.scriptHash, 16)) {
+            if (parseInt(currentNetwork.dex_hash, 16) > parseInt(senderScriptHash, 16)) {
               configResponse.tx.scripts.push(attachInvokedContract);
             } else {
               configResponse.tx.scripts.unshift(attachInvokedContract);
@@ -441,9 +444,11 @@ export default {
           .then((transaction) => {
             // send the signed transactions to the api for relay
             const currentNetwork = network.getSelectedNetwork();
+            const currentWallet = wallets.getCurrentWallet();
             axios.delete(`${currentNetwork.aph}/order/${order.marketName}/${order.offerId}/${tx.serializeTransaction(transaction.tx, true)}`)
               .then((res) => {
                 if (res.data.result) {
+                  neo.applyTxToAddressSystemAssetBalance(currentWallet.address, transaction.tx, false);
                   resolve('Order Cancelled');
                 } else {
                   reject('Cancel failed');
@@ -479,8 +484,8 @@ export default {
         alerts.success('Claim relayed, waiting for confirmation...');
         neo.monitorTransactionConfirmation(res.tx, true)
           .then(async () => {
+            neo.applyTxToAddressSystemAssetBalance(wallets.getCurrentWallet().address, res.tx, true);
             alerts.success(`Claimed ${withdrawAmountAfterClaim.toString()} APH to Wallet Balance.`);
-
             try {
               await store.dispatch('fetchCommitState');
             } catch (e) {
@@ -601,6 +606,7 @@ export default {
               alerts.success('Compound relayed, waiting for confirmation...');
               neo.monitorTransactionConfirmation(res.tx, true)
                 .then(() => {
+                  neo.applyTxToAddressSystemAssetBalance(wallets.getCurrentWallet().address, res.tx, true);
                   setTimeout(async () => {
                     try {
                       await store.dispatch('fetchCommitState');
@@ -638,6 +644,7 @@ export default {
         let neoToSend = 0;
         let gasToSend = 0;
         let holding = null;
+        const currentWallet = wallets.getCurrentWallet();
 
         if (assetId === assets.NEO) {
           holding = neo.getHolding(assets.NEO);
@@ -666,6 +673,7 @@ export default {
               assetId, quantity);
             if (DBG_LOG) console.log(`Attempting approval of ${assetId}`);
             await neo.monitorTransactionConfirmation(res.tx, true);
+            neo.applyTxToAddressSystemAssetBalance(currentWallet.address, res.tx, true);
             alerts.info(`Confirmed approval of ${quantity} ${holding.symbol} for deposit.`);
             // TODO: wait a few seconds before issuing deposit for UTXOs to settle.
           }
@@ -682,7 +690,11 @@ export default {
                 alerts.success('Deposit relayed, waiting for confirmation...');
                 neo.monitorTransactionConfirmation(res.tx, true)
                   .then(() => {
-                    neo.applyTxToAddressSystemAssetBalance(wallets.getCurrentWallet().address, res.tx, true);
+                    if (assetId !== assets.NEO && assetId !== assets.GAS) {
+                      // Can't apply for NEO or GAS deposits, because it won't distinguish the new UTXO change from the
+                      // amounts sent.
+                      neo.applyTxToAddressSystemAssetBalance(currentWallet.address, res.tx, true);
+                    }
                     resolve(res.tx);
                   })
                   .catch((e) => {
@@ -713,15 +725,16 @@ export default {
     });
   },
 
-  executeContractTransaction(operation, parameters, neoToSend, gasToSend, bringDexOnAsWitness = false) {
+  executeContractTransaction(operation, parameters, neoToSend, gasToSend, bringDexOnAsWitness = false, overrideAddress = null) {
     return new Promise((resolve, reject) => {
       try {
-        this.buildContractTransaction(operation, parameters, neoToSend, gasToSend, bringDexOnAsWitness)
+        this.buildContractTransaction(operation, parameters, neoToSend, gasToSend, bringDexOnAsWitness, overrideAddress)
           .then((configResponse) => {
             if (DBG_LOG) console.log(`executeContractTransaction ${JSON.stringify(configResponse)}`);
             return api.sendTx(configResponse);
           })
           .then((configResponse) => {
+            neo.applyTxToAddressSystemAssetBalance(wallets.getCurrentWallet().address, configResponse.tx, false);
             resolve({
               success: configResponse.response.result,
               tx: configResponse.tx,
@@ -1725,10 +1738,10 @@ export default {
         }
 
         store.commit('setSystemWithdrawMergeState', { utxoCount: configResponse.tx.inputs.length - inputsFromGasFee, step: 1 });
-        const senderScriptHash = u.reverseHex(wallet.getScriptHashFromAddress(overrideAddress || currentWallet.address));
+        const senderScriptHash = wallet.getScriptHashFromAddress(overrideAddress || currentWallet.address);
         const verificationScriptHash = u.reverseHex(wallet.getScriptHashFromAddress(currentWallet.address));
         configResponse.tx.addAttribute(TX_ATTR_USAGE_SIGNATURE_REQUEST_TYPE, SIGNATUREREQUESTTYPE_WITHDRAWSTEP_MARK.padEnd(64, '0'));
-        configResponse.tx.addAttribute(TX_ATTR_USAGE_WITHDRAW_ADDRESS, senderScriptHash.padEnd(64, '0'));
+        configResponse.tx.addAttribute(TX_ATTR_USAGE_WITHDRAW_ADDRESS, u.reverseHex(senderScriptHash).padEnd(64, '0'));
         configResponse.tx.addAttribute(TX_ATTR_USAGE_WITHDRAW_SYSTEM_ASSET_ID, u.reverseHex(assetId).padEnd(64, '0'));
         configResponse.tx.addAttribute(TX_ATTR_USAGE_WITHDRAW_AMOUNT, u.num2fixed8(quantity.toNumber()).padEnd(64, '0'));
         if (DBG_LOG) console.log(`*block index: ${blockIndex} Valid until: ${validUntilValue}`);
@@ -1745,8 +1758,7 @@ export default {
         };
 
         // We need to order this for the VM.
-        const acct = configResponse.privateKey ? new wallet.Account(configResponse.privateKey) : new wallet.Account(configResponse.publicKey);
-        if (parseInt(currentNetwork.dex_hash, 16) > parseInt(acct.scriptHash, 16)) {
+        if (parseInt(currentNetwork.dex_hash, 16) > parseInt(senderScriptHash, 16)) {
           configResponse.tx.scripts.push(attachInvokedContract);
         } else {
           configResponse.tx.scripts.unshift(attachInvokedContract);
@@ -1837,6 +1849,7 @@ export default {
         }
 
         Vue.set(order, 'status', 'Submitting');
+        const currentWallet = wallets.getCurrentWallet();
 
         // build all the order transactions
         for (let i = 0; i < order.offersToTake.length; i += 1) {
@@ -1845,6 +1858,8 @@ export default {
           // need to ignore this rule, each of these build operations has to happen in order
           // that way they'll each select the right UTXO inputs
           await this.buildAcceptOffer((order.side === 'Buy' ? 'Sell' : 'Buy'), order.orderType, order.market, offer);
+          // TODO: AcceptOffer has to be applied immediately in order to get different UTXO, in future wait to apply...
+          neo.applyTxToAddressSystemAssetBalance(currentWallet.address, offer.tx, false);
           /* eslint-enable no-await-in-loop */
         }
 
@@ -1881,6 +1896,7 @@ export default {
             } else if (res.data.result.error) {
               reject(`Order failed. Error: ${res.data.result.error}`);
             } else {
+              if (order.makerTx) neo.applyTxToAddressSystemAssetBalance(currentWallet.address, order.makerTx, false);
               const responseQuantityToTake = new BigNumber(res.data.quantityToTake);
               const responseQuantityTaken = new BigNumber(res.data.quantityTaken);
 
@@ -1992,8 +2008,9 @@ export default {
     });
 
     if (book.asks.length > 0 && book.bids.length > 0) {
-      book.spread = book.asks[0].price - book.bids[0].price;
-      book.spreadPercentage = Math.round((book.spread / book.asks[0].price) * 10000) / 100;
+      book.spread = book.asks[0].price.minus(book.bids[0].price);
+      book.spreadPercentage = book.spread.dividedBy(book.asks[0].price)
+        .multipliedBy(10000).decimalPlaces(0, BigNumber.ROUND_DOWN) / 100;
     }
 
     let runningAsks = new BigNumber(0);
@@ -2079,12 +2096,14 @@ export default {
                 return;
               }
               store.commit('setSystemWithdrawMergeState', { step: 2 });
+              const dexAddress = wallet.getAddressFromScriptHash(store.state.currentNetwork.dex_hash);
+              neo.applyTxToAddressSystemAssetBalance(dexAddress, res.tx, false);
 
               alerts.success('Withdraw Mark Step Relayed. Waiting for confirmation.');
               neo.monitorTransactionConfirmation(res.tx, true)
                 .then(() => {
                   store.commit('setSystemWithdrawMergeState', { step: 3 });
-                  const dexAddress = wallet.getAddressFromScriptHash(store.state.currentNetwork.dex_hash);
+
                   // Must allow funds to be sent again by moving tx outputs to unspent.
                   neo.applyTxToAddressSystemAssetBalance(dexAddress, res.tx, true);
 
@@ -2202,14 +2221,15 @@ export default {
         // Valid until amount gets converted to BigInteger so the block number needs to be converted to smallest units.
         const blockIndex = currentNetwork.bestBlock.index;
         const validUntilValue = (blockIndex + 20) * 0.00000001;
+        const walletScriptHash = wallet.getScriptHashFromAddress(currentWallet.address);
+        const senderScriptHash = wallet.getScriptHashFromAddress(overrideAddress || currentWallet.address);
 
         configResponse.sendingFromSmartContract = true;
         api.createTx(configResponse, 'invocation')
           .then((configResponse) => {
-            const senderScriptHash = u.reverseHex(wallet.getScriptHashFromAddress(overrideAddress || currentWallet.address));
-            const verificationScriptHash = u.reverseHex(wallet.getScriptHashFromAddress(currentWallet.address));
+            const verificationScriptHash = u.reverseHex(walletScriptHash);
             configResponse.tx.addAttribute(TX_ATTR_USAGE_SIGNATURE_REQUEST_TYPE, SIGNATUREREQUESTTYPE_WITHDRAWSTEP_WITHDRAW.padEnd(64, '0'));
-            configResponse.tx.addAttribute(TX_ATTR_USAGE_WITHDRAW_ADDRESS, senderScriptHash.padEnd(64, '0'));
+            configResponse.tx.addAttribute(TX_ATTR_USAGE_WITHDRAW_ADDRESS, u.reverseHex(senderScriptHash).padEnd(64, '0'));
             configResponse.tx.addAttribute(TX_ATTR_USAGE_WITHDRAW_NEP5_ASSET_ID, u.reverseHex(assetId).padEnd(64, '0'));
             configResponse.tx.addAttribute(TX_ATTR_USAGE_WITHDRAW_AMOUNT, u.num2fixed8(quantity).padEnd(64, '0'));
             configResponse.tx.addAttribute(TX_ATTR_USAGE_WITHDRAW_VALIDUNTIL, u.num2fixed8(validUntilValue).padEnd(64, '0'));
@@ -2229,9 +2249,8 @@ export default {
                 invocationScript: ('00').repeat(2),
                 verificationScript: '',
               };
-              const acct = configResponse.privateKey ? new wallet.Account(configResponse.privateKey) : new wallet.Account(configResponse.publicKey);
               // We need to order this for the VM.
-              if (parseInt(currentNetwork.dex_hash, 16) > parseInt(acct.scriptHash, 16)) {
+              if (parseInt(currentNetwork.dex_hash, 16) > parseInt(walletScriptHash, 16)) {
                 configResponse.tx.scripts.push(attachInvokedContract);
               } else {
                 configResponse.tx.scripts.unshift(attachInvokedContract);
@@ -2343,10 +2362,10 @@ export default {
         const blockIndex = currentNetwork.bestBlock.index;
         const validUntilValue = (blockIndex + 20) * 0.00000001;
 
-        const senderScriptHash = u.reverseHex(wallet.getScriptHashFromAddress(overrideAddress || currentWallet.address));
+        const senderScriptHash = wallet.getScriptHashFromAddress(overrideAddress || currentWallet.address);
         const verificationScriptHash = u.reverseHex(wallet.getScriptHashFromAddress(currentWallet.address));
         configResponse.tx.addAttribute(TX_ATTR_USAGE_SIGNATURE_REQUEST_TYPE, SIGNATUREREQUESTTYPE_WITHDRAWSTEP_WITHDRAW.padEnd(64, '0'));
-        configResponse.tx.addAttribute(TX_ATTR_USAGE_WITHDRAW_ADDRESS, senderScriptHash.padEnd(64, '0'));
+        configResponse.tx.addAttribute(TX_ATTR_USAGE_WITHDRAW_ADDRESS, u.reverseHex(senderScriptHash).padEnd(64, '0'));
         configResponse.tx.addAttribute(TX_ATTR_USAGE_WITHDRAW_SYSTEM_ASSET_ID, u.reverseHex(assetId).padEnd(64, '0'));
         configResponse.tx.addAttribute(TX_ATTR_USAGE_WITHDRAW_AMOUNT, u.num2fixed8(quantity).padEnd(64, '0'));
         configResponse.tx.addAttribute(TX_ATTR_USAGE_WITHDRAW_VALIDUNTIL,
@@ -2362,8 +2381,7 @@ export default {
         };
 
         // We need to order this for the VM.
-        const acct = configResponse.privateKey ? new wallet.Account(configResponse.privateKey) : new wallet.Account(configResponse.publicKey);
-        if (parseInt(currentNetwork.dex_hash, 16) > parseInt(acct.scriptHash, 16)) {
+        if (parseInt(currentNetwork.dex_hash, 16) > parseInt(senderScriptHash, 16)) {
           configResponse.tx.scripts.push(attachInvokedContract);
         } else {
           configResponse.tx.scripts.unshift(attachInvokedContract);

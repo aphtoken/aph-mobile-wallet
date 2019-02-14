@@ -11,9 +11,9 @@ const NETWORKS = [
   {
     label: 'MainNet',
     value: {
-      aph: 'https://mainnet.aphelion-neo.com:62443/api',
+      aph: 'https://mainnet.aphelion-neo.com/api',
       aph_hash: 'a0777c3ce2b169d4a23bcba4565e3225a0122d95',
-      dex_hash: 'dda17ab597c18dfa3401d7f85dae4ee04268c057',
+      dex_hash: '9488220e8654d798f9b9cb9e74bd611ecc83fd0f',
       net: 'MainNet',
       rpc: 'https://mainneo.aphelion-neo.com:10331',
       fee: 0,
@@ -27,7 +27,7 @@ const NETWORKS = [
       aph: 'https://testnet.aphelion-neo.com:62443/api',
       aph_hash: '591eedcd379a8981edeefe04ef26207e1391904a',
       ati_hash: '155153854ed377549a72cc1643e481bf25b48390',
-      dex_hash: '83b22c76ae0c82f9ae31ea2fb5b94d082225ae64',
+      dex_hash: '6bc1ae05a6694357a6db104231d56aa9427e63e4',
       net: 'TestNet',
       rpc: 'https://testneo.aphelion-neo.com:20331',
       fee: 0,
@@ -45,6 +45,7 @@ const NETWORK_FEE_OPTIONS = [
   0.00001,
   0.0001,
   0.001,
+  0.002,
   0.01,
   0.1,
 ];
