@@ -520,6 +520,7 @@ export default {
               alerts.success('Commit relayed, waiting for confirmation...');
               neo.monitorTransactionConfirmation(res.tx, true)
                 .then(() => {
+                  neo.applyTxToAddressSystemAssetBalance(wallets.getCurrentWallet().address, res.tx, true);
                   setTimeout(async () => {
                     try {
                       await store.dispatch('fetchCommitState');
@@ -1202,8 +1203,9 @@ export default {
       // limit order
       let depositMakerQuantity = false;
 
-      if ((sellAssetHolding.canPull === false || order.assetIdToSell === '3a4acd3647086e7c44398aac0349802e6a171129')
-        && order.quantity.isGreaterThan(0)) {
+      if ((sellAssetHolding.canPull === false || order.assetIdToSell === '3a4acd3647086e7c44398aac0349802e6a171129'
+          || order.assetIdToSell === 'bb3b54ab244b3658155f2db4429fc38ac4cef625'
+          || order.assetIdToSell === 'c9c0fc5a2b66a29d6b14601e752e6e1a445e088d') && order.quantity.isGreaterThan(0)) {
         // this is an MCT based token that can not be pulled from our DEX contract, have to send a deposit first
         depositMakerQuantity = true;
       } else if (order.offersToTake.length > 0 && order.quantityToMake.isGreaterThan(0)) {

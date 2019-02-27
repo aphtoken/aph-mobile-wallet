@@ -2,6 +2,7 @@ import {
   wallet,
   api,
   u,
+  tx,
 } from '@cityofzion/neon-js';
 import _ from 'lodash';
 import { BigNumber } from 'bignumber.js';
@@ -18,6 +19,7 @@ import { store } from '../store';
 import { timeouts, intervals } from '../constants';
 import { toBigNumber } from './formatting.js';
 
+const { Transaction } = tx;
 const DBG_LOG = false;
 
 const GAS_ASSET_ID = '602c79718b16e442de58778e148d0b1084e3b2dffd5de6b7b16cee7969282de7';
@@ -543,6 +545,27 @@ export default {
           }
         });
 
+        const resp = (await rpcClient.query({ method: 'getcontractbalances',
+          params: [
+            currentNetwork.dex_hash,
+            wallet.getScriptHashFromAddress(currentWallet.address)],
+        })).result;
+
+        if (resp) {
+          const contractBalances = {};
+          resp.balance.forEach((asset) => {
+            contractBalances[asset.asset_hash] = asset.amount;
+            if (!_.has(userAssets, asset.asset_hash)) {
+              // Add any missing assets that have contract balance.
+              assets.addUserAsset(asset.asset_hash);
+            }
+          });
+
+          holdings.forEach((holding) => {
+            holding.contractBalance = toBigNumber(contractBalances[holding.assetId] || 0);
+          });
+        }
+
         const fetchHoldingBalanceComponent = (fetchFunc, memberBeingFetched, holding) => {
           return fetchFunc.call(dex, holding.assetId)
             .then((res) => {
@@ -563,7 +586,7 @@ export default {
 
         const valuationSymbols = [];
         holdings.forEach((holding) => {
-          promises.push(fetchHoldingBalanceComponent(dex.fetchContractBalance, 'contractBalance', holding));
+          // promises.push(fetchHoldingBalanceComponent(dex.fetchContractBalance, 'contractBalance', holding));
           promises.push(fetchHoldingBalanceComponent(dex.fetchOpenOrderBalance, 'openOrdersBalance', holding));
 
           if (holding.symbol === 'NEO') {
@@ -1275,6 +1298,7 @@ export default {
   },
 
   applyTxToAddressSystemAssetBalance(address, tx, confirmed) {
+    tx = tx instanceof Transaction ? tx : Transaction.deserialize(tx);
     if (_.has(addressBalances, address)) {
       const existingBalance = _.get(addressBalances, address);
       existingBalance.balance.balance.applyTx(tx, confirmed);
@@ -1445,8 +1469,10 @@ export default {
                 return api.sendTx(config);
               })
               .then((config) => {
+                this.applyTxToAddressSystemAssetBalance(currentWallet.address, config.tx, false);
                 this.monitorTransactionConfirmation(config.tx, true)
                   .then(() => {
+                    this.applyTxToAddressSystemAssetBalance(currentWallet.address, config.tx, true);
                     resolve({
                       success: config.response.result,
                       tx: config.tx,
